@@ -1,0 +1,55 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/youruser/CreateLittleContraptions/issues"
+
+[[mods]]
+modId = "createlittlecontraptions"
+version = "1.0.0"
+displayName = "Create Little Contraptions"
+updateJSONURL = "https://github.com/youruser/CreateLittleContraptions/releases"
+displayURL = "https://github.com/youruser/CreateLittleContraptions"
+logoFile = "assets/createlittlecontraptions/icon.png"
+credits = "Create and LittleTiles mod authors for the amazing foundation"
+authors = "CreateLittleContraptions Team"
+description = '''
+A compatibility mod that resolves rendering issues between Create and LittleTiles mods.
+Makes LittleTiles blocks visible when they are part of Create contraptions (elevators, moving platforms, etc.).
+Includes mini versions of Create contraptions optimized for smaller builds.
+'''
+
+# Dependencies
+[[dependencies.createlittlecontraptions]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.createlittlecontraptions]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.createlittlecontraptions]]
+modId = "create"
+type = "required"
+versionRange = "[0.5.1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.createlittlecontraptions]]
+modId = "littletiles"
+type = "required"
+versionRange = "[1.6.0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.createlittlecontraptions]]
+modId = "creativecore"
+type = "required"
+versionRange = "[2.12.0,)"
+ordering = "AFTER"
+side = "BOTH"

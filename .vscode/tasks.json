@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build CreateLittleContraptions",
+			"type": "shell",
+			"command": ".\\gradlew.bat",
+			"args": [
+				"build"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"isBackground": false,
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
+		{
+			"label": "Run Client",
+			"type": "shell",
+			"command": ".\\gradlew.bat",
+			"args": [
+				"runClient"
+			],
+			"group": "test",
+			"problemMatcher": [],
+			"isBackground": true,
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		}
+	]
+}

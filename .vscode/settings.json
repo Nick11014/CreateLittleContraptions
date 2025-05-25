@@ -1,0 +1,19 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.eclipse.downloadSources": true,
+    "java.maven.downloadSources": true,
+    "java.server.launchMode": "Standard",
+    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.java.home": null,
+    "java.import.gradle.offline.enabled": false,
+    "java.gradle.buildServer.enabled": "on",
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/build": true,
+        "**/.settings": true,
+        "**/.project": true,
+        "**/.classpath": true
+    }
+}
