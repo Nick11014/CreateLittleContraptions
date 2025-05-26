@@ -637,13 +637,12 @@ public class CreateRuntimeIntegration {
                     if (rendererCallCounter % RENDERER_CALL_LOG_INTERVAL == 0) {
                         LOGGER.debug("🚀 Using custom LittleTiles contraption renderer (call #{})", rendererCallCounter);
                     }
-                    
-                    // The actual call would need proper type conversion:
+                      // The actual call would need proper type conversion:
                     // LittleTilesContraptionRenderer.renderLittleTilesBlock(
                     //     blockState, blockPos, poseStack, bufferSource, camera, contraptionEntity);
                     
-                    // For now, we'll trigger a refresh of the renderer
-                    LittleTilesContraptionRenderer.refreshAllLittleTilesRendering();
+                    // Don't refresh every frame - this causes massive log spam!
+                    // LittleTilesContraptionRenderer.refreshAllLittleTilesRendering();
                     
                 } catch (Exception e) {
                     if (rendererCallCounter % RENDERER_CALL_LOG_INTERVAL == 0) {

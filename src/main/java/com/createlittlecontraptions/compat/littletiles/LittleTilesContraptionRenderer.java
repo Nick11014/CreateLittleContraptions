@@ -12,6 +12,13 @@ import com.mojang.logging.LogUtils;
 // Direct imports for LittleTiles classes (compileOnly dependency)
 import team.creative.littletiles.common.block.entity.BETiles;
 
+// Additional imports for MovementBehaviour support
+import com.simibubi.create.content.contraptions.behaviour.MovementContext;
+import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
+import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,16 +41,16 @@ public class LittleTilesContraptionRenderer {
     private static long debugLogCounter = 0;
     private static final long DEBUG_LOG_INTERVAL = 100; // Log every 100th call
     
-    // Rate limiting for refresh operations
+    // Rate limiting for refresh operations - more aggressive to reduce spam
     private static long lastRefreshTime = 0;
     private static long refreshCounter = 0;
-    private static final long REFRESH_LOG_INTERVAL = 5000; // Log every 5 seconds
+    private static final long REFRESH_LOG_INTERVAL = 30000; // Log every 30 seconds instead of 5
     
-    // Rate limiting for other operations
+    // Rate limiting for other operations - less frequent logging
     private static long transformLogCounter = 0;
     private static long renderLogCounter = 0;
-    private static final long TRANSFORM_LOG_INTERVAL = 200; // Log every 200th call
-    private static final long RENDER_LOG_INTERVAL = 150; // Log every 150th call
+    private static final long TRANSFORM_LOG_INTERVAL = 1000; // Log every 1000th call 
+    private static final long RENDER_LOG_INTERVAL = 1000; // Log every 1000th call
     
     /**
      * Initialize the LittleTiles renderer.
@@ -568,8 +575,8 @@ public class LittleTilesContraptionRenderer {
                 initialize();
             }
             
-            // Only log completion every few seconds
-            if (currentTime - lastRefreshTime < 100) { // Only log if this was a logged refresh
+            // Only log completion when we actually logged the refresh start
+            if (currentTime - lastRefreshTime >= REFRESH_LOG_INTERVAL) {
                 LOGGER.info("✅ LittleTiles rendering refresh completed");
             }
             
@@ -621,7 +628,7 @@ public class LittleTilesContraptionRenderer {
         PoseStack poseStack, 
         MultiBufferSource bufferSource, 
         net.minecraft.world.level.Level realLevel, 
-        @javax.annotation.Nullable com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld renderLevel, 
+        @javax.annotation.Nullable VirtualRenderWorld renderLevel, 
         net.minecraft.world.level.block.entity.BlockEntity blockEntity, 
         float partialTicks, 
         @javax.annotation.Nullable org.joml.Matrix4f lightTransform,
@@ -719,5 +726,88 @@ public class LittleTilesContraptionRenderer {
             LOGGER.error("[CLC LTRenderer] Direct LittleTiles API call failed: ", e);
             throw e;
         }
+    }
+
+    /**
+     * Render a LittleTiles block from MovementBehaviour context.
+     * This method is called by LittleTilesMovementBehaviour.renderInContraption().
+     */
+    public static void renderMovementBehaviourTile(MovementContext context, VirtualRenderWorld renderWorld,
+                                                  ContraptionMatrices matrices, MultiBufferSource bufferSource) {
+        LOGGER.debug("renderMovementBehaviourTile called for pos: {}", context.localPos);
+        
+        try {
+            CompoundTag nbt = context.blockEntityData;
+            BlockState state = context.state;
+            BlockPos localPos = context.localPos;
+            
+            if (nbt == null || nbt.isEmpty()) {
+                LOGGER.warn("renderMovementBehaviourTile: NBT data is null or empty for pos: {}", localPos);
+                return;
+            }
+            
+            // Get the pose stack from ContraptionMatrices
+            PoseStack poseStack = matrices.getModelViewProjection();
+            poseStack.pushPose();
+            
+            // Translate to the local position of the block within the contraption
+            poseStack.translate(localPos.getX(), localPos.getY(), localPos.getZ());
+            
+            // Use appropriate lighting for the contraption context
+            int light = 15728640; // Full bright for now, could be improved with actual contraption lighting
+            int overlay = 655360; // Default overlay
+            
+            // Create or get the level context - use renderWorld if it provides one
+            net.minecraft.world.level.Level level = renderWorld;
+            
+            // Call the existing rendering method
+            renderLittleTileInContraption(poseStack, bufferSource, light, overlay, state, nbt, level);
+            
+            poseStack.popPose();
+            
+            LOGGER.debug("renderMovementBehaviourTile: Successfully rendered LittleTile at {}", localPos);
+            
+        } catch (Exception e) {
+            LOGGER.error("Error in renderMovementBehaviourTile for pos " + context.localPos, e);
+        }
+    }
+    
+    /**
+     * Get collision shape for a LittleTiles block from MovementBehaviour context.
+     * This method is called by LittleTilesMovementBehaviour.getCollisionShapeInContraption().
+     */
+    public static VoxelShape getLTTileCollisionShape(MovementContext context) {
+        LOGGER.debug("getLTTileCollisionShape called for pos: {}", context.localPos);
+        
+        try {
+            CompoundTag nbt = context.blockEntityData;
+            
+            if (nbt == null || nbt.isEmpty()) {
+                LOGGER.warn("getLTTileCollisionShape: NBT data is null or empty for pos: {}", context.localPos);
+                return Shapes.block(); // Fallback to full block collision
+            }
+            
+            // TODO: Implement collision shape extraction for LittleTiles
+            // This requires accessing protected methods or using reflection
+            
+            // Try to extract collision information from NBT if possible
+            if (nbt.contains("tiles") || nbt.contains("structure")) {
+                // LittleTiles might store sub-block information that affects collision
+                // For now, return a slightly smaller collision box to indicate there are sub-blocks
+                LOGGER.debug("getLTTileCollisionShape: Using sub-block collision fallback for {}", context.localPos);
+                return Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
+            }
+            
+            // Default fallback for LittleTiles blocks
+            LOGGER.debug("getLTTileCollisionShape: Using fallback block shape for {}", context.localPos);
+            return Shapes.block();
+            
+        } catch (Exception e) {
+            LOGGER.error("Error in getLTTileCollisionShape for pos " + context.localPos, e);
+        }
+        
+        // Final fallback: full block collision
+        LOGGER.debug("getLTTileCollisionShape: Using full block collision fallback for {}", context.localPos);
+        return Shapes.block();
     }
 }
