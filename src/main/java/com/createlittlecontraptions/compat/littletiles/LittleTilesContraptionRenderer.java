@@ -2,13 +2,15 @@ package com.createlittlecontraptions.compat.littletiles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
+
+// Direct imports for LittleTiles classes (compileOnly dependency)
+import team.creative.littletiles.common.block.entity.BETiles;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -282,9 +284,7 @@ public class LittleTilesContraptionRenderer {
                 net.minecraft.client.Minecraft.getInstance().getBlockEntityRenderDispatcher();
             
             // Get the renderer for this BlockEntity
-            @SuppressWarnings("unchecked")
             net.minecraft.client.renderer.blockentity.BlockEntityRenderer<net.minecraft.world.level.block.entity.BlockEntity> renderer = 
-                (net.minecraft.client.renderer.blockentity.BlockEntityRenderer<net.minecraft.world.level.block.entity.BlockEntity>) 
                 beRenderDispatcher.getRenderer((net.minecraft.world.level.block.entity.BlockEntity) blockEntity);
             
             if (renderer != null) {
@@ -600,5 +600,124 @@ public class LittleTilesContraptionRenderer {
      */
     public static boolean isInitialized() {
         return rendererInitialized;
+    }
+    
+    /**
+     * Render a LittleTiles BlockEntity within a Create contraption context.
+     * This method is called by the ContraptionRendererMixin.
+     * Updated to use combinedLight and combinedOverlay as suggested by Gemini.
+     * 
+     * @param poseStack The transformation matrix stack
+     * @param bufferSource The buffer source for rendering
+     * @param realLevel The actual world level
+     * @param renderLevel The virtual render world (may be null)
+     * @param blockEntity The LittleTiles block entity to render
+     * @param partialTicks Partial tick time for interpolation
+     * @param lightTransform Optional light transformation matrix
+     * @param combinedLight Light value already calculated by Create for this position
+     * @param combinedOverlay Overlay value already calculated by Create
+     */
+    public static void renderLittleTileBEInContraption(
+        PoseStack poseStack, 
+        MultiBufferSource bufferSource, 
+        net.minecraft.world.level.Level realLevel, 
+        @javax.annotation.Nullable com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld renderLevel, 
+        net.minecraft.world.level.block.entity.BlockEntity blockEntity, 
+        float partialTicks, 
+        @javax.annotation.Nullable org.joml.Matrix4f lightTransform,
+        int combinedLight, // Light already calculated by Create for this position
+        int combinedOverlay  // Overlay already calculated
+    ) {
+        // Type-safe check using instanceof as recommended by Gemini
+        if (!(blockEntity instanceof BETiles)) {
+            LOGGER.warn("[CLC LTRenderer] Expected BETiles but got: {}", blockEntity.getClass().getSimpleName());
+            return;
+        }
+        
+        BETiles ltbe = (BETiles) blockEntity;
+
+        renderLogCounter++;
+        boolean shouldLog = (renderLogCounter % RENDER_LOG_INTERVAL == 1);
+        
+        if (shouldLog) {
+            LOGGER.info("[CLC LTRenderer] Rendering LT BE {} at {} | Light: {}, Overlay: {} (call #{})", 
+                ltbe.getClass().getSimpleName(), ltbe.getBlockPos(), combinedLight, combinedOverlay, renderLogCounter);
+        }
+
+        // Save state of the PoseStack
+        poseStack.pushPose(); 
+
+        try {
+            // ATTEMPT 1: Use the BlockEntityRenderer<T> if LittleTiles registers one
+            // and it works well with the contraption context.
+            net.minecraft.client.renderer.blockentity.BlockEntityRenderer<net.minecraft.world.level.block.entity.BlockEntity> vanillaRenderer = 
+                net.minecraft.client.Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
+
+            if (vanillaRenderer != null) {
+                if (shouldLog) {
+                    LOGGER.info("[CLC LTRenderer] Using vanilla BE renderer: {}", vanillaRenderer.getClass().getSimpleName());
+                }
+                
+                // Pass renderLevel if available, otherwise realLevel.
+                // The renderer expects that BE.level is correct.
+                net.minecraft.world.level.Level originalLevel = blockEntity.getLevel();
+                blockEntity.setLevel(renderLevel != null ? renderLevel : realLevel); 
+
+                vanillaRenderer.render(blockEntity, partialTicks, poseStack, bufferSource, combinedLight, combinedOverlay);
+                
+                blockEntity.setLevel(originalLevel); // Restore the original level of the BE
+                
+                if (shouldLog) {
+                    LOGGER.info("[CLC LTRenderer] Vanilla renderer completed successfully");
+                }
+            } else {
+                LOGGER.warn("[CLC LTRenderer] No vanilla BE renderer found for {}. Attempting direct LittleTiles API.", blockEntity.getType());
+                // ATTEMPT 2: Call direct LittleTiles rendering API
+                // This part is speculative and depends on the LittleTiles API.
+                renderWithDirectLittleTilesAPI(poseStack, bufferSource, blockEntity, partialTicks, combinedLight, combinedOverlay, renderLevel != null ? renderLevel : realLevel);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("[CLC LTRenderer] Error rendering LittleTiles BlockEntity: ", e);
+            // Fallback to existing method for compatibility
+            try {
+                BlockState state = blockEntity.getBlockState();
+                CompoundTag nbt = blockEntity.saveWithFullMetadata(realLevel.registryAccess());
+                renderLittleTileInContraption(poseStack, bufferSource, combinedLight, combinedOverlay, state, nbt, realLevel != null ? realLevel : renderLevel);
+            } catch (Exception fallbackError) {
+                LOGGER.error("[CLC LTRenderer] Fallback rendering also failed: ", fallbackError);
+            }
+        } finally {
+            poseStack.popPose();
+        }
+    }
+    
+    /**
+     * Attempt to render using direct LittleTiles API calls when no vanilla renderer is available.
+     * This is speculative and needs to be adapted based on actual LittleTiles API.
+     */
+    private static void renderWithDirectLittleTilesAPI(
+        PoseStack poseStack, 
+        MultiBufferSource bufferSource, 
+        net.minecraft.world.level.block.entity.BlockEntity blockEntity, 
+        float partialTicks, 
+        int combinedLight, 
+        int combinedOverlay, 
+        net.minecraft.world.level.Level level
+    ) {
+        try {
+            // This is where we would call LittleTiles rendering API directly
+            // Example: team.creative.littletiles.client.render.tile.LittleRenderBox.render(...)
+            // For now, fallback to the existing NBT-based approach but with correct light/overlay
+            
+            LOGGER.debug("[CLC LTRenderer] Using direct LittleTiles API fallback");
+            BlockState state = blockEntity.getBlockState();
+            CompoundTag nbt = blockEntity.saveWithFullMetadata(level.registryAccess());
+            renderLittleTileInContraption(poseStack, bufferSource, combinedLight, combinedOverlay, state, nbt, level);
+            
+        } catch (Exception e) {
+            LOGGER.error("[CLC LTRenderer] Direct LittleTiles API call failed: ", e);
+            throw e;
+        }
     }
 }
