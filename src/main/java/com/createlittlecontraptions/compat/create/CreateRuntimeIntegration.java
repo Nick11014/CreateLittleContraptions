@@ -927,4 +927,54 @@ public class CreateRuntimeIntegration {
             LOGGER.error("Error during forced rendering check", e);
         }
     }
+
+    /**
+     * Handle LittleTiles block entity rendering within contraptions.
+     * This method is called from the ContraptionRendererMixin for each block entity
+     * that needs custom rendering during contraption movement.
+     */
+    public static void handleLittleTilesBERendering(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.entity.BlockEntity blockEntity) {
+        try {
+            if (!integrationActive) {
+                return;
+            }
+            
+            rendererCallCounter++;
+            boolean shouldLog = (rendererCallCounter % RENDERER_CALL_LOG_INTERVAL == 0);
+            
+            if (shouldLog) {
+                LOGGER.debug("Handling block entity rendering at {}: {}", pos, blockEntity.getClass().getSimpleName());
+            }
+            
+            // Check if this is a LittleTiles block entity using reflection
+            String className = blockEntity.getClass().getName();
+            if (className.contains("littletiles") || className.contains("LittleTiles")) {
+                if (shouldLog) {
+                    LOGGER.info("Found LittleTiles block entity in contraption: {} at {}", className, pos);
+                }
+                
+                // Here we would implement the actual custom rendering logic
+                // For now, we'll just log the detection
+                enhancementLogCounter++;
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastEnhancementLogTime > ENHANCEMENT_LOG_INTERVAL) {
+                    LOGGER.info("Detected LittleTiles block entity requiring custom rendering: {} (enhancement #{}) at {}",
+                        className, enhancementLogCounter, pos);
+                    lastEnhancementLogTime = currentTime;
+                }
+                
+                // TODO: Implement actual LittleTiles rendering logic here
+                // This is where we would call LittleTiles' render methods
+                // or perform necessary transformations
+            }
+            
+        } catch (Exception e) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastEntityErrorLogTime > ENTITY_ERROR_LOG_INTERVAL) {
+                LOGGER.error("Error handling LittleTiles block entity rendering at {}: {}", pos, e.getMessage());
+                lastEntityErrorLogTime = currentTime;
+                entityErrorCount++;
+            }
+        }
+    }
 }
