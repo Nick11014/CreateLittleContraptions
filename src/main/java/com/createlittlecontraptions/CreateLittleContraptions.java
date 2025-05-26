@@ -13,6 +13,7 @@ import com.createlittlecontraptions.registry.ModBlocks;
 import com.createlittlecontraptions.registry.ModItems;
 import com.createlittlecontraptions.registry.ModCreativeTabs;
 import com.createlittlecontraptions.dev.ContraptionInspectorCommand;
+import com.createlittlecontraptions.commands.ContraptionDebugCommand;
 
 @Mod(CreateLittleContraptions.MODID)
 public class CreateLittleContraptions {
@@ -29,11 +30,10 @@ public class CreateLittleContraptions {
         NeoForge.EVENT_BUS.register(this);
 
         LOGGER.info("CreateLittleContraptions mod initializing...");
-    }
-
-    @SubscribeEvent
+    }    @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
         ContraptionInspectorCommand.register(event.getDispatcher());
+        ContraptionDebugCommand.register(event.getDispatcher());
     }
 }
