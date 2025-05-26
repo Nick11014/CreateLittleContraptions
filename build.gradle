@@ -19,6 +19,9 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 base {
@@ -38,9 +41,7 @@ neoForge {
     }
 
     // This line is optional. Access Transformers are automatically detected
-    // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
-
-    // Default run configurations.
+    // accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')    // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
         client {
@@ -113,6 +114,16 @@ configurations {
 }
 
 dependencies {
+    // Create, LittleTiles, and CreativeCore for compile-time Mixin support
+    compileOnly files('libs/create-1.21.1-6.0.4.jar')
+    compileOnly files('libs/LittleTiles_BETA_v1.6.0-pre163_mc1.21.1.jar')
+    compileOnly files('libs/CreativeCore_NEOFORGE_v2.13.5_mc1.21.1.jar')
+    
+    // Add dependencies for runtime development environment
+    localRuntime files('libs/create-1.21.1-6.0.4.jar')
+    localRuntime files('libs/LittleTiles_BETA_v1.6.0-pre163_mc1.21.1.jar')
+    localRuntime files('libs/CreativeCore_NEOFORGE_v2.13.5_mc1.21.1.jar')
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

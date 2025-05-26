@@ -35,21 +35,21 @@ side = "BOTH"
 
 [[dependencies.createlittlecontraptions]]
 modId = "create"
-type = "required"
-versionRange = "[0.5.1,)"
+type = "optional"
+versionRange = "[6.0.4,6.0.5)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.createlittlecontraptions]]
 modId = "littletiles"
-type = "required"
-versionRange = "[1.6.0,)"
+type = "optional"
+versionRange = "[1.6.0-pre163,1.7.0)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.createlittlecontraptions]]
 modId = "creativecore"
-type = "required"
-versionRange = "[2.12.0,)"
+type = "optional"
+versionRange = "[2.13.5,2.14.0)"
 ordering = "AFTER"
 side = "BOTH"

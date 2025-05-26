@@ -442,6 +442,7 @@ public class LittleTilesContraptionRenderer {
     
     /**
      * Check if a block state represents a LittleTiles block.
+     * Updated to use the correct team.creative.littletiles package names.
      */
     public static boolean isLittleTilesBlock(BlockState blockState) {
         if (blockState == null) return false;
@@ -453,9 +454,10 @@ public class LittleTilesContraptionRenderer {
         if (cached != null) {
             return cached;
         }
-          boolean isLittleTiles = blockName.contains("littletiles") ||
-                              blockName.contains("little") ||
-                              blockName.contains("team.creative.littletiles");
+        
+        boolean isLittleTiles = blockName.contains("team.creative.littletiles") ||
+                               blockName.contains("littletile") ||
+                               blockName.contains("littleblock");
         
         blockTypeCache.put(blockName, isLittleTiles);
         return isLittleTiles;

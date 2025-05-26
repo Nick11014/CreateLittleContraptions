@@ -293,7 +293,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dexamplemod%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
+        "-Dfml.modFolders\u003dcreatelittlecontraptions%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -315,7 +315,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\build\\moddev\\dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003dexamplemod%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
+        "-Dfml.modFolders\u003dcreatelittlecontraptions%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -337,7 +337,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\build\\moddev\\gameTestServerRunVmArgs.txt",
-        "-Dfml.modFolders\u003dexamplemod%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
+        "-Dfml.modFolders\u003dcreatelittlecontraptions%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -359,7 +359,7 @@
       ],
       "vmArgs": [
         "@C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dexamplemod%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
+        "-Dfml.modFolders\u003dcreatelittlecontraptions%%C:\\Users\\mathe\\Desktop\\Minecraft Modding\\CreateLittleContraptions\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
