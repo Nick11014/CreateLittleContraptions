@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "createlittlecontraptions.refmap.json",
   "mixins": [],  "client": [
-    "ContraptionRendererMixin",
     "create.AllMovementBehavioursMixin"
   ],
   "server": [],

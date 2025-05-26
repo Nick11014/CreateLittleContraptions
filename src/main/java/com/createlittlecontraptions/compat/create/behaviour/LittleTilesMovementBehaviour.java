@@ -14,16 +14,38 @@ import org.apache.logging.log4j.Logger;
 
 public class LittleTilesMovementBehaviour implements MovementBehaviour {
 
-    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTMovementBehaviour");
+    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTMovementBehaviour");    @Override
+    public void startMoving(MovementContext context) {
+        LOGGER.info("🚀 LittleTiles startMoving called for pos: {} with state: {}", 
+            context.localPos, context.state.toString());
+    }
 
     @Override
+    public void tick(MovementContext context) {
+        // Only log occasionally to avoid spam
+        if (context.contraption.entity.tickCount % 100 == 0) {
+            LOGGER.debug("⏰ LittleTiles tick at pos: {} (tick: {})", 
+                context.localPos, context.contraption.entity.tickCount);
+        }
+    }
+
+    @Override
+    public void stopMoving(MovementContext context) {
+        LOGGER.info("⏹️ LittleTiles stopMoving called for pos: {}", context.localPos);
+    }    @Override
+    public boolean disableBlockEntityRendering() {
+        // We want to handle rendering ourselves
+        LOGGER.info("🔧 disableBlockEntityRendering called - returning true");
+        return true;
+    }@Override
     public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
                                     ContraptionMatrices matrices, MultiBufferSource bufferSource) {
-        LOGGER.debug("renderInContraption called for pos: {}", context.localPos);
+        LOGGER.info("🎨 renderInContraption called for pos: {}", context.localPos);
         CompoundTag nbt = context.blockEntityData; // NBT from BETiles captured by contraption
 
         if (nbt == null || nbt.isEmpty()) {
-            LOGGER.warn("renderInContraption: NBT data is null or empty for pos: {}. State: {}", context.localPos, context.state);
+            LOGGER.warn("⚠️ renderInContraption: NBT data is null or empty for pos: {}. State: {}", 
+                context.localPos, context.state);
             return;
         }
 
@@ -35,8 +57,8 @@ public class LittleTilesMovementBehaviour implements MovementBehaviour {
                 matrices,       // Contraption transformation matrices
                 bufferSource    // Buffer for drawing
             );
-            LOGGER.debug("renderInContraption: Successfully called custom renderer for {}", context.localPos);        } catch (Exception e) {
-            LOGGER.error("Error rendering LittleTile in contraption at " + context.localPos, e);
+            LOGGER.info("✅ renderInContraption: Successfully called custom renderer for {}", context.localPos);        } catch (Exception e) {
+            LOGGER.error("❌ Error rendering LittleTile in contraption at " + context.localPos, e);
         }
     }
 }

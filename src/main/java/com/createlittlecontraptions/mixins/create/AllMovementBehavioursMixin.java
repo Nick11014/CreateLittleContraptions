@@ -15,16 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
 @Mixin(value = AllMovementBehaviours.class, remap = false)
 public abstract class AllMovementBehavioursMixin {
 
-    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/AllMovementBehavioursMixin");
-
-    // Inject at the end of the static constructor to register our LittleTiles MovementBehaviour
-    @Inject(method = "<clinit>", at = @At("TAIL"))
+    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/AllMovementBehavioursMixin");    // Inject at the end of registerDefaults to register our LittleTiles MovementBehaviour
+    @Inject(method = "registerDefaults", at = @At("TAIL"))
     private static void clc_registerLittleTilesMovementBehaviour(CallbackInfo ci) {
         LOGGER.info("Attempting to register LittleTilesMovementBehaviour...");
         try {
@@ -41,33 +36,30 @@ public abstract class AllMovementBehavioursMixin {
             String foundBlockName = null;
             
             for (String blockName : possibleBlockNames) {
-                Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName));
+                ResourceLocation blockId = ResourceLocation.parse(blockName);
+                Block block = BuiltInRegistries.BLOCK.get(blockId);
                 if (block != null && block != Blocks.AIR) {
                     littleTilesBlock = block;
                     foundBlockName = blockName;
+                    LOGGER.info("Found LittleTiles block: {} -> {}", blockName, block.getDescriptionId());
                     break;
                 }
             }
             
             if (littleTilesBlock != null) {
-                // Call Create's registration method
-                // Based on Create 6.0.4 API, this should be the correct method call
-                // Use reflection to access the private static map in AllMovementBehaviours
-                try {
-                    Field behaviourMapField = AllMovementBehaviours.class.getDeclaredField("BLOCK_MOVEMENT_BEHAVIOURS");
-                    behaviourMapField.setAccessible(true);
-                    @SuppressWarnings("unchecked")
-                    Map<Block, MovementBehaviour> behaviourMap = (Map<Block, MovementBehaviour>) behaviourMapField.get(null);                    behaviourMap.put(littleTilesBlock, new LittleTilesMovementBehaviour());
-                    LOGGER.info("Successfully registered LittleTilesMovementBehaviour for: {}", littleTilesBlock.getDescriptionId());
-                } catch (Exception e) {
-                    LOGGER.error("Failed to register LittleTilesMovementBehaviour via reflection", e);
-                }
-                
-                LOGGER.info("Successfully registered LittleTilesMovementBehaviour for: {} ({})", 
+                // Use the public API as seen in AllMovementBehaviours.registerDefaults()
+                MovementBehaviour.REGISTRY.register(littleTilesBlock, new LittleTilesMovementBehaviour());
+                LOGGER.info("✅ Successfully registered LittleTilesMovementBehaviour for: {} ({})", 
                     foundBlockName, littleTilesBlock.getDescriptionId());
             } else {
-                LOGGER.warn("Could not find any LittleTiles block to register movement behaviour.");
-                LOGGER.debug("Tried block names: {}", String.join(", ", possibleBlockNames));
+                LOGGER.warn("⚠️ Could not find any LittleTiles block to register movement behaviour.");
+                LOGGER.info("Available blocks starting with 'littletiles:': ");
+                
+                // Debug: List available littletiles blocks
+                BuiltInRegistries.BLOCK.entrySet().stream()
+                    .filter(entry -> entry.getKey().location().getNamespace().equals("littletiles"))
+                    .limit(10)
+                    .forEach(entry -> LOGGER.info("  - {}", entry.getKey().location()));
             }
         } catch (Exception e) {
             LOGGER.error("Failed to register LittleTilesMovementBehaviour", e);
