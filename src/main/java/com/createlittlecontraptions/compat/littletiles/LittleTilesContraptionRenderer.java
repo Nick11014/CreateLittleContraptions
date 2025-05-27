@@ -163,133 +163,83 @@ public class LittleTilesContraptionRenderer {
             }            virtualBE.setLevel(renderWorld); 
             LOGGER.debug("📦 [CLC Renderer] Level definido para BETiles virtual");
 
-            // 3. Carregar dados do NBT USANDO handleUpdate com isClient = true
-            // A hipótese é que isClient=true pode evitar o caminho que chama markDirty()
-            LOGGER.debug("📦 [CLC Renderer] Chamando virtualBE.handleUpdate(nbt, true) para {}", localPos);
+            // 3. Carregar dados do NBT - ESTRATÉGIA SEGURA
+            // Como loadAdditional() e tiles não são acessíveis, usamos handleUpdate() com tratamento robusto
+            LOGGER.debug("📦 [CLC Renderer] Tentando carregar NBT para {}", localPos);
+            
+            boolean dataLoaded = false;
             try {
-                virtualBE.handleUpdate(nbt, true); // Passando true para isClient
-                LOGGER.info("✅ [CLC Renderer] virtualBE.handleUpdate(nbt, true) completado para {}", localPos);
+                // Tentar handleUpdate com isClient=false para minimizar operações de markDirty
+                virtualBE.handleUpdate(nbt, false);
+                dataLoaded = true;
+                LOGGER.info("✅ [CLC Renderer] virtualBE.handleUpdate(nbt, false) completado para {}", localPos);
+                
+            } catch (UnsupportedOperationException uoe) {
+                LOGGER.warn("⚠️ [CLC Renderer] handleUpdate falhou com UnsupportedOperationException (provavelmente VirtualRenderWorld.getChunk): {}", uoe.getMessage());
+                // Se falhar, não podemos carregar os dados corretamente no VirtualRenderWorld atual
+                // Isso indica que precisamos de uma abordagem diferente para o VirtualRenderWorld
+                dataLoaded = false;
+                
+            } catch (Exception e) {
+                LOGGER.error("❌ [CLC Renderer] Falha ao carregar NBT para {}: {}", localPos, e.getMessage());
+                dataLoaded = false;
+            }
+            
+            if (!dataLoaded) {
+                LOGGER.warn("⚠️ [CLC Renderer] Não foi possível carregar dados NBT para {}. Abortando renderização.", localPos);
+                return; // Sem dados carregados, não podemos renderizar
+            }
 
-                // 4. Chamar onLoad para finalizar a inicialização do lado do cliente (inclui render.onLoad())
-                // Isto é importante para que o BERenderManager processe as tiles carregadas.
-                LOGGER.debug("📦 [CLC Renderer] Chamando virtualBE.onLoad() após handleUpdate para {}", localPos);
+            // 4. Chamar onLoad para finalizar a inicialização do lado do cliente (inclui render.onLoad())
+            // Isto é importante para que o BERenderManager processe as tiles carregadas.
+            try {
+                LOGGER.debug("📦 [CLC Renderer] Chamando virtualBE.onLoad() para {}", localPos);
                 virtualBE.onLoad();
                 LOGGER.info("✅ [CLC Renderer] virtualBE.onLoad() completado para {}", localPos);
-
             } catch (UnsupportedOperationException uoe) {
-                LOGGER.error("❌ CRÍTICO: handleUpdate(nbt, true) ou onLoad falhou com UnsupportedOperationException para {}. Causa: {}", localPos, uoe.getMessage(), uoe);
-                return; // Não conseguimos carregar os dados, abortar
+                LOGGER.warn("⚠️ [CLC Renderer] onLoad() falhou com UnsupportedOperationException: {}. Continuando sem onLoad.", uoe.getMessage());
+                // Continuar sem onLoad - o BERenderManager pode ter sido inicializado de outra forma
             } catch (Exception e) {
-                LOGGER.error("❌ CRÍTICO: Falha ao chamar handleUpdate(nbt, true) ou onLoad para {}. Causa: {}", localPos, e.getMessage(), e);
-                return; // Abortar em caso de outra exceção
+                LOGGER.warn("⚠️ [CLC Renderer] onLoad() falhou: {}. Continuando sem onLoad.", e.getMessage());
             }
 
-            // Adicionando novos logs de depuração
-            if (renderWorld != null) {
-                LOGGER.debug("🔍 [CLC Renderer] Verificando renderWorld.isClientSide: {} para {}", renderWorld.isClientSide(), localPos);
+            // VERIFICAÇÃO: BERenderManager (virtualBE.render) está inicializado?
+            if (virtualBE.isClient() && virtualBE.render == null) {
+                LOGGER.warn("⚠️ [CLC Renderer] BERenderManager (virtualBE.render) é NULO após carregamento para {}. A renderização pode falhar.", localPos);
+            } else if (virtualBE.isClient()) {
+                LOGGER.info("✅ [CLC Renderer] BERenderManager (virtualBE.render) está PRESENTE para {}", localPos);
+            }// 5. Obter estruturas renderizáveis e renderizá-las
+            Iterable<LittleStructure> structuresToRender = virtualBE.rendering(); // Deve ser a lista correta agora
+            
+            boolean renderedSomething = false;
+            if (structuresToRender != null) {
+                for (LittleStructure structure : structuresToRender) {
+                    if (structure == null) continue;
+
+                    LOGGER.debug("➡️ [CLC Renderer] Tentando renderizar estrutura: {} para BE em {}", structure.getClass().getSimpleName(), localPos);
+                    
+                    poseStack.pushPose();
+                    // A PoseStack de matrices.getModelViewProjection() já deve estar correta para o espaço da contraption.
+                    // O parâmetro 'pos' para renderTick é a posição do BETiles, que é 'localPos' no contexto da contraption.
+                    
+                    float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+
+                    structure.renderTick(poseStack, bufferSource, localPos, partialTicks);
+                    
+                    poseStack.popPose();
+                    renderedSomething = true;
+                    LOGGER.debug("✅ [CLC Renderer] structure.renderTick() chamado para {} em {}", structure.getClass().getSimpleName(), localPos);
+                }
             } else {
-                LOGGER.warn("⚠️ [CLC Renderer] renderWorld é NULO antes da verificação de virtualBE.render para {}", localPos);
+                 LOGGER.warn("⚠️ [CLC Renderer] virtualBE.rendering() retornou null para {}", localPos);
             }
-            if (virtualBE != null && virtualBE.getLevel() != null) { // virtualBE.getLevel() pode ser nulo se setLevel falhou ou não foi chamado
-                LOGGER.debug("🔍 [CLC Renderer] Verificando virtualBE.isClient(): {} para {}", virtualBE.isClient(), localPos);
-            } else {
-                LOGGER.warn("⚠️ [CLC Renderer] virtualBE ou virtualBE.getLevel() é NULO antes da verificação de virtualBE.render para {}", localPos);
+
+
+            if (!renderedSomething) {
+                LOGGER.warn("⚠️ [CLC Renderer] Nenhuma estrutura com TICK_RENDERING encontrada ou renderizada para {}. Verifique se há tiles visíveis na estrutura.", localPos);
             }
-            LOGGER.debug("🔍 [CLC Renderer] Verificando se virtualBE.render é nulo ANTES do if para {}", localPos);            // 5. Verificações detalhadas do BERenderManager
-            LOGGER.debug("🔍 [CLC Renderer] Verificando virtualBE.render para {}", localPos);
-            if (virtualBE.render != null) {
-                LOGGER.debug("✅ [CLC Renderer] virtualBE.render NÃO é nulo para {}", localPos);
-                
-                // Verificar se há tiles carregadas
-                if (virtualBE.tiles != null) {
-                    LOGGER.debug("🔍 [CLC Renderer] virtualBE.tiles existe. Verificando conteúdo para {}", localPos);
-                    // Tentar obter informações básicas sobre as tiles sem causar exceções
-                    try {
-                        boolean hasTiles = !virtualBE.tiles.isEmpty();
-                        LOGGER.debug("🔍 [CLC Renderer] virtualBE.tiles.isEmpty(): {} para {}", !hasTiles, localPos);
-                    } catch (Exception e) {
-                        LOGGER.warn("⚠️ [CLC Renderer] Erro ao verificar virtualBE.tiles para {}: {}", localPos, e.getMessage());
-                    }
-                } else {
-                    LOGGER.warn("⚠️ [CLC Renderer] virtualBE.tiles é NULO para {}", localPos);
-                }
-                
-                // Tentar diferentes métodos para obter estruturas
-                LOGGER.debug("🔍 [CLC Renderer] Tentando virtualBE.rendering() para {}", localPos);
-                Iterable<LittleStructure> structuresToRender = null;
-                try {
-                    structuresToRender = virtualBE.rendering();
-                    LOGGER.debug("✅ [CLC Renderer] virtualBE.rendering() executado sem exceção para {}", localPos);
-                } catch (Exception e) {
-                    LOGGER.error("❌ [CLC Renderer] Erro ao chamar virtualBE.rendering() para {}: {}", localPos, e.getMessage(), e);
-                }
-                
-                // Tentar método alternativo loadedStructures diretamente
-                LOGGER.debug("🔍 [CLC Renderer] Tentando virtualBE.loadedStructures(TICK_RENDERING) para {}", localPos);
-                try {
-                    var altStructures = virtualBE.loadedStructures(team.creative.littletiles.common.structure.attribute.LittleStructureAttribute.TICK_RENDERING);
-                    if (altStructures != null) {
-                        int count = 0;
-                        for (var struct : altStructures) {
-                            if (struct != null) count++;
-                        }
-                        LOGGER.debug("🔍 [CLC Renderer] loadedStructures(TICK_RENDERING) retornou {} estruturas para {}", count, localPos);
-                        if (structuresToRender == null) {
-                            structuresToRender = altStructures;
-                            LOGGER.debug("🔄 [CLC Renderer] Usando loadedStructures como fallback para {}", localPos);
-                        }
-                    } else {
-                        LOGGER.debug("🔍 [CLC Renderer] loadedStructures(TICK_RENDERING) retornou null para {}", localPos);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("❌ [CLC Renderer] Erro ao chamar loadedStructures(TICK_RENDERING) para {}: {}", localPos, e.getMessage(), e);
-                }
-                
-                boolean renderedSomething = false;
-                if (structuresToRender != null) {
-                    LOGGER.debug("🔍 [CLC Renderer] Iterando sobre estruturas para {}", localPos);
-                    int structureCount = 0;
-                    for (LittleStructure structure : structuresToRender) {
-                        if (structure == null) continue;
-                        structureCount++;
 
-                        LOGGER.debug("➡️ [CLC Renderer] Encontrada estrutura #{}: {} para BE em {}", structureCount, structure.getClass().getSimpleName(), localPos);
-                        
-                        try {
-                            poseStack.pushPose();
-                            float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-                            structure.renderTick(poseStack, bufferSource, localPos, partialTicks);
-                            poseStack.popPose();
-                            renderedSomething = true;
-                            LOGGER.debug("✅ [CLC Renderer] structure.renderTick() executado para estrutura #{} em {}", structureCount, localPos);
-                        } catch (Exception e) {
-                            LOGGER.error("❌ [CLC Renderer] Erro ao renderizar estrutura #{} em {}: {}", structureCount, localPos, e.getMessage(), e);
-                        }
-                    }
-                    LOGGER.debug("🔍 [CLC Renderer] Total de estruturas processadas: {} para {}", structureCount, localPos);
-                } else {
-                     LOGGER.warn("⚠️ [CLC Renderer] Todas as tentativas de obter estruturas retornaram null para {}", localPos);
-                }
-
-                if (!renderedSomething) {
-                    LOGGER.warn("⚠️ [CLC Renderer] Nenhuma estrutura encontrada ou renderizada para {}. Investigar NBT ou inicialização do BERenderManager.", localPos);
-                } else {
-                    LOGGER.info("✅ [CLC Renderer] {} estrutura(s) renderizada(s) com sucesso para {}", renderedSomething ? "Algumas" : "Nenhuma", localPos);
-                }
-
-                LOGGER.info("🎉 [CLC Renderer] renderMovementBehaviourTile finalizado para: {}", localPos);
-
-            } else {
-                LOGGER.warn("⚠️ [CLC Renderer] virtualBE.render é NULO para {}. BERenderManager não foi inicializado.", localPos);
-                
-                // Verificar se podemos forçar a inicialização
-                LOGGER.debug("🔍 [CLC Renderer] Tentando verificar por que virtualBE.render é nulo para {}", localPos);
-                if (virtualBE.getLevel() != null) {
-                    LOGGER.debug("🔍 [CLC Renderer] virtualBE.getLevel() não é nulo. isClientSide: {} para {}", virtualBE.getLevel().isClientSide(), localPos);
-                } else {
-                    LOGGER.warn("⚠️ [CLC Renderer] virtualBE.getLevel() é NULO para {}", localPos);
-                }
-            }
+            LOGGER.info("🎉 [CLC Renderer] renderMovementBehaviourTile finalizado para: {}", localPos);
 
         } catch (UnsupportedOperationException uoe) {
             // Se ainda recebermos o erro de getChunk, precisamos isolar o que o está causando
