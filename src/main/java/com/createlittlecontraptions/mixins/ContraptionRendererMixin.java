@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Matrix4f;
 
@@ -19,6 +18,7 @@ import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 import com.createlittlecontraptions.utils.LittleTilesHelper;
 import com.createlittlecontraptions.utils.RenderContext;
 import com.createlittlecontraptions.compat.littletiles.LittleTilesContraptionRenderer;
+import team.creative.littletiles.common.block.entity.BETiles;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,16 +110,28 @@ public class ContraptionRendererMixin {
             } else {
                 LOGGER.warn("[CLC Mixin PRE-RENDER VANILLA] RenderContext was null! Using direct parameters.");
             }            try {
+                // Cast BlockEntity to BETiles if possible
+                BETiles betiles = null;
+                if (blockEntity instanceof BETiles) {
+                    betiles = (BETiles) blockEntity;
+                } else {
+                    LOGGER.warn("[CLC Mixin PRE-RENDER VANILLA] BlockEntity is not BETiles: {}", blockEntity.getClass().getSimpleName());
+                    return; // Can't render non-BETiles as LittleTiles
+                }
+                  // Convert Matrix4f to boolean (lightTransform parameter)
+                boolean useLightTransform = (effectiveLightTransform != null);
+                
+                // Cast VirtualRenderWorld to Level for the method call
+                Level renderLevelAsLevel = effectiveRenderLevel; // VirtualRenderWorld extends Level
+                
                 LittleTilesContraptionRenderer.renderLittleTileBEInContraption(
-                    msOuter,        // PoseStack from method parameters (outer matrix)
-                    bufferOuter,    // MultiBufferSource from method parameters
-                    effectiveRealLevel,     // Captured or direct realLevel
-                    effectiveRenderLevel,   // Captured or direct renderLevel
-                    blockEntity,    // The BETiles instance
-                    ptOuter,        // Partial ticks from method parameters
-                    effectiveLightTransform, // Captured or direct lightTransform
-                    light1,         // Using first light value from captured locals
-                    OverlayTexture.NO_OVERLAY // Standard overlay
+                    msOuter,                // PoseStack from method parameters (outer matrix)
+                    bufferOuter,            // MultiBufferSource from method parameters
+                    effectiveRealLevel,     // Level (real level)
+                    renderLevelAsLevel,     // Level (render level cast from VirtualRenderWorld)
+                    betiles,                // The BETiles instance
+                    ptOuter,                // Partial ticks from method parameters
+                    useLightTransform       // Light transform flag
                 );
                 ci.cancel(); // Prevent the original renderer.render() call
                 // Success - rendering completed silently
