@@ -38,6 +38,22 @@ import org.jetbrains.annotations.Nullable;
 public class ContraptionRendererMixin {
 
     private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/Mixin");
+    
+    // Throttling for logging - only log once every 10 seconds
+    private static long lastLogTime = 0;
+    private static final long LOG_INTERVAL_MS = 10000; // 10 seconds
+    
+    /**
+     * Check if enough time has passed to allow logging (throttling)
+     */
+    private static boolean shouldLog() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastLogTime >= LOG_INTERVAL_MS) {
+            lastLogTime = currentTime;
+            return true;
+        }
+        return false;
+    }
 
     private static final String RENDER_BLOCK_ENTITIES_METHOD_SIGNATURE =        "(Lnet/minecraft/world/level/Level;" +
         "Lcom/simibubi/create/foundation/virtualWorld/VirtualRenderWorld;" +
@@ -56,11 +72,9 @@ public class ContraptionRendererMixin {
         MultiBufferSource buffer,
         float pt, 
         CallbackInfo ci) {        // Capture context for later use (no logging for performance)
-        currentContext.set(new RenderContext(realLevel, renderLevel, lightTransform));
-
-        // Only log when we find LittleTiles BlockEntities (important events only)
+        currentContext.set(new RenderContext(realLevel, renderLevel, lightTransform));        // Only log when we find LittleTiles BlockEntities (important events only) - throttled
         for (BlockEntity be : customRenderBEs) {
-            if (be != null && LittleTilesHelper.isLittleTilesBlockEntity(be)) {
+            if (be != null && LittleTilesHelper.isLittleTilesBlockEntity(be) && shouldLog()) {
                 LOGGER.info("[CLC Mixin HEAD] Found LittleTiles BlockEntity: {} at {}", 
                     be.getClass().getSimpleName(), be.getBlockPos().toString());
             }
@@ -91,11 +105,13 @@ public class ContraptionRendererMixin {
         BlockEntityRenderer<BlockEntity> renderer,
         net.minecraft.core.BlockPos pos,
         int light1,
-        int light2    ) {
-        // Only process LittleTiles BlockEntities (silent check for performance)
+        int light2    ) {        // Only process LittleTiles BlockEntities (silent check for performance)
         if (LittleTilesHelper.isLittleTilesBlockEntity(blockEntity)) {
-            LOGGER.info("[CLC Mixin] Intercepting LittleTiles BE: {} at {}", 
-                blockEntity.getClass().getSimpleName(), blockEntity.getBlockPos());
+            // Only log once every 10 seconds to avoid spam
+            if (shouldLog()) {
+                LOGGER.info("[CLC Mixin] Intercepting LittleTiles BE: {} at {}", 
+                    blockEntity.getClass().getSimpleName(), blockEntity.getBlockPos());
+            }
             
             // Retrieve context
             RenderContext capturedContext = currentContext.get(); 

@@ -17,7 +17,21 @@ import org.apache.logging.log4j.Logger;
 public class LittleTilesContraptionRenderer {
 
     private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTRenderer");
-    private static boolean initialized = false;
+    private static boolean initialized = false;      // ULTRA AGGRESSIVE throttling for logging - only log once every 5 minutes
+    private static long lastLogTime = 0;
+    private static final long LOG_INTERVAL_MS = 300000; // 5 minutes
+    
+    /**
+     * Check if enough time has passed to allow logging (throttling)
+     */
+    private static boolean shouldLog() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastLogTime >= LOG_INTERVAL_MS) {
+            lastLogTime = currentTime;
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Initialize the renderer. Called by CreateRuntimeIntegration.
@@ -61,17 +75,24 @@ public class LittleTilesContraptionRenderer {
      * @param matrices ContraptionMatrices for positioning and lighting
      * @param buffer MultiBufferSource for rendering
      * @return true if rendering was attempted, false if no data to render
-     */
-    public static boolean renderMovementBehaviourTile(MovementContext context, VirtualRenderWorld renderWorld,
+     */    public static boolean renderMovementBehaviourTile(MovementContext context, VirtualRenderWorld renderWorld,
                                                     ContraptionMatrices matrices, MultiBufferSource buffer) {
         boolean hasNBT = context.blockEntityData != null && !context.blockEntityData.isEmpty();
-        LOGGER.info("🎨 [CLC Renderer] Starting renderMovementBehaviourTile for: {} with NBT (exists? {})", 
-                   context.localPos, hasNBT);
+        
+        // Only log once every 10 seconds to avoid spam
+        if (shouldLog()) {
+            LOGGER.info("🎨 [CLC Renderer] Starting renderMovementBehaviourTile for: {} with NBT (exists? {})", 
+                       context.localPos, hasNBT);
+        }
 
         if (!hasNBT) {
-            LOGGER.warn("⚠️ [CLC Renderer] No NBT data found for: {}", context.localPos);
+            if (shouldLog()) {
+                LOGGER.warn("⚠️ [CLC Renderer] No NBT data found for: {}", context.localPos);
+            }
             return false; // No data to render
-        }        try {
+        }try {
+            LOGGER.debug("[CLC Renderer] Entrou No Try");
+
             // Use the Direct Structure Rendering facade to parse NBT
             // For now, we'll try without the HolderLookup.Provider to test the basic approach
             LittleTilesAPIFacade.ParsedLittleTilesData parsedStructures = LittleTilesAPIFacade.parseStructuresFromNBT(
@@ -89,10 +110,11 @@ public class LittleTilesContraptionRenderer {
 
             // Prepare the PoseStack for rendering
             PoseStack poseStack = matrices.getViewProjection(); // Get the contraption's transformation matrix
-            poseStack.pushPose();
-            
+            poseStack.pushPose();            
             // Apply local translation for this specific block within the contraption
-            poseStack.translate(context.localPos.getX(), context.localPos.getY(), context.localPos.getZ());            // Calculate lighting - this is complex in MovementBehaviour context
+            poseStack.translate(context.localPos.getX(), context.localPos.getY(), context.localPos.getZ());
+            
+            // Calculate lighting - this is complex in MovementBehaviour context
             // For now, use FULL_BRIGHT as a placeholder until we find the proper lighting method
             // TODO: Investigate ContraptionMatrices for proper lighting information
             int packedLight = LightTexture.FULL_BRIGHT; // Placeholder - NEEDS PROPER IMPLEMENTATION
@@ -111,9 +133,13 @@ public class LittleTilesContraptionRenderer {
                 packedOverlay,
                 partialTicks
             );
-
+            
             poseStack.popPose();
-            LOGGER.info("✅ [CLC Renderer] Direct rendering attempted for: {}", context.localPos);
+            
+            // Only log success once every 10 seconds to avoid spam
+            if (shouldLog()) {
+                LOGGER.info("✅ [CLC Renderer] Direct rendering attempted for: {}", context.localPos);
+            }
             return true; // Indicate rendering was attempted
 
         } catch (Exception e) {

@@ -3,7 +3,6 @@
 - This project is running in a windows environment.
 - Allways run commands using powershell command structure.
 - correct log path : `C:\Users\mathe\Desktop\Minecraft Modding\CreateLittleContraptions\run\logs\latest.log`
-- Allways use `cd "c:\Users\mathe\Desktop\Minecraft Modding\CreateLittleContraptions"; .\gradlew.bat build` instead of `cd "c:\Users\mathe\Desktop\Minecraft Modding\CreateLittleContraptions" && .\gradlew.bat build`
 
 ## 🎯 Your Role
 You are an AI assistant, Claude 4, working as an agent to develop the "CreateLittleContraptions" Minecraft mod. Your primary goal is to implement solutions and integrate code to make LittleTiles blocks visible and functional within Create mod contraptions. You will collaborate with another AI, Gemini, through the user.
@@ -17,6 +16,6 @@ You are an AI assistant, Claude 4, working as an agent to develop the "CreateLit
     - Create: 6.0.4 (Source: https://github.com/Creators-of-Create/Create)
     - LittleTiles: 1.6.0-pre163 (Source: https://github.com/CreativeMD/LittleTiles)
     - CreativeCore: 2.13.5 (Dependency for LittleTiles)
+- **Main Problem:** LittleTiles blocks become invisible and non-interactive when assembled into a Create contraption. They reappear correctly upon disassembly, indicating data persistence but a rendering/integration failure during the contraption's active state.
 
-## 🔄 You are in a Workflow with Gemini
-
+## 🔄 Workflow with Gemini

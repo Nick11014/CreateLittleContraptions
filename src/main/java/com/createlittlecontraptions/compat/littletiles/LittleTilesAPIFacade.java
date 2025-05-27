@@ -36,9 +36,100 @@ import org.apache.logging.log4j.Logger;
  * This implements Gemini's "Direct Structure Rendering" strategy to bypass
  * VirtualRenderWorld limitations while maintaining access to LittleTiles rendering logic.
  */
-public class LittleTilesAPIFacade {
-
-    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTAPIFacade");    /**
+public class LittleTilesAPIFacade {    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTAPIFacade");
+      // ULTRA AGGRESSIVE THROTTLING - Reduce logging to absolute minimum
+    private static long lastLogTime = 0;
+    private static final long LOG_INTERVAL_MS = 120000; // 2 minutes
+    
+    // Detailed logs throttling - very restrictive 
+    private static long lastDetailedLogTime = 0;
+    private static final long DETAILED_LOG_INTERVAL_MS = 300000; // 5 minutes
+    
+    // Development debugging logs throttling - extremely restrictive
+    private static long lastDevLogTime = 0;
+    private static final long DEV_LOG_INTERVAL_MS = 600000; // 10 minutes
+    
+    // Per-message throttling for specific repeated messages
+    private static long lastRenderingBoxesTime = 0;
+    private static long lastPrimaryApproachTime = 0;
+    private static long lastBlockParentCollectionTime = 0;
+    private static long lastIndividualRenderingTime = 0;
+    private static final long PER_MESSAGE_INTERVAL_MS = 180000; // 3 minutes per specific message
+    
+    /**
+     * Check if enough time has passed to allow logging (throttling)
+     */
+    private static boolean shouldLog() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastLogTime >= LOG_INTERVAL_MS) {
+            lastLogTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+      /**
+     * Check if enough time has passed to allow detailed/debug logging (even more restrictive throttling)
+     */
+    private static boolean shouldLogDetailed() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastDetailedLogTime >= DETAILED_LOG_INTERVAL_MS) {
+            lastDetailedLogTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if enough time has passed to allow development logging (very restrictive - 5 minutes)
+     */
+    private static boolean shouldLogDev() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastDevLogTime >= DEV_LOG_INTERVAL_MS) {
+            lastDevLogTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Specific throttling methods for high-frequency messages
+     */
+    private static boolean shouldLogRenderingBoxes() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastRenderingBoxesTime >= PER_MESSAGE_INTERVAL_MS) {
+            lastRenderingBoxesTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    
+    private static boolean shouldLogPrimaryApproach() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastPrimaryApproachTime >= PER_MESSAGE_INTERVAL_MS) {
+            lastPrimaryApproachTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    
+    private static boolean shouldLogBlockParentCollection() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastBlockParentCollectionTime >= PER_MESSAGE_INTERVAL_MS) {
+            lastBlockParentCollectionTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    
+    private static boolean shouldLogIndividualRendering() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastIndividualRenderingTime >= PER_MESSAGE_INTERVAL_MS) {
+            lastIndividualRenderingTime = currentTime;
+            return true;
+        }
+        return false;
+    }
+    /**
      * Represents the data needed to render LittleTiles structures
      * This contains the parsed tile collection and grid information from NBT
      */
@@ -162,21 +253,23 @@ public class LittleTilesAPIFacade {
         if (tiles == null) {
             LOGGER.warn("renderDirectly: BlockParentCollection is null for {}. Cannot render.", containerPos);
             return;
-        }
-
-        LOGGER.info("[CLC/LTAPIFacade] Attempting to render BlockParentCollection for {} (Grid: {}, Size: {} tiles)", 
-                    containerPos, grid, tiles.totalSize());        poseStack.pushPose();
+        }        // Only log this method call once every 10 seconds to avoid spam
+        if (shouldLog()) {
+            LOGGER.info("[CLC/LTAPIFacade] Attempting to render BlockParentCollection for {} (Grid: {}, Size: {} tiles)", 
+                        containerPos, grid, tiles.totalSize());
+        }poseStack.pushPose();
         
-        // --- PRIMARY APPROACH: Find and call render method on BlockParentCollection ---
-        // Based on Gemini's analysis, this should have a render method like:
+        // --- PRIMARY APPROACH: Find and call render method on BlockParentCollection ---        // Based on Gemini's analysis, this should have a render method like:
         // tiles.render(poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
         
-        LOGGER.info("[CLC/LTAPIFacade] Investigating BlockParentCollection render methods...");
-        investigateRenderMethods(tiles, "BlockParentCollection");
-        
-        // --- SECONDARY APPROACH: Investigate LittleRenderBox for individual tile rendering ---
-        LOGGER.info("[CLC/LTAPIFacade] Investigating LittleRenderBox static methods...");
-        investigateLittleRenderBox();        
+        if (shouldLog()) {
+            LOGGER.info("[CLC/LTAPIFacade] Investigating BlockParentCollection render methods...");
+            investigateRenderMethods(tiles, "BlockParentCollection");
+            
+            // --- SECONDARY APPROACH: Investigate LittleRenderBox for individual tile rendering ---
+            LOGGER.info("[CLC/LTAPIFacade] Investigating LittleRenderBox static methods...");
+            investigateLittleRenderBox();
+        }
         // --- ATTEMPT ACTUAL RENDERING ---
         boolean renderedSomething = false;
         
@@ -186,22 +279,28 @@ public class LittleTilesAPIFacade {
             // Method 1: tiles.render(pose, source, light, overlay, partialTicks)
             Method renderMethod = findRenderMethod(tiles.getClass(), 
                 "render", PoseStack.class, MultiBufferSource.class, int.class, int.class, float.class);
-            
-            if (renderMethod != null) {
-                LOGGER.info("[CLC/LTAPIFacade] Found BlockParentCollection.render method with 5 params, calling it...");
+              if (renderMethod != null) {
+                if (shouldLog()) {
+                    LOGGER.info("[CLC/LTAPIFacade] Found BlockParentCollection.render method with 5 params, calling it...");
+                }
                 renderMethod.invoke(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks);
                 renderedSomething = true;
-                LOGGER.info("[CLC/LTAPIFacade] Successfully called tiles.render() for {}", containerPos);
+                if (shouldLog()) {
+                    LOGGER.info("[CLC/LTAPIFacade] Successfully called tiles.render() for {}", containerPos);
+                }
             } else {
                 // Try Method 2: with grid parameter
                 renderMethod = findRenderMethod(tiles.getClass(), 
                     "render", PoseStack.class, LittleGrid.class, MultiBufferSource.class, int.class, int.class);
-                
-                if (renderMethod != null) {
-                    LOGGER.info("[CLC/LTAPIFacade] Found BlockParentCollection.render method with grid param, calling it...");
+                  if (renderMethod != null) {
+                    if (shouldLog()) {
+                        LOGGER.info("[CLC/LTAPIFacade] Found BlockParentCollection.render method with grid param, calling it...");
+                    }
                     renderMethod.invoke(tiles, poseStack, grid, bufferSource, combinedLight, combinedOverlay);
                     renderedSomething = true;
-                    LOGGER.info("[CLC/LTAPIFacade] Successfully called tiles.render(grid) for {}", containerPos);
+                    if (shouldLog()) {
+                        LOGGER.info("[CLC/LTAPIFacade] Successfully called tiles.render(grid) for {}", containerPos);
+                    }
                 }
             }
             
@@ -215,28 +314,49 @@ public class LittleTilesAPIFacade {
             hasTiles = tiles.allTiles().iterator().hasNext();
         } catch (Exception e) {
             LOGGER.warn("[CLC/LTAPIFacade] Error checking if tiles collection has elements: {}", e.getMessage());
-        }
-        
-        if (!renderedSomething && hasTiles) {
-            LOGGER.info("[CLC/LTAPIFacade] Attempting individual tile rendering via LittleRenderBox...");
-            try {
-                renderedSomething = attemptIndividualTileRendering(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
+        }          if (!renderedSomething && hasTiles) {
+            if (shouldLog()) {
+                LOGGER.info("[CLC/LTAPIFacade] Attempting individual tile rendering via LittleRenderBox...");
+                
+                // === GEMINI'S DIAGNOSTIC: Check for VirtualRenderWorld/BETiles issues ===
+                diagnoseRenderContextIssues(tiles);
+            }
+              try {
+                // Try Gemini's alternative approach first (LittleTile.getRenderingBoxes)
+                if (shouldLog()) {
+                    LOGGER.info("[CLC/LTAPIFacade] Trying Gemini's recommended LittleTile.getRenderingBoxes approach...");
+                }
+                renderedSomething = attemptLittleTileGetRenderingBoxesApproach(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
+                
+                // If that fails, try the original approach with better debugging
+                if (!renderedSomething && shouldLog()) {
+                    LOGGER.info("[CLC/LTAPIFacade] LittleTile.getRenderingBoxes approach failed, trying original getRenderingBox approach with enhanced debugging...");
+                    renderedSomething = attemptIndividualTileRendering(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
+                } else if (!renderedSomething) {
+                    // Run without logging to avoid spam
+                    renderedSomething = attemptIndividualTileRendering(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
+                }
+                
             } catch (Exception e) {
                 LOGGER.error("[CLC/LTAPIFacade] Error during individual tile rendering: {}", e.getMessage(), e);
             }
         }
         
         if (!renderedSomething) {
-            LOGGER.warn("[CLC/LTAPIFacade] No rendering method succeeded for {}. LittleTiles may remain invisible.", containerPos);
+            if (shouldLog()) {
+                LOGGER.warn("[CLC/LTAPIFacade] No rendering method succeeded for {}. LittleTiles may remain invisible.", containerPos);
+            }
         }
         
         poseStack.popPose();
     }
-    
-    /**
+      /**
      * Investigates available render methods on the given object using reflection
      */
     private static void investigateRenderMethods(Object object, String objectType) {
+        // Only investigate and log if throttling allows it
+        if (!shouldLog()) return;
+        
         Class<?> clazz = object.getClass();
         LOGGER.info("[CLC/LTAPIFacade] === {} Method Investigation ===", objectType);
         LOGGER.info("[CLC/LTAPIFacade] Class: {}", clazz.getName());
@@ -272,8 +392,10 @@ public class LittleTilesAPIFacade {
     
     /**
      * Investigates LittleRenderBox static methods
-     */
-    private static void investigateLittleRenderBox() {
+     */    private static void investigateLittleRenderBox() {
+        // Only investigate and log if throttling allows it
+        if (!shouldLog()) return;
+        
         try {
             Class<?> renderBoxClass = LittleRenderBox.class;
             LOGGER.info("[CLC/LTAPIFacade] === LittleRenderBox Static Method Investigation ===");
@@ -323,14 +445,22 @@ public class LittleTilesAPIFacade {
                                                          int combinedOverlay, float partialTicks, LittleGrid grid) {        boolean renderedSomething = false;
         int tileCount = 0;
         
-        LOGGER.info("[CLC/LTAPIFacade] Starting individual tile rendering...");
+        if (shouldLogIndividualRendering()) {
+            LOGGER.info("[CLC/LTAPIFacade] Starting individual tile rendering...");
+        }
         
         // === GEMINI'S PRIMARY RECOMMENDATION: Try BlockParentCollection.render() FIRST ===
         // This is based on the PDF Listing 10: be.mainGroup.render(pose, source, light, overlay, partialTicks);
         // The 'tiles' object IS a BlockParentCollection, which should be equivalent to 'be.mainGroup'
         try {
-            LOGGER.info("[CLC/LTAPIFacade] === Trying Gemini's Primary Approach: BlockParentCollection.render() ===");
-            LOGGER.info("[CLC/LTAPIFacade] tiles object type: {}", tiles.getClass().getName());
+            if (shouldLogPrimaryApproach()) {
+                LOGGER.info("[CLC/LTAPIFacade] === Trying Gemini's Primary Approach: BlockParentCollection.render() ===");
+            }
+            if (shouldLogDev()) {
+                if (shouldLogBlockParentCollection()) {
+                    LOGGER.info("[CLC/LTAPIFacade] tiles object type: {}", tiles.getClass().getName());
+                }
+            }
             
             // Look for: render(PoseStack, MultiBufferSource, int, int, float)
             Method mainRenderMethod = tiles.getClass().getMethod("render", 
@@ -341,13 +471,14 @@ public class LittleTilesAPIFacade {
             LOGGER.info("[CLC/LTAPIFacade] *** SUCCESS: Invoked tiles.render(PoseStack, MultiBufferSource, int, int, float) ***");
             LOGGER.info("[CLC/LTAPIFacade] Check game visuals now - this should have rendered ALL tiles in the collection!");
             return true; // If this works, it renders everything at once!
-            
-        } catch (NoSuchMethodException e) {
-            LOGGER.warn("[CLC/LTAPIFacade] Could not find render(PoseStack, MultiBufferSource, int, int, float) method on BlockParentCollection: {}", tiles.getClass().getName());
-            LOGGER.info("[CLC/LTAPIFacade] Available methods on {}:", tiles.getClass().getName());
-            for (Method method : tiles.getClass().getMethods()) {
-                if (method.getName().contains("render")) {
-                    LOGGER.info("[CLC/LTAPIFacade]   - {}", method);
+              } catch (NoSuchMethodException e) {
+            if (shouldLogDetailed()) {
+                LOGGER.warn("[CLC/LTAPIFacade] Could not find render(PoseStack, MultiBufferSource, int, int, float) method on BlockParentCollection: {}", tiles.getClass().getName());
+                LOGGER.info("[CLC/LTAPIFacade] Available methods on {}:", tiles.getClass().getName());
+                for (Method method : tiles.getClass().getMethods()) {
+                    if (method.getName().contains("render")) {
+                        LOGGER.info("[CLC/LTAPIFacade]   - {}", method);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -355,14 +486,18 @@ public class LittleTilesAPIFacade {
         }
         
         // === FALLBACK: Try individual tile rendering (original approach) ===
-        LOGGER.info("[CLC/LTAPIFacade] === Falling back to individual tile rendering approach ===");
+        if (shouldLogDev()) {
+            LOGGER.info("[CLC/LTAPIFacade] === Falling back to individual tile rendering approach ===");
+        }
         
         try {
             // === PRIMARY APPROACH: Try BlockParentCollection.render() directly ===
             // Based on Gemini's analysis and Listing 10: be.mainGroup.render(pose, source, light, overlay, partialTicks)
             // This should be the most efficient approach, rendering all tiles in the collection at once
             
-            LOGGER.info("[CLC/LTAPIFacade] Attempting BlockParentCollection.render() method (Gemini's primary recommendation)...");
+            if (shouldLogDev()) {
+                LOGGER.info("[CLC/LTAPIFacade] Attempting BlockParentCollection.render() method (Gemini's primary recommendation)...");
+            }
             try {
                 Method mainRenderMethod = tiles.getClass().getMethod("render", 
                     PoseStack.class, MultiBufferSource.class, int.class, int.class, float.class);
@@ -372,16 +507,21 @@ public class LittleTilesAPIFacade {
                 LOGGER.info("[CLC/LTAPIFacade] SUCCESS: tiles.render() completed for BlockParentCollection class: {}", tiles.getClass().getName());
                 return true; // If successful, we're done - all tiles rendered at once
                 
-            } catch (NoSuchMethodException e) {
-                LOGGER.warn("[CLC/LTAPIFacade] BlockParentCollection.render() method not found on class: {}", tiles.getClass().getName());
-                LOGGER.info("[CLC/LTAPIFacade] Falling back to individual tile rendering via getRenderingBox...");
+            } catch (NoSuchMethodException e) {                if (shouldLogDetailed()) {
+                    LOGGER.warn("[CLC/LTAPIFacade] BlockParentCollection.render() method not found on class: {}", tiles.getClass().getName());
+                    LOGGER.info("[CLC/LTAPIFacade] Falling back to individual tile rendering via getRenderingBox...");
+                }
             } catch (Exception e) {
                 LOGGER.error("[CLC/LTAPIFacade] Error invoking BlockParentCollection.render(): {}", e.getMessage());
                 LOGGER.info("[CLC/LTAPIFacade] Falling back to individual tile rendering via getRenderingBox...");
             }
             
             // === FALLBACK APPROACH: Individual tile rendering via getRenderingBox ===
-            LOGGER.info("[CLC/LTAPIFacade] Starting individual tile rendering using getRenderingBox method...");
+            if (shouldLogDev()) {
+                if (shouldLogIndividualRendering()) {
+                    LOGGER.info("[CLC/LTAPIFacade] Starting individual tile rendering using getRenderingBox method...");
+                }
+            }
             try {
                 // Get the getRenderingBox method discovered during reflection investigation
                 Method getRenderingBoxMethod = null;
@@ -392,7 +532,9 @@ public class LittleTilesAPIFacade {
                         getRenderingBoxMethod = method;
                         Class<?>[] paramTypes = method.getParameterTypes();
                         boxClass = paramTypes[1]; // The second parameter should be the box type
-                        LOGGER.info("[CLC/LTAPIFacade] Found getRenderingBox method with box type: {}", boxClass.getName());
+                        if (shouldLogDev()) {
+                            LOGGER.info("[CLC/LTAPIFacade] Found getRenderingBox method with box type: {}", boxClass.getName());
+                        }
                         break;
                     }
                 }
@@ -416,9 +558,11 @@ public class LittleTilesAPIFacade {
                         // The log shows tiles contain multiple boxes: "[0,0,0 -> 5,16,16], [5,4,1 -> 10,16,16]..."
                         // We need to iterate over each individual box and render them separately
                         
-                        LOGGER.info("[CLC/LTAPIFacade] === Box Extraction Debug for Tile #{} ===", tileCount);
-                        LOGGER.info("[CLC/LTAPIFacade] Tile class: {}", tile.getClass().getName());
-                        LOGGER.info("[CLC/LTAPIFacade] Tile string representation: {}", tile.toString());
+                        if (shouldLogDetailed()) {
+                            LOGGER.info("[CLC/LTAPIFacade] === Box Extraction Debug for Tile #{} ===", tileCount);
+                            LOGGER.info("[CLC/LTAPIFacade] Tile class: {}", tile.getClass().getName());
+                            LOGGER.info("[CLC/LTAPIFacade] Tile string representation: {}", tile.toString());
+                        }
                         
                         // Try to find a collection or iterable of LittleBox instances within the tile
                         java.util.List<Object> individualBoxes = new java.util.ArrayList<>();
@@ -429,14 +573,17 @@ public class LittleTilesAPIFacade {
                             for (String methodName : boxCollectionMethods) {
                                 try {
                                     Method method = tile.getClass().getMethod(methodName);
-                                    Object result = method.invoke(tile);
-                                    if (result != null) {
-                                        LOGGER.info("[CLC/LTAPIFacade] Method {} returned: {} (type: {})", 
-                                            methodName, result.toString(), result.getClass().getName());
+                                    Object result = method.invoke(tile);                                    if (result != null) {
+                                        if (shouldLogDetailed()) {
+                                            LOGGER.info("[CLC/LTAPIFacade] Method {} returned: {} (type: {})", 
+                                                methodName, result.toString(), result.getClass().getName());
+                                        }
                                         
                                         // Check if it's iterable
                                         if (result instanceof Iterable) {
-                                            LOGGER.info("[CLC/LTAPIFacade] Found iterable collection via {}", methodName);
+                                            if (shouldLogDetailed()) {
+                                                LOGGER.info("[CLC/LTAPIFacade] Found iterable collection via {}", methodName);
+                                            }
                                             for (Object box : (Iterable<?>) result) {
                                                 if (box != null && box.getClass().getName().contains("LittleBox")) {
                                                     individualBoxes.add(box);
@@ -444,8 +591,10 @@ public class LittleTilesAPIFacade {
                                                 }
                                             }
                                             if (!individualBoxes.isEmpty()) {
-                                                LOGGER.info("[CLC/LTAPIFacade] Successfully extracted {} boxes via {}", 
-                                                    individualBoxes.size(), methodName);
+                                                if (shouldLogDetailed()) {
+                                                    LOGGER.info("[CLC/LTAPIFacade] Successfully extracted {} boxes via {}", 
+                                                        individualBoxes.size(), methodName);
+                                                }
                                                 break;
                                             }
                                         }
@@ -453,7 +602,9 @@ public class LittleTilesAPIFacade {
                                         // Check if it's a single LittleBox
                                         if (result.getClass().getName().contains("LittleBox")) {
                                             individualBoxes.add(result);
-                                            LOGGER.info("[CLC/LTAPIFacade] Found single box via {}", methodName);
+                                            if (shouldLogDetailed()) {
+                                                LOGGER.info("[CLC/LTAPIFacade] Found single box via {}", methodName);
+                                            }
                                             break;
                                         }
                                     }
@@ -463,18 +614,21 @@ public class LittleTilesAPIFacade {
                                     LOGGER.debug("[CLC/LTAPIFacade] Method {} failed: {}", methodName, e.getMessage());
                                 }
                             }
-                            
-                            // Method 2: Try accessing the 'boxes' field directly if methods failed
+                              // Method 2: Try accessing the 'boxes' field directly if methods failed
                             if (individualBoxes.isEmpty()) {
-                                LOGGER.info("[CLC/LTAPIFacade] No box collection method worked, trying fields...");
+                                if (shouldLogDetailed()) {
+                                    LOGGER.info("[CLC/LTAPIFacade] No box collection method worked, trying fields...");
+                                }
                                 try {
                                     java.lang.reflect.Field boxesField = tile.getClass().getDeclaredField("boxes");
                                     boxesField.setAccessible(true);
                                     Object boxesValue = boxesField.get(tile);
                                     
                                     if (boxesValue != null) {
-                                        LOGGER.info("[CLC/LTAPIFacade] Found 'boxes' field: {} (type: {})", 
-                                            boxesValue, boxesValue.getClass().getName());
+                                        if (shouldLogDetailed()) {
+                                            LOGGER.info("[CLC/LTAPIFacade] Found 'boxes' field: {} (type: {})", 
+                                                boxesValue, boxesValue.getClass().getName());
+                                        }
                                         
                                         if (boxesValue instanceof Iterable) {
                                             for (Object box : (Iterable<?>) boxesValue) {
@@ -482,20 +636,23 @@ public class LittleTilesAPIFacade {
                                                     individualBoxes.add(box);
                                                 }
                                             }
-                                            LOGGER.info("[CLC/LTAPIFacade] Extracted {} boxes from 'boxes' field", individualBoxes.size());
+                                            if (shouldLogDetailed()) {
+                                                LOGGER.info("[CLC/LTAPIFacade] Extracted {} boxes from 'boxes' field", individualBoxes.size());
+                                            }
                                         }
                                     }
                                 } catch (Exception e) {
                                     LOGGER.debug("[CLC/LTAPIFacade] Field access failed: {}", e.getMessage());
                                 }
                             }
-                            
-                            // Method 3: If we still have no boxes, examine the tile's superclass or parent collection
+                              // Method 3: If we still have no boxes, examine the tile's superclass or parent collection
                             if (individualBoxes.isEmpty()) {
-                                LOGGER.warn("[CLC/LTAPIFacade] Could not extract individual boxes from LittleTile directly");
-                                LOGGER.info("[CLC/LTAPIFacade] Attempting to use tilePair.key as fallback, but this may cause type mismatch");
-                                // We'll skip this tile rather than cause a type mismatch
-                                LOGGER.warn("[CLC/LTAPIFacade] Skipping tile #{} due to box extraction failure", tileCount);
+                                if (shouldLogDetailed()) {
+                                    LOGGER.warn("[CLC/LTAPIFacade] Could not extract individual boxes from LittleTile directly");
+                                    LOGGER.info("[CLC/LTAPIFacade] Attempting to use tilePair.key as fallback, but this may cause type mismatch");
+                                    // We'll skip this tile rather than cause a type mismatch
+                                    LOGGER.warn("[CLC/LTAPIFacade] Skipping tile #{} due to box extraction failure", tileCount);
+                                }
                                 continue; // Skip this tile
                             }
                             
@@ -503,53 +660,72 @@ public class LittleTilesAPIFacade {
                             LOGGER.error("[CLC/LTAPIFacade] Exception during box collection extraction: {}", e.getMessage());
                             continue; // Skip this tile
                         }
-                        
-                        // Now iterate over each individual box and render it
+                          // Now iterate over each individual box and render it
                         for (int boxIndex = 0; boxIndex < individualBoxes.size(); boxIndex++) {
                             Object individualBox = individualBoxes.get(boxIndex);
-                            LOGGER.info("[CLC/LTAPIFacade] Processing tile #{}, box #{}: {} (type: {})", 
-                                tileCount, boxIndex + 1, individualBox, individualBox.getClass().getName());                            
+                            
+                            // Only log detailed processing info when throttling allows
+                            if (shouldLogDetailed()) {
+                                LOGGER.info("[CLC/LTAPIFacade] Processing tile #{}, box #{}: {} (type: {})", 
+                                    tileCount, boxIndex + 1, individualBox, individualBox.getClass().getName());
+                            }
+                            
                             // Try each render type until one works for this individual box
                             for (net.minecraft.client.renderer.RenderType renderType : renderTypes) {
-                                try {
-                                    // Detailed logging before getRenderingBox call
-                                    LOGGER.info("[CLC/LTAPIFacade] === getRenderingBox Call Debug ===");
-                                    LOGGER.info("[CLC/LTAPIFacade] Calling getRenderingBox with:");
-                                    LOGGER.info("[CLC/LTAPIFacade]   tiles: {} (type: {})", tiles, tiles.getClass().getName());
-                                    LOGGER.info("[CLC/LTAPIFacade]   tile: {} (type: {})", tile, tile.getClass().getName());
-                                    LOGGER.info("[CLC/LTAPIFacade]   individualBox: {} (type: {})", individualBox, individualBox.getClass().getName());
-                                    LOGGER.info("[CLC/LTAPIFacade]   renderType: {}", renderType);
-                                    LOGGER.info("[CLC/LTAPIFacade] Expected signature: getRenderingBox(LittleTile, LittleBox, RenderType)");
+                                try {                                    // Only log detailed debug info once per minute to avoid spam
+                                    if (shouldLogDetailed()) {
+                                        LOGGER.info("[CLC/LTAPIFacade] === getRenderingBox Call Debug ===");
+                                        LOGGER.info("[CLC/LTAPIFacade] Calling getRenderingBox with:");
+                                        LOGGER.info("[CLC/LTAPIFacade]   tiles: {} (type: {})", tiles, tiles.getClass().getName());
+                                        LOGGER.info("[CLC/LTAPIFacade]   tile: {} (type: {})", tile, tile.getClass().getName());
+                                        LOGGER.info("[CLC/LTAPIFacade]   individualBox: {} (type: {})", individualBox, individualBox.getClass().getName());
+                                        LOGGER.info("[CLC/LTAPIFacade]   renderType: {}", renderType);
+                                        LOGGER.info("[CLC/LTAPIFacade] Expected signature: getRenderingBox(LittleTile, LittleBox, RenderType)");
+                                        // === GEMINI'S CRITICAL DEBUG: Log method declaring class ===
+                                        LOGGER.info("[CLC/LTAPIFacade] tiles object class: {}", tiles.getClass().getName());
+                                        LOGGER.info("[CLC/LTAPIFacade] getRenderingBoxMethod DECLARED BY: {}", getRenderingBoxMethod.getDeclaringClass().getName());
+                                    }
                                     
                                     // Call tiles.getRenderingBox(tile, individualBox, renderType)
                                     Object result = getRenderingBoxMethod.invoke(tiles, tile, individualBox, renderType);
                                     
                                     // === GEMINI'S DEBUG RECOMMENDATION: Log actual return type ===
                                     if (result != null) {
-                                        LOGGER.info("[CLC/LTAPIFacade] getRenderingBox for tile {} (box type {}), renderType {} returned: {} (Class: {})", 
-                                            tile.getClass().getSimpleName(), individualBox.getClass().getSimpleName(), renderType, result, result.getClass().getName());
-                                          // Now we have a LittleRenderBox, let's try to render it
+                                        if (shouldLogDetailed()) {
+                                            LOGGER.info("[CLC/LTAPIFacade] getRenderingBox for tile {} (box type {}), renderType {} returned: {} (Class: {})", 
+                                                tile.getClass().getSimpleName(), individualBox.getClass().getSimpleName(), renderType, result, result.getClass().getName());
+                                        }
+                                        // Now we have a LittleRenderBox, let's try to render it
                                         if (renderLittleRenderBox(result, poseStack, bufferSource, combinedLight, combinedOverlay, renderType, tiles, tile)) {
                                             renderedSomething = true;
-                                            LOGGER.info("[CLC/LTAPIFacade] Successfully rendered tile #{}, box #{} with renderType {}", tileCount, boxIndex + 1, renderType);
+                                            if (shouldLog()) {
+                                                LOGGER.info("[CLC/LTAPIFacade] Successfully rendered tile #{}, box #{} with renderType {}", tileCount, boxIndex + 1, renderType);
+                                            }
                                             break; // Move to next renderType or box
                                         } else {
-                                            LOGGER.info("[CLC/LTAPIFacade] Failed to render tile #{}, box #{} with renderType {}", tileCount, boxIndex + 1, renderType);
+                                            if (shouldLogDetailed()) {
+                                                LOGGER.info("[CLC/LTAPIFacade] Failed to render tile #{}, box #{} with renderType {}", tileCount, boxIndex + 1, renderType);
+                                            }
                                         }
                                     } else {
-                                        LOGGER.debug("[CLC/LTAPIFacade] getRenderingBox for tile {} (box type {}), renderType {} returned NULL.", 
-                                            tile.getClass().getSimpleName(), individualBox.getClass().getSimpleName(), renderType);
+                                        if (shouldLogDetailed()) {
+                                            LOGGER.debug("[CLC/LTAPIFacade] getRenderingBox for tile {} (box type {}), renderType {} returned NULL.", 
+                                                tile.getClass().getSimpleName(), individualBox.getClass().getSimpleName(), renderType);
+                                        }
                                     }
-                                    
-                                } catch (Exception e) {
-                                    LOGGER.warn("[CLC/LTAPIFacade] Failed to get/render box for tile #{}, box #{}, renderType {}: {}", tileCount, boxIndex + 1, renderType, e.getMessage());
+                                      } catch (Exception e) {
+                                    if (shouldLogDetailed()) {
+                                        LOGGER.warn("[CLC/LTAPIFacade] Failed to get/render box for tile #{}, box #{}, renderType {}: {}", tileCount, boxIndex + 1, renderType, e.getMessage());
+                                    }
                                 }
                             }
                         } // End of individual box iteration
                     }
                 }
                 
-                LOGGER.info("[CLC/LTAPIFacade] Processed {} individual tiles, rendered: {}", tileCount, renderedSomething);
+                if (shouldLogDev()) {
+                    LOGGER.info("[CLC/LTAPIFacade] Processed {} individual tiles, rendered: {}", tileCount, renderedSomething);
+                }
                 
             } catch (Exception e) {
                 LOGGER.error("[CLC/LTAPIFacade] Error during individual tile rendering: {}", e.getMessage(), e);
@@ -585,32 +761,43 @@ public class LittleTilesAPIFacade {
                 };
                 
                 VertexConsumer consumer = bufferSource.getBuffer(renderType);
-                
-                for (Method method : possibleMethods) {
+                  for (Method method : possibleMethods) {
                     if (method != null) {
                         try {
-                            LOGGER.info("[CLC/LTAPIFacade] Trying render method: {} on class {}", method.getName(), renderBoxInstance.getClass().getName());
+                            if (shouldLogDetailed()) {
+                                LOGGER.info("[CLC/LTAPIFacade] Trying render method: {} on class {}", method.getName(), renderBoxInstance.getClass().getName());
+                            }
                             
                             if (method.getName().equals("renderToBuffer") && method.getParameterCount() == 8) {
                                 method.invoke(renderBoxInstance, poseStack.last(), consumer, combinedLight, combinedOverlay, 1.0f, 1.0f, 1.0f, 1.0f);
-                                LOGGER.info("[CLC/LTAPIFacade] Successfully called renderToBuffer on {}", renderBoxInstance.getClass().getName());
+                                if (shouldLog()) {
+                                    LOGGER.info("[CLC/LTAPIFacade] Successfully called renderToBuffer on {}", renderBoxInstance.getClass().getName());
+                                }
                                 return true;
                             } else if (method.getName().equals("buffer") && method.getParameterCount() == 2) {
                                 method.invoke(renderBoxInstance, consumer, poseStack.last());
-                                LOGGER.info("[CLC/LTAPIFacade] Successfully called buffer on {}", renderBoxInstance.getClass().getName());
+                                if (shouldLog()) {
+                                    LOGGER.info("[CLC/LTAPIFacade] Successfully called buffer on {}", renderBoxInstance.getClass().getName());
+                                }
                                 return true;
                             } else if (method.getName().equals("tessellate") && method.getParameterCount() == 1) {
                                 method.invoke(renderBoxInstance, consumer);
-                                LOGGER.info("[CLC/LTAPIFacade] Successfully called tessellate on {}", renderBoxInstance.getClass().getName());
+                                if (shouldLog()) {
+                                    LOGGER.info("[CLC/LTAPIFacade] Successfully called tessellate on {}", renderBoxInstance.getClass().getName());
+                                }
                                 return true;
                             } else if (method.getName().equals("addQuads") && method.getParameterCount() == 1) {
                                 method.invoke(renderBoxInstance, consumer);
-                                LOGGER.info("[CLC/LTAPIFacade] Successfully called addQuads on {}", renderBoxInstance.getClass().getName());
+                                if (shouldLog()) {
+                                    LOGGER.info("[CLC/LTAPIFacade] Successfully called addQuads on {}", renderBoxInstance.getClass().getName());
+                                }
                                 return true;
                             }
                             
                         } catch (Exception e) {
-                            LOGGER.info("[CLC/LTAPIFacade] Render method {} failed: {}", method.getName(), e.getMessage());
+                            if (shouldLogDetailed()) {
+                                LOGGER.info("[CLC/LTAPIFacade] Render method {} failed: {}", method.getName(), e.getMessage());
+                            }
                         }
                     }
                 }
@@ -649,10 +836,10 @@ public class LittleTilesAPIFacade {
     
     /**
      * Helper method to find buffer/render methods with specific signatures
-     */
-    private static Method findBufferMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
+     */    private static Method findBufferMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
         try {
-            return clazz.getMethod(methodName, parameterTypes);        } catch (NoSuchMethodException e) {
+            return clazz.getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
             return null;
         }
     }
@@ -679,5 +866,230 @@ public class LittleTilesAPIFacade {
             LOGGER.error("Error getting collision shape for {}: {}", parsedData.getContainerPos(), e.getMessage(), e);
             return Shapes.block(); // Fallback
         }
+    }    /**
+     * Alternative approach using LittleTile.getRenderingBoxes(...) as recommended by Gemini
+     * This populates a list of LittleRenderBox instances instead of returning a single one
+     */
+    private static boolean attemptLittleTileGetRenderingBoxesApproach(BlockParentCollection tiles, PoseStack poseStack, 
+                                                                     MultiBufferSource bufferSource, int combinedLight, 
+                                                                     int combinedOverlay, float partialTicks, LittleGrid grid) {
+        boolean renderedSomething = false;
+        int tileCount = 0;
+        
+        if (shouldLogRenderingBoxes()) {
+            LOGGER.info("[CLC/LTAPIFacade] === Trying Gemini's Alternative: LittleTile.getRenderingBoxes() ===");
+        }
+        
+        try {
+            // Look for the LittleTile.getRenderingBoxes method that takes a layer integer
+            Method getRenderingBoxesMethod = null;
+            Class<?> chunkLayerMapListClass = null;
+            
+            // Try to find the ChunkLayerMapList class from CreativeCore
+            try {
+                chunkLayerMapListClass = Class.forName("team.creative.creativecore.common.util.type.list.ChunkLayerMapList");
+                LOGGER.info("[CLC/LTAPIFacade] Found ChunkLayerMapList class: {}", chunkLayerMapListClass.getName());
+            } catch (ClassNotFoundException e) {
+                LOGGER.warn("[CLC/LTAPIFacade] Could not find ChunkLayerMapList class, trying alternative approaches");
+                // Try java.util.List as fallback
+                chunkLayerMapListClass = java.util.List.class;
+            }
+            
+            for (var tilePair : tiles.allTiles()) {
+                if (tilePair != null && tilePair.value != null) {
+                    tileCount++;
+                    LittleTile tile = tilePair.value;
+                    
+                    LOGGER.info("[CLC/LTAPIFacade] Processing tile #{}: {} (class: {})", tileCount, tile, tile.getClass().getName());
+                    
+                    // Look for getRenderingBoxes method on the tile
+                    try {
+                        // Try different method signatures that might exist
+                        Method[] possibleMethods = {
+                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
+                                LittleGrid.class, Object.class, LittleGrid.class, chunkLayerMapListClass, int.class),
+                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
+                                LittleGrid.class, Object.class, chunkLayerMapListClass, int.class),
+                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
+                                chunkLayerMapListClass, int.class),
+                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
+                                java.util.List.class, int.class)
+                        };
+                        
+                        for (Method method : possibleMethods) {
+                            if (method != null) {
+                                getRenderingBoxesMethod = method;
+                                LOGGER.info("[CLC/LTAPIFacade] Found getRenderingBoxes method: {}", method);
+                                break;
+                            }
+                        }
+                        
+                        if (getRenderingBoxesMethod != null) {
+                            // Create a temporary list to collect LittleRenderBox instances
+                            java.util.List<Object> renderBoxList = new java.util.ArrayList<>();
+                            
+                            // Try different layer values (0-3 typically correspond to solid, cutout, cutout_mipped, translucent)
+                            for (int layer = 0; layer < 4; layer++) {
+                                try {
+                                    LOGGER.info("[CLC/LTAPIFacade] Calling getRenderingBoxes for tile #{}, layer {}", tileCount, layer);
+                                    
+                                    // Call the method based on its parameter count
+                                    if (getRenderingBoxesMethod.getParameterCount() == 5) {
+                                        // getRenderingBoxes(grid, offset, vanillaGrid, list, layer)
+                                        getRenderingBoxesMethod.invoke(tile, grid, new Object(), grid, renderBoxList, layer);
+                                    } else if (getRenderingBoxesMethod.getParameterCount() == 4) {
+                                        // getRenderingBoxes(grid, offset, list, layer)
+                                        getRenderingBoxesMethod.invoke(tile, grid, new Object(), renderBoxList, layer);
+                                    } else if (getRenderingBoxesMethod.getParameterCount() == 2) {
+                                        // getRenderingBoxes(list, layer)
+                                        getRenderingBoxesMethod.invoke(tile, renderBoxList, layer);
+                                    }
+                                    
+                                    LOGGER.info("[CLC/LTAPIFacade] getRenderingBoxes returned {} boxes for layer {}", renderBoxList.size(), layer);
+                                    
+                                    // Process any LittleRenderBox instances that were added
+                                    for (Object renderBox : renderBoxList) {
+                                        if (renderBox != null) {
+                                            LOGGER.info("[CLC/LTAPIFacade] Processing LittleRenderBox: {} (type: {})", 
+                                                renderBox, renderBox.getClass().getName());
+                                            
+                                            // Convert layer to RenderType
+                                            net.minecraft.client.renderer.RenderType renderType = getRenderTypeFromLayer(layer);
+                                            
+                                            if (renderLittleRenderBox(renderBox, poseStack, bufferSource, combinedLight, combinedOverlay, renderType, tiles, tile)) {
+                                                renderedSomething = true;
+                                                LOGGER.info("[CLC/LTAPIFacade] Successfully rendered LittleRenderBox for tile #{}, layer {}", tileCount, layer);
+                                            }
+                                        }
+                                    }
+                                    
+                                    renderBoxList.clear(); // Clear for next layer
+                                    
+                                } catch (Exception e) {
+                                    LOGGER.warn("[CLC/LTAPIFacade] Failed to call getRenderingBoxes for tile #{}, layer {}: {}", tileCount, layer, e.getMessage());
+                                }
+                            }
+                        } else {
+                            LOGGER.warn("[CLC/LTAPIFacade] Could not find getRenderingBoxes method on tile class: {}", tile.getClass().getName());
+                        }
+                        
+                    } catch (Exception e) {
+                        LOGGER.error("[CLC/LTAPIFacade] Error processing tile #{}: {}", tileCount, e.getMessage());
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            LOGGER.error("[CLC/LTAPIFacade] Error in LittleTile.getRenderingBoxes approach: {}", e.getMessage(), e);
+        }
+        
+        if (shouldLogRenderingBoxes()) {
+            LOGGER.info("[CLC/LTAPIFacade] LittleTile.getRenderingBoxes approach processed {} tiles, rendered: {}", tileCount, renderedSomething);
+        }
+        return renderedSomething;
+    }
+    
+    /**
+     * Convert layer integer to RenderType (approximation)
+     */
+    private static net.minecraft.client.renderer.RenderType getRenderTypeFromLayer(int layer) {
+        switch (layer) {
+            case 0: return net.minecraft.client.renderer.RenderType.solid();
+            case 1: return net.minecraft.client.renderer.RenderType.cutout();
+            case 2: return net.minecraft.client.renderer.RenderType.cutoutMipped();
+            case 3: return net.minecraft.client.renderer.RenderType.translucent();
+            default: return net.minecraft.client.renderer.RenderType.solid();
+        }
+    }
+
+    /**
+     * Diagnoses potential VirtualRenderWorld and BETiles client initialization issues
+     * Based on Gemini's analysis of potential null return causes
+     */
+    private static void diagnoseRenderContextIssues(BlockParentCollection tiles) {
+        LOGGER.info("[CLC/LTAPIFacade] === Diagnosing Render Context Issues (Gemini's Analysis) ===");
+        
+        try {
+            // Check if tiles has an owning BETiles and if it's properly client-initialized
+            java.lang.reflect.Field beTilesField = null;
+            Object owningBETiles = null;
+            
+            // Try to find the owning BETiles instance
+            String[] possibleFieldNames = {"be", "blockEntity", "owner", "parent", "tiles"};
+            for (String fieldName : possibleFieldNames) {
+                try {
+                    beTilesField = tiles.getClass().getDeclaredField(fieldName);
+                    beTilesField.setAccessible(true);
+                    Object fieldValue = beTilesField.get(tiles);
+                    
+                    if (fieldValue != null && fieldValue.getClass().getName().contains("BETiles")) {
+                        owningBETiles = fieldValue;
+                        LOGGER.info("[CLC/LTAPIFacade] Found owning BETiles via field '{}': {} (type: {})", 
+                            fieldName, fieldValue, fieldValue.getClass().getName());
+                        break;
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    // Field doesn't exist or not accessible, continue
+                }
+            }
+            
+            if (owningBETiles != null) {
+                // Check BETiles client initialization
+                try {
+                    // Check if BERenderManager exists (indicates client initialization)
+                    java.lang.reflect.Field renderField = owningBETiles.getClass().getDeclaredField("render");
+                    renderField.setAccessible(true);
+                    Object renderManager = renderField.get(owningBETiles);
+                    
+                    if (renderManager != null) {
+                        LOGGER.info("[CLC/LTAPIFacade] BETiles has BERenderManager: {} (type: {})", 
+                            renderManager, renderManager.getClass().getName());
+                            
+                        // Check render manager state
+                        try {
+                            Method isClientMethod = owningBETiles.getClass().getMethod("isClient");
+                            Boolean isClient = (Boolean) isClientMethod.invoke(owningBETiles);
+                            LOGGER.info("[CLC/LTAPIFacade] BETiles.isClient(): {}", isClient);
+                        } catch (Exception e) {
+                            LOGGER.warn("[CLC/LTAPIFacade] Could not check BETiles.isClient(): {}", e.getMessage());
+                        }
+                        
+                        // Check level context
+                        try {
+                            java.lang.reflect.Field levelField = owningBETiles.getClass().getSuperclass().getDeclaredField("level");
+                            levelField.setAccessible(true);
+                            Object level = levelField.get(owningBETiles);
+                            
+                            if (level != null) {
+                                Method isClientSideMethod = level.getClass().getMethod("isClientSide");
+                                Boolean isClientSide = (Boolean) isClientSideMethod.invoke(level);
+                                LOGGER.info("[CLC/LTAPIFacade] BETiles.level.isClientSide(): {}", isClientSide);
+                                LOGGER.info("[CLC/LTAPIFacade] Level type: {}", level.getClass().getName());
+                            } else {
+                                LOGGER.warn("[CLC/LTAPIFacade] BETiles.level is NULL - this is likely the cause of getRenderingBox returning null!");
+                            }
+                        } catch (Exception e) {
+                            LOGGER.warn("[CLC/LTAPIFacade] Could not check BETiles level: {}", e.getMessage());
+                        }
+                        
+                    } else {
+                        LOGGER.warn("[CLC/LTAPIFacade] BETiles.render (BERenderManager) is NULL - client not properly initialized!");
+                        LOGGER.warn("[CLC/LTAPIFacade] This is likely why getRenderingBox returns null - BERenderManager is required for rendering operations");
+                    }
+                    
+                } catch (Exception e) {
+                    LOGGER.warn("[CLC/LTAPIFacade] Could not access BETiles render field: {}", e.getMessage());
+                }
+                
+            } else {
+                LOGGER.warn("[CLC/LTAPIFacade] Could not find owning BETiles instance in BlockParentCollection");
+                LOGGER.info("[CLC/LTAPIFacade] This might indicate the tiles were loaded outside normal BlockEntity context");
+            }
+            
+        } catch (Exception e) {
+            LOGGER.error("[CLC/LTAPIFacade] Error during render context diagnosis: {}", e.getMessage(), e);
+        }
+        
+        LOGGER.info("[CLC/LTAPIFacade] === End Render Context Diagnosis ===");
     }
 }
