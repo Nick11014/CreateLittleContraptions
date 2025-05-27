@@ -4,250 +4,122 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
-
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-// LittleTiles imports - Based on Gemini analysis
-import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.structure.LittleStructure;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * Renderer for LittleTiles blocks when moved by Create contraptions.
+ * This uses the Direct Structure Rendering approach to bypass VirtualRenderWorld limitations.
+ */
 public class LittleTilesContraptionRenderer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LittleTilesContraptionRenderer.class);
+
+    private static final Logger LOGGER = LogManager.getLogger("CreateLittleContraptions/LTRenderer");
     private static boolean initialized = false;
 
     /**
-     * Initialize the LittleTiles contraption renderer.
-     * Called during mod initialization.
+     * Initialize the renderer. Called by CreateRuntimeIntegration.
      */
     public static void initialize() {
-        LOGGER.info("Initializing LittleTiles contraption renderer...");
+        LOGGER.info("LittleTilesContraptionRenderer initialized");
         initialized = true;
-        LOGGER.info("LittleTiles contraption renderer initialized successfully.");
     }
 
     /**
-     * Check if the renderer has been initialized.
+     * Check if the renderer is initialized.
      */
     public static boolean isInitialized() {
         return initialized;
-    }    /**
-     * Legacy wrapper method for mixin compatibility.
-     * Simplified approach to avoid constructor issues.
+    }
+
+    /**
+     * Legacy method for compatibility with ContraptionRendererMixin.
+     * This method is called by existing mixin code and delegates to our new approach.
      */
     public static void renderLittleTileBEInContraption(
-            PoseStack poseStack, 
+            com.mojang.blaze3d.vertex.PoseStack poseStack,
             MultiBufferSource bufferSource,
-            Level realLevel,
-            Level renderLevel,
-            BETiles blockEntity,
+            net.minecraft.world.level.Level level,
+            net.minecraft.world.level.Level contraptionLevel,
+            team.creative.littletiles.common.block.entity.BETiles blockEntity,
             float partialTicks,
-            boolean lightTransform) {
+            boolean moved) {
         
-        LOGGER.debug("🔄 [CLC Renderer] Legacy wrapper called for BE at {}", blockEntity.getBlockPos());
-        
-        try {
-            // For now, we'll do a simplified direct rendering approach
-            // This avoids the constructor issues while still providing some rendering capability
-            
-            BlockPos localPos = blockEntity.getBlockPos();
-            LOGGER.info("🎨 [CLC Renderer] Legacy wrapper - attempting direct LittleTiles rendering for {}", localPos);            // Get the NBT data from the existing blockEntity
-            CompoundTag nbt = new CompoundTag();
-            // Use a safer way to get NBT data - try different approaches
-            try {
-                // Try the standard save method
-                nbt = blockEntity.saveWithFullMetadata(realLevel.registryAccess());
-            } catch (Exception e) {
-                LOGGER.debug("🔄 [CLC Renderer] saveWithFullMetadata failed, trying saveWithoutMetadata: {}", e.getMessage());
-                try {
-                    nbt = blockEntity.saveWithoutMetadata(realLevel.registryAccess());
-                } catch (Exception e2) {
-                    LOGGER.debug("🔄 [CLC Renderer] saveWithoutMetadata failed, using fallback: {}", e2.getMessage());
-                    // Create minimal NBT data as fallback
-                    nbt.putString("_marker", "clc_legacy_render");
-                    nbt.putString("id", "littletiles:tiles"); // Basic tile marker
-                }
-            }
-            
-            if (nbt.isEmpty() || nbt.size() <= 1) { // Account for the marker
-                LOGGER.warn("⚠️ [CLC Renderer] Legacy wrapper - NBT is empty for {}", localPos);
-                return;
-            }
-            
-            // Try to create a virtual BE and render its structures directly
-            BETiles virtualBE = new BETiles(localPos, blockEntity.getBlockState());
-            virtualBE.setLevel(realLevel); // Use the real level as fallback
-            virtualBE.handleUpdate(nbt, false);
-            
-            if (virtualBE.isEmpty()) {
-                LOGGER.warn("⚠️ [CLC Renderer] Legacy wrapper - virtualBE is empty after loading NBT");
-                return;
-            }
-            
-            // Get renderable structures
-            var structuresToRender = virtualBE.rendering();
-            boolean hasStructures = false;
-            int structureCount = 0;
-            
-            // Count structures and check if any exist
-            for (LittleStructure structure : structuresToRender) {
-                if (structure != null) {
-                    hasStructures = true;
-                    structureCount++;
-                }
-            }
-            
-            if (!hasStructures) {
-                LOGGER.debug("📭 [CLC Renderer] Legacy wrapper - no structures to render");
-                return;
-            }
-            
-            LOGGER.info("✅ [CLC Renderer] Legacy wrapper - found {} structures to render", structureCount);
-            
-            // Render each structure directly
-            for (LittleStructure structure : structuresToRender) {
-                if (structure == null) continue;
-                
-                poseStack.pushPose();
-                try {
-                    structure.renderTick(poseStack, bufferSource, localPos, partialTicks);
-                    LOGGER.debug("🎨 [CLC Renderer] Legacy wrapper - rendered structure: {}", structure.getClass().getSimpleName());
-                } catch (Exception e) {
-                    LOGGER.error("❌ [CLC Renderer] Legacy wrapper - error rendering structure: {}", e.getMessage(), e);
-                } finally {
-                    poseStack.popPose();
-                }
-            }
-            
-        } catch (Exception e) {
-            LOGGER.error("❌ [CLC Renderer] Error in legacy wrapper for {}: {}", 
-                        blockEntity.getBlockPos(), e.getMessage(), e);
-        }
-    }    /**
-     * Render a LittleTiles BlockEntity in a contraption using the main movement behavior approach.
-     * This method follows Gemini's analysis of LittleTiles rendering architecture.
-     * Updated to use loadAdditional() instead of handleUpdate() to avoid VirtualRenderWorld limitations.
+        LOGGER.debug("Legacy renderLittleTileBEInContraption called - this should not be used with Direct Structure Rendering");
+        // This method is kept for compatibility but should not be used with the new approach
+        // The rendering is now handled by renderMovementBehaviourTile via MovementBehaviour
+    }
+
+    /**
+     * Renders a LittleTiles block within a Create contraption using Direct Structure Rendering.
+     * This method is called by LittleTilesMovementBehaviour.renderInContraption.
+     * 
+     * @param context MovementContext containing the block data and NBT
+     * @param renderWorld VirtualRenderWorld (limited, used only for registry access)
+     * @param matrices ContraptionMatrices for positioning and lighting
+     * @param buffer MultiBufferSource for rendering
+     * @return true if rendering was attempted, false if no data to render
      */
-    public static void renderMovementBehaviourTile(MovementContext context, VirtualRenderWorld renderWorld,
-                                                  ContraptionMatrices matrices, MultiBufferSource bufferSource) {
+    public static boolean renderMovementBehaviourTile(MovementContext context, VirtualRenderWorld renderWorld,
+                                                    ContraptionMatrices matrices, MultiBufferSource buffer) {
+        boolean hasNBT = context.blockEntityData != null && !context.blockEntityData.isEmpty();
+        LOGGER.info("🎨 [CLC Renderer] Starting renderMovementBehaviourTile for: {} with NBT (exists? {})", 
+                   context.localPos, hasNBT);
 
-        final BlockPos localPos = context.localPos;
-        final BlockState blockState = context.state; // BlockState do BlockTile (container)
-        final CompoundTag nbt = context.blockEntityData;
+        if (!hasNBT) {
+            LOGGER.warn("⚠️ [CLC Renderer] No NBT data found for: {}", context.localPos);
+            return false; // No data to render
+        }        try {
+            // Use the Direct Structure Rendering facade to parse NBT
+            // For now, we'll try without the HolderLookup.Provider to test the basic approach
+            LittleTilesAPIFacade.ParsedLittleTilesData parsedStructures = LittleTilesAPIFacade.parseStructuresFromNBT(
+                context.blockEntityData, 
+                context.state, 
+                context.localPos, 
+                null // TODO: Find proper way to get HolderLookup.Provider in MovementBehaviour context
+            );
 
-        LOGGER.info("🎨 [CLC Renderer] Iniciando renderMovementBehaviourTile para: {} com NBT (existe? {})", localPos, (nbt != null && !nbt.isEmpty()));
+            if (parsedStructures == null) {
+                LOGGER.warn("⚠️ [CLC Renderer] Failed to parse structures from NBT for {}. Aborting render.", context.localPos);
+                return false;
+            }
+            LOGGER.debug("[CLC Renderer] Successfully parsed NBT structures for {}", context.localPos);
 
-        if (nbt == null || nbt.isEmpty()) {
-            LOGGER.warn("⚠️ [CLC Renderer] NBT é nulo ou vazio para {}. Abortando renderização.", localPos);
-            return;
-        }
-
-        PoseStack poseStack = matrices.getModelViewProjection();
-
-        try {
-            // 1. Criar instância de BETiles
-            BETiles virtualBE = new BETiles(localPos, blockState); 
+            // Prepare the PoseStack for rendering
+            PoseStack poseStack = matrices.getViewProjection(); // Get the contraption's transformation matrix
+            poseStack.pushPose();
             
-            // 2. Definir o Level. VirtualRenderWorld PRECISA se comportar como isClientSide = true
-            // para que o BERenderManager seja criado em BETiles.initClient().
-            if (renderWorld == null) { // Fallback, mas idealmente renderWorld nunca é null aqui
-                LOGGER.error("❌ [CLC Renderer] VirtualRenderWorld é NULO para {}. Abortando.", localPos);
-                return;
-            }            virtualBE.setLevel(renderWorld); 
-            LOGGER.debug("📦 [CLC Renderer] Level definido para BETiles virtual");
+            // Apply local translation for this specific block within the contraption
+            poseStack.translate(context.localPos.getX(), context.localPos.getY(), context.localPos.getZ());            // Calculate lighting - this is complex in MovementBehaviour context
+            // For now, use FULL_BRIGHT as a placeholder until we find the proper lighting method
+            // TODO: Investigate ContraptionMatrices for proper lighting information
+            int packedLight = LightTexture.FULL_BRIGHT; // Placeholder - NEEDS PROPER IMPLEMENTATION
+            int packedOverlay = OverlayTexture.NO_OVERLAY;
+            float partialTicks = 1.0f; // Placeholder - will need proper partial tick value
 
-            // 3. Carregar dados do NBT - ESTRATÉGIA SEGURA
-            // Como loadAdditional() e tiles não são acessíveis, usamos handleUpdate() com tratamento robusto
-            LOGGER.debug("📦 [CLC Renderer] Tentando carregar NBT para {}", localPos);
-            
-            boolean dataLoaded = false;
-            try {
-                // Tentar handleUpdate com isClient=false para minimizar operações de markDirty
-                virtualBE.handleUpdate(nbt, false);
-                dataLoaded = true;
-                LOGGER.info("✅ [CLC Renderer] virtualBE.handleUpdate(nbt, false) completado para {}", localPos);
-                
-            } catch (UnsupportedOperationException uoe) {
-                LOGGER.warn("⚠️ [CLC Renderer] handleUpdate falhou com UnsupportedOperationException (provavelmente VirtualRenderWorld.getChunk): {}", uoe.getMessage());
-                // Se falhar, não podemos carregar os dados corretamente no VirtualRenderWorld atual
-                // Isso indica que precisamos de uma abordagem diferente para o VirtualRenderWorld
-                dataLoaded = false;
-                
-            } catch (Exception e) {
-                LOGGER.error("❌ [CLC Renderer] Falha ao carregar NBT para {}: {}", localPos, e.getMessage());
-                dataLoaded = false;
-            }
-            
-            if (!dataLoaded) {
-                LOGGER.warn("⚠️ [CLC Renderer] Não foi possível carregar dados NBT para {}. Abortando renderização.", localPos);
-                return; // Sem dados carregados, não podemos renderizar
-            }
+            LOGGER.debug("[CLC Renderer] Attempting direct render for {} with light {} at {}", 
+                        context.localPos, packedLight, poseStack.last().pose());
 
-            // 4. Chamar onLoad para finalizar a inicialização do lado do cliente (inclui render.onLoad())
-            // Isto é importante para que o BERenderManager processe as tiles carregadas.
-            try {
-                LOGGER.debug("📦 [CLC Renderer] Chamando virtualBE.onLoad() para {}", localPos);
-                virtualBE.onLoad();
-                LOGGER.info("✅ [CLC Renderer] virtualBE.onLoad() completado para {}", localPos);
-            } catch (UnsupportedOperationException uoe) {
-                LOGGER.warn("⚠️ [CLC Renderer] onLoad() falhou com UnsupportedOperationException: {}. Continuando sem onLoad.", uoe.getMessage());
-                // Continuar sem onLoad - o BERenderManager pode ter sido inicializado de outra forma
-            } catch (Exception e) {
-                LOGGER.warn("⚠️ [CLC Renderer] onLoad() falhou: {}. Continuando sem onLoad.", e.getMessage());
-            }
+            // Perform the direct rendering using LittleTiles' own logic
+            LittleTilesAPIFacade.renderDirectly(
+                parsedStructures,
+                poseStack,
+                buffer,
+                packedLight,
+                packedOverlay,
+                partialTicks
+            );
 
-            // VERIFICAÇÃO: BERenderManager (virtualBE.render) está inicializado?
-            if (virtualBE.isClient() && virtualBE.render == null) {
-                LOGGER.warn("⚠️ [CLC Renderer] BERenderManager (virtualBE.render) é NULO após carregamento para {}. A renderização pode falhar.", localPos);
-            } else if (virtualBE.isClient()) {
-                LOGGER.info("✅ [CLC Renderer] BERenderManager (virtualBE.render) está PRESENTE para {}", localPos);
-            }// 5. Obter estruturas renderizáveis e renderizá-las
-            Iterable<LittleStructure> structuresToRender = virtualBE.rendering(); // Deve ser a lista correta agora
-            
-            boolean renderedSomething = false;
-            if (structuresToRender != null) {
-                for (LittleStructure structure : structuresToRender) {
-                    if (structure == null) continue;
+            poseStack.popPose();
+            LOGGER.info("✅ [CLC Renderer] Direct rendering attempted for: {}", context.localPos);
+            return true; // Indicate rendering was attempted
 
-                    LOGGER.debug("➡️ [CLC Renderer] Tentando renderizar estrutura: {} para BE em {}", structure.getClass().getSimpleName(), localPos);
-                    
-                    poseStack.pushPose();
-                    // A PoseStack de matrices.getModelViewProjection() já deve estar correta para o espaço da contraption.
-                    // O parâmetro 'pos' para renderTick é a posição do BETiles, que é 'localPos' no contexto da contraption.
-                    
-                    float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-
-                    structure.renderTick(poseStack, bufferSource, localPos, partialTicks);
-                    
-                    poseStack.popPose();
-                    renderedSomething = true;
-                    LOGGER.debug("✅ [CLC Renderer] structure.renderTick() chamado para {} em {}", structure.getClass().getSimpleName(), localPos);
-                }
-            } else {
-                 LOGGER.warn("⚠️ [CLC Renderer] virtualBE.rendering() retornou null para {}", localPos);
-            }
-
-
-            if (!renderedSomething) {
-                LOGGER.warn("⚠️ [CLC Renderer] Nenhuma estrutura com TICK_RENDERING encontrada ou renderizada para {}. Verifique se há tiles visíveis na estrutura.", localPos);
-            }
-
-            LOGGER.info("🎉 [CLC Renderer] renderMovementBehaviourTile finalizado para: {}", localPos);
-
-        } catch (UnsupportedOperationException uoe) {
-            // Se ainda recebermos o erro de getChunk, precisamos isolar o que o está causando
-            LOGGER.error("❌ CRÍTICO: UnsupportedOperationException (provavelmente getChunk) em renderMovementBehaviourTile para {}. Causa: {}", localPos, uoe.getMessage(), uoe);
-            // Investigar qual parte (loadAdditional, onLoad, rendering) está acionando isso.
-        } 
-        catch (Exception e) {
-            LOGGER.error("❌ [CLC Renderer] Exceção crítica em renderMovementBehaviourTile para {}: {}", localPos, e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.error("❌ [CLC Renderer] Unexpected error in renderMovementBehaviourTile for {}: {}", 
+                        context.localPos, e.getMessage(), e);
+            return false;
         }
     }
 }
