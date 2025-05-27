@@ -47,17 +47,18 @@ public class LittleTilesMovementBehaviour implements MovementBehaviour {
             LOGGER.warn("⚠️ renderInContraption: NBT data is null or empty for pos: {}. State: {}", 
                 context.localPos, context.state);
             return;
-        }
-
-        try {
+        }        try {            // Get partial ticks from Minecraft's timer since MovementBehaviour interface doesn't provide it
+            float partialTicks = net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+            
             // Call our LittleTiles rendering system
             LittleTilesContraptionRenderer.renderMovementBehaviourTile(
                 context,        // Contains BlockState, localPos, blockEntityData (NBT)
                 renderWorld,    // The contraption's virtual world
                 matrices,       // Contraption transformation matrices
-                bufferSource    // Buffer for drawing
+                bufferSource,   // Buffer for drawing
+                partialTicks    // Partial tick value for smooth animation
             );
-            LOGGER.info("✅ renderInContraption: Successfully called custom renderer for {}", context.localPos);        } catch (Exception e) {
+            LOGGER.info("✅ renderInContraption: Successfully called custom renderer for {}", context.localPos);} catch (Exception e) {
             LOGGER.error("❌ Error rendering LittleTile in contraption at " + context.localPos, e);
         }
     }

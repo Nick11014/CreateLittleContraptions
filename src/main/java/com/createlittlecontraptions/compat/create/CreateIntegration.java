@@ -53,9 +53,9 @@ public class CreateIntegration {
                 }
             }
 
-            if (registerMethod != null) {
-                // Create an instance of our MovementBehaviour
-                LittleTilesMovementBehaviourNew behaviour = new LittleTilesMovementBehaviourNew();
+            if (registerMethod != null) {                // Create an instance of our MovementBehaviour
+                com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour behaviour = 
+                    new com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour();
                 
                 // Register it for all LittleTiles block variants
                 registerMethod.invoke(null, LittleTilesRegistry.BLOCK_TILES.value(), behaviour);

@@ -16,25 +16,14 @@ public class CreateCompatHandler {
             return;
         }
 
-        LOGGER.info("Initializing Create compatibility...");
-
-        try {
+        LOGGER.info("Initializing Create compatibility...");        try {
             // Check if Create is available
             Class.forName("com.simibubi.create.Create");
             createLoaded = true;
-            LOGGER.info("Create mod detected! Setting up mini contraptions integration...");
-            
-            // Initialize the NEW comprehensive rendering fix - this is the main solution!
-            ContraptionRenderingFix.initialize();
-            
-            // Initialize the LittleTiles contraption fix as backup
-            LittleTilesContraptionFix.initialize();
+            LOGGER.info("Create mod detected! Setting up LittleTiles compatibility integration...");
             
             // Register our custom MovementBehaviour for LittleTiles blocks
             registerLittleTilesMovementBehaviour();
-            
-            // Initialize mini contraptions kinetic behaviors
-            initializeMiniContraptionsKinetics();
             
             // Initialize runtime integration
             CreateRuntimeIntegration.initialize();
@@ -42,11 +31,8 @@ public class CreateCompatHandler {
             initialized = true;
             LOGGER.info("Create compatibility initialized successfully!");
             
-            // Log comprehensive debug info
-            ContraptionRenderingFix.logDebugInfo();
-            
         } catch (ClassNotFoundException e) {
-            LOGGER.info("Create mod not found, mini contraptions will work in standalone mode");
+            LOGGER.info("Create mod not found, compatibility mod will be inactive");
             initialized = true;
         } catch (Exception e) {
             LOGGER.error("Failed to initialize Create compatibility", e);
@@ -150,19 +136,7 @@ public class CreateCompatHandler {
         // This new approach uses reflection and events to solve the LittleTiles rendering issue
         // without requiring compile-time dependencies on Create's obfuscated classes
         
-        LOGGER.info("Client rendering events setup complete - " + CreateRuntimeIntegration.getIntegrationStatus());
-    }
-    
-    private static void initializeMiniContraptionsKinetics() {
-        LOGGER.info("Initializing mini contraptions kinetic behaviors...");
-        
-        // TODO: Initialize kinetic behaviors for mini contraptions
-        // - Set up stress requirements (lower than full-size versions)
-        // - Register kinetic block entities
-        // - Configure rotational behaviors
-        
-        LOGGER.debug("Mini contraptions kinetic initialization placeholder complete");
-    }
+        LOGGER.info("Client rendering events setup complete - " + CreateRuntimeIntegration.getIntegrationStatus());    }
 
     public static boolean isInitialized() {
         return initialized;

@@ -24,7 +24,8 @@ public class MovementBehaviourRegistry {
         
         try {
             // Create our custom movement behaviour instance
-            LittleTilesMovementBehaviour littleTilesBehaviour = new LittleTilesMovementBehaviour();
+            com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour littleTilesBehaviour = 
+                new com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour();
             
             // Register the behaviour for all LittleTiles blocks using reflection
             registerBehaviourForLittleTilesBlocks(littleTilesBehaviour);
@@ -39,7 +40,7 @@ public class MovementBehaviourRegistry {
     /**
      * Registers the movement behaviour for all LittleTiles blocks using reflection.
      */
-    private static void registerBehaviourForLittleTilesBlocks(LittleTilesMovementBehaviour behaviour) {
+    private static void registerBehaviourForLittleTilesBlocks(com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour behaviour) {
         try {
             // Check if LittleTiles is available
             Class.forName("team.creative.littletiles.LittleTiles");
@@ -59,7 +60,7 @@ public class MovementBehaviourRegistry {
     /**
      * Registers the movement behaviour using reflection to access Create's internal systems.
      */
-    private static void registerWithCreateUsingReflection(LittleTilesMovementBehaviour behaviour) {
+    private static void registerWithCreateUsingReflection(com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour behaviour) {
         try {
             LOGGER.info("Attempting to register with Create using reflection...");
             
@@ -100,12 +101,13 @@ public class MovementBehaviourRegistry {
     /**
      * Alternative registration method via Create's public API or events.
      */
-    private static void registerViaCreateAPI(LittleTilesMovementBehaviour behaviour) {
+    private static void registerViaCreateAPI(com.createlittlecontraptions.compat.create.behaviour.LittleTilesMovementBehaviour behaviour) {
         try {
             LOGGER.info("Using alternative Create API registration for LittleTiles movement behaviour");
               // This approach will use Create's event system or public registration methods
             // The actual integration will happen at runtime when Create is fully loaded
-            LittleTilesMovementBehaviour.registerWithCreate();
+            // Manual registration fallback
+            LOGGER.warn("Create API registration failed, manual registration may be needed");
             
             LOGGER.info("Alternative registration approach completed");
             
