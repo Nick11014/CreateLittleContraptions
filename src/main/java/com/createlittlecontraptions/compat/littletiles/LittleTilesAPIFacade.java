@@ -321,12 +321,11 @@ public class LittleTilesAPIFacade {    private static final Logger LOGGER = LogM
                 // === GEMINI'S DIAGNOSTIC: Check for VirtualRenderWorld/BETiles issues ===
                 diagnoseRenderContextIssues(tiles);
             }
-              try {
-                // Try Gemini's alternative approach first (LittleTile.getRenderingBoxes)
+              try {                // Try the corrected BERenderManager approach first
                 if (shouldLog()) {
-                    LOGGER.info("[CLC/LTAPIFacade] Trying Gemini's recommended LittleTile.getRenderingBoxes approach...");
+                    LOGGER.info("[CLC/LTAPIFacade] Trying BERenderManager.getRenderingBoxes approach (correct method location)...");
                 }
-                renderedSomething = attemptLittleTileGetRenderingBoxesApproach(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
+                renderedSomething = attemptBERenderManagerApproach(tiles, poseStack, bufferSource, combinedLight, combinedOverlay, partialTicks, grid);
                 
                 // If that fails, try the original approach with better debugging
                 if (!renderedSomething && shouldLog()) {
@@ -867,142 +866,185 @@ public class LittleTilesAPIFacade {    private static final Logger LOGGER = LogM
             return Shapes.block(); // Fallback
         }
     }    /**
-     * Alternative approach using LittleTile.getRenderingBoxes(...) as recommended by Gemini
-     * This populates a list of LittleRenderBox instances instead of returning a single one
+     * Fixed approach using BERenderManager.getRenderingBoxes() - the correct method location
+     * Based on analysis showing that getRenderingBoxes exists on BERenderManager, not on LittleTile
      */
-    private static boolean attemptLittleTileGetRenderingBoxesApproach(BlockParentCollection tiles, PoseStack poseStack, 
-                                                                     MultiBufferSource bufferSource, int combinedLight, 
-                                                                     int combinedOverlay, float partialTicks, LittleGrid grid) {
+    private static boolean attemptBERenderManagerApproach(BlockParentCollection tiles, PoseStack poseStack, 
+                                                          MultiBufferSource bufferSource, int combinedLight, 
+                                                          int combinedOverlay, float partialTicks, LittleGrid grid) {
         boolean renderedSomething = false;
-        int tileCount = 0;
         
         if (shouldLogRenderingBoxes()) {
-            LOGGER.info("[CLC/LTAPIFacade] === Trying Gemini's Alternative: LittleTile.getRenderingBoxes() ===");
+            LOGGER.info("[CLC/LTAPIFacade] === Using BERenderManager.getRenderingBoxes() (Correct Approach) ===");
         }
         
         try {
-            // Look for the LittleTile.getRenderingBoxes method that takes a layer integer
-            Method getRenderingBoxesMethod = null;
-            Class<?> chunkLayerMapListClass = null;
+            // Try to access the BETiles and BERenderManager that should contain the rendering data
+            // The tiles BlockParentCollection should be associated with a BETiles instance
             
-            // Try to find the ChunkLayerMapList class from CreativeCore
+            Object beTiles = null;
+            Object renderManager = null;
+            
+            // Method 1: Try to get BETiles from the parent collection
             try {
-                chunkLayerMapListClass = Class.forName("team.creative.creativecore.common.util.type.list.ChunkLayerMapList");
-                LOGGER.info("[CLC/LTAPIFacade] Found ChunkLayerMapList class: {}", chunkLayerMapListClass.getName());
-            } catch (ClassNotFoundException e) {
-                LOGGER.warn("[CLC/LTAPIFacade] Could not find ChunkLayerMapList class, trying alternative approaches");
-                // Try java.util.List as fallback
-                chunkLayerMapListClass = java.util.List.class;
+                // Look for methods that might give us access to the BETiles
+                Method getBeTilesMethod = findBufferMethod(tiles.getClass(), "getBe");
+                if (getBeTilesMethod == null) {
+                    getBeTilesMethod = findBufferMethod(tiles.getClass(), "getBlockEntity");
+                }
+                if (getBeTilesMethod == null) {
+                    getBeTilesMethod = findBufferMethod(tiles.getClass(), "getTiles");
+                }
+                
+                if (getBeTilesMethod != null) {
+                    beTiles = getBeTilesMethod.invoke(tiles);
+                    LOGGER.info("[CLC/LTAPIFacade] Found BETiles via {}: {} (type: {})", 
+                        getBeTilesMethod.getName(), beTiles, beTiles != null ? beTiles.getClass().getName() : "null");
+                }
+            } catch (Exception e) {
+                LOGGER.debug("[CLC/LTAPIFacade] Could not access BETiles via direct method: {}", e.getMessage());
             }
             
-            for (var tilePair : tiles.allTiles()) {
-                if (tilePair != null && tilePair.value != null) {
-                    tileCount++;
-                    LittleTile tile = tilePair.value;
-                    
-                    LOGGER.info("[CLC/LTAPIFacade] Processing tile #{}: {} (class: {})", tileCount, tile, tile.getClass().getName());
-                    
-                    // Look for getRenderingBoxes method on the tile
-                    try {
-                        // Try different method signatures that might exist
-                        Method[] possibleMethods = {
-                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
-                                LittleGrid.class, Object.class, LittleGrid.class, chunkLayerMapListClass, int.class),
-                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
-                                LittleGrid.class, Object.class, chunkLayerMapListClass, int.class),
-                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
-                                chunkLayerMapListClass, int.class),
-                            findBufferMethod(tile.getClass(), "getRenderingBoxes", 
-                                java.util.List.class, int.class)
-                        };
-                        
-                        for (Method method : possibleMethods) {
-                            if (method != null) {
-                                getRenderingBoxesMethod = method;
-                                LOGGER.info("[CLC/LTAPIFacade] Found getRenderingBoxes method: {}", method);
+            // Method 2: Try reflection to access private/protected fields
+            if (beTiles == null) {
+                try {
+                    java.lang.reflect.Field[] fields = tiles.getClass().getDeclaredFields();
+                    for (java.lang.reflect.Field field : fields) {
+                        if (field.getType().getName().contains("BETiles") || 
+                            field.getName().toLowerCase().contains("be") || 
+                            field.getName().toLowerCase().contains("tiles")) {
+                            field.setAccessible(true);
+                            Object fieldValue = field.get(tiles);
+                            if (fieldValue != null && fieldValue.getClass().getName().contains("BETiles")) {
+                                beTiles = fieldValue;
+                                LOGGER.info("[CLC/LTAPIFacade] Found BETiles via field {}: {} (type: {})", 
+                                    field.getName(), beTiles, beTiles.getClass().getName());
                                 break;
                             }
                         }
-                        
-                        if (getRenderingBoxesMethod != null) {
-                            // Create a temporary list to collect LittleRenderBox instances
-                            java.util.List<Object> renderBoxList = new java.util.ArrayList<>();
-                            
-                            // Try different layer values (0-3 typically correspond to solid, cutout, cutout_mipped, translucent)
-                            for (int layer = 0; layer < 4; layer++) {
-                                try {
-                                    LOGGER.info("[CLC/LTAPIFacade] Calling getRenderingBoxes for tile #{}, layer {}", tileCount, layer);
-                                    
-                                    // Call the method based on its parameter count
-                                    if (getRenderingBoxesMethod.getParameterCount() == 5) {
-                                        // getRenderingBoxes(grid, offset, vanillaGrid, list, layer)
-                                        getRenderingBoxesMethod.invoke(tile, grid, new Object(), grid, renderBoxList, layer);
-                                    } else if (getRenderingBoxesMethod.getParameterCount() == 4) {
-                                        // getRenderingBoxes(grid, offset, list, layer)
-                                        getRenderingBoxesMethod.invoke(tile, grid, new Object(), renderBoxList, layer);
-                                    } else if (getRenderingBoxesMethod.getParameterCount() == 2) {
-                                        // getRenderingBoxes(list, layer)
-                                        getRenderingBoxesMethod.invoke(tile, renderBoxList, layer);
-                                    }
-                                    
-                                    LOGGER.info("[CLC/LTAPIFacade] getRenderingBoxes returned {} boxes for layer {}", renderBoxList.size(), layer);
-                                    
-                                    // Process any LittleRenderBox instances that were added
-                                    for (Object renderBox : renderBoxList) {
-                                        if (renderBox != null) {
-                                            LOGGER.info("[CLC/LTAPIFacade] Processing LittleRenderBox: {} (type: {})", 
-                                                renderBox, renderBox.getClass().getName());
-                                            
-                                            // Convert layer to RenderType
-                                            net.minecraft.client.renderer.RenderType renderType = getRenderTypeFromLayer(layer);
-                                            
-                                            if (renderLittleRenderBox(renderBox, poseStack, bufferSource, combinedLight, combinedOverlay, renderType, tiles, tile)) {
-                                                renderedSomething = true;
-                                                LOGGER.info("[CLC/LTAPIFacade] Successfully rendered LittleRenderBox for tile #{}, layer {}", tileCount, layer);
-                                            }
-                                        }
-                                    }
-                                    
-                                    renderBoxList.clear(); // Clear for next layer
-                                    
-                                } catch (Exception e) {
-                                    LOGGER.warn("[CLC/LTAPIFacade] Failed to call getRenderingBoxes for tile #{}, layer {}: {}", tileCount, layer, e.getMessage());
-                                }
-                            }
-                        } else {
-                            LOGGER.warn("[CLC/LTAPIFacade] Could not find getRenderingBoxes method on tile class: {}", tile.getClass().getName());
-                        }
-                        
-                    } catch (Exception e) {
-                        LOGGER.error("[CLC/LTAPIFacade] Error processing tile #{}: {}", tileCount, e.getMessage());
                     }
+                } catch (Exception e) {
+                    LOGGER.debug("[CLC/LTAPIFacade] Could not access BETiles via reflection: {}", e.getMessage());
                 }
             }
             
+            // Method 3: Get BERenderManager from BETiles
+            if (beTiles != null) {
+                try {
+                    Method getRenderManagerMethod = findBufferMethod(beTiles.getClass(), "getRenderManager");
+                    if (getRenderManagerMethod == null) {
+                        getRenderManagerMethod = findBufferMethod(beTiles.getClass(), "getManager");
+                    }
+                    if (getRenderManagerMethod == null) {
+                        getRenderManagerMethod = findBufferMethod(beTiles.getClass(), "renderManager");
+                    }
+                    
+                    if (getRenderManagerMethod != null) {
+                        renderManager = getRenderManagerMethod.invoke(beTiles);
+                        LOGGER.info("[CLC/LTAPIFacade] Found BERenderManager via {}: {} (type: {})", 
+                            getRenderManagerMethod.getName(), renderManager, renderManager != null ? renderManager.getClass().getName() : "null");
+                    } else {
+                        // Try field access for render manager
+                        java.lang.reflect.Field[] fields = beTiles.getClass().getDeclaredFields();
+                        for (java.lang.reflect.Field field : fields) {
+                            if (field.getType().getName().contains("BERenderManager") || 
+                                field.getName().toLowerCase().contains("render")) {
+                                field.setAccessible(true);
+                                Object fieldValue = field.get(beTiles);
+                                if (fieldValue != null && fieldValue.getClass().getName().contains("BERenderManager")) {
+                                    renderManager = fieldValue;
+                                    LOGGER.info("[CLC/LTAPIFacade] Found BERenderManager via field {}: {} (type: {})", 
+                                        field.getName(), renderManager, renderManager.getClass().getName());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.debug("[CLC/LTAPIFacade] Could not access BERenderManager: {}", e.getMessage());
+                }
+            }
+            
+            // Method 4: Call getRenderingBoxes on the BERenderManager
+            if (renderManager != null) {
+                try {
+                    // Look for getRenderingBoxes(RenderingBlockContext) method
+                    Method getRenderingBoxesMethod = findBufferMethod(renderManager.getClass(), "getRenderingBoxes", 
+                        Class.forName("team.creative.littletiles.client.render.cache.build.RenderingBlockContext"));
+                    
+                    if (getRenderingBoxesMethod != null) {
+                        LOGGER.info("[CLC/LTAPIFacade] Found getRenderingBoxes method on BERenderManager: {}", getRenderingBoxesMethod);
+                        
+                        // Create a mock RenderingBlockContext or try with null
+                        Object result = getRenderingBoxesMethod.invoke(renderManager, (Object) null);
+                        
+                        if (result != null) {
+                            LOGGER.info("[CLC/LTAPIFacade] getRenderingBoxes returned: {} (type: {})", 
+                                result, result.getClass().getName());
+                            
+                            // The result should be Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>>
+                            // Process the rendering boxes
+                            if (result instanceof java.util.Map) {
+                                java.util.Map<?, ?> renderingBoxMap = (java.util.Map<?, ?>) result;
+                                LOGGER.info("[CLC/LTAPIFacade] Processing {} rendering box groups", renderingBoxMap.size());
+                                
+                                for (Object layerMapList : renderingBoxMap.values()) {
+                                    if (layerMapList != null) {
+                                        // Try to iterate over the ChunkLayerMapList
+                                        try {
+                                            if (layerMapList instanceof Iterable) {
+                                                for (Object renderBox : (Iterable<?>) layerMapList) {
+                                                    if (renderBox != null && renderBox.getClass().getName().contains("LittleRenderBox")) {
+                                                        LOGGER.info("[CLC/LTAPIFacade] Processing LittleRenderBox: {} (type: {})", 
+                                                            renderBox, renderBox.getClass().getName());
+                                                        
+                                                        // Try to render this box with different render types
+                                                        net.minecraft.client.renderer.RenderType[] renderTypes = {
+                                                            net.minecraft.client.renderer.RenderType.solid(),
+                                                            net.minecraft.client.renderer.RenderType.cutout(),
+                                                            net.minecraft.client.renderer.RenderType.cutoutMipped(),
+                                                            net.minecraft.client.renderer.RenderType.translucent()
+                                                        };
+                                                        
+                                                        for (net.minecraft.client.renderer.RenderType renderType : renderTypes) {
+                                                            if (renderLittleRenderBox(renderBox, poseStack, bufferSource, combinedLight, combinedOverlay, renderType, tiles, null)) {
+                                                                renderedSomething = true;
+                                                                LOGGER.info("[CLC/LTAPIFacade] Successfully rendered LittleRenderBox with renderType {}", renderType);
+                                                                break; // Move to next render box
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            LOGGER.warn("[CLC/LTAPIFacade] Error processing layer map list: {}", e.getMessage());
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            LOGGER.warn("[CLC/LTAPIFacade] BERenderManager.getRenderingBoxes returned null");
+                        }
+                    } else {
+                        LOGGER.warn("[CLC/LTAPIFacade] Could not find getRenderingBoxes method on BERenderManager class: {}", renderManager.getClass().getName());
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("[CLC/LTAPIFacade] Error calling BERenderManager.getRenderingBoxes: {}", e.getMessage(), e);
+                }
+            } else {
+                LOGGER.warn("[CLC/LTAPIFacade] Could not access BERenderManager - tiles may not be properly initialized");
+            }
+            
         } catch (Exception e) {
-            LOGGER.error("[CLC/LTAPIFacade] Error in LittleTile.getRenderingBoxes approach: {}", e.getMessage(), e);
+            LOGGER.error("[CLC/LTAPIFacade] Error in BERenderManager approach: {}", e.getMessage(), e);
         }
         
         if (shouldLogRenderingBoxes()) {
-            LOGGER.info("[CLC/LTAPIFacade] LittleTile.getRenderingBoxes approach processed {} tiles, rendered: {}", tileCount, renderedSomething);
+            LOGGER.info("[CLC/LTAPIFacade] BERenderManager approach rendered: {}", renderedSomething);
         }
         return renderedSomething;
     }
-    
-    /**
-     * Convert layer integer to RenderType (approximation)
-     */
-    private static net.minecraft.client.renderer.RenderType getRenderTypeFromLayer(int layer) {
-        switch (layer) {
-            case 0: return net.minecraft.client.renderer.RenderType.solid();
-            case 1: return net.minecraft.client.renderer.RenderType.cutout();
-            case 2: return net.minecraft.client.renderer.RenderType.cutoutMipped();
-            case 3: return net.minecraft.client.renderer.RenderType.translucent();
-            default: return net.minecraft.client.renderer.RenderType.solid();
-        }
-    }
-
-    /**
+      /**
      * Diagnoses potential VirtualRenderWorld and BETiles client initialization issues
      * Based on Gemini's analysis of potential null return causes
      */
