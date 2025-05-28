@@ -44,6 +44,13 @@
     - Removida a dependência `dependsOn compileTestJava` da task `runManualTests` (agora inexistente).
 - ✅ **Estado do Projeto:** Nenhuma forma de teste automatizado ou manual (via `ManualTestRunner`) está presente no projeto. O foco retorna exclusivamente ao desenvolvimento das funcionalidades principais do mod.
 
+#### **11:30 - Correção de Build Crítica**
+- ❌ **Problema:** Build falhando devido a arquivos de teste inválidos em `src/test/java`
+- 🔍 **Causa:** Imports incorretos do Minecraft GameTest framework nos arquivos de teste
+- ✅ **Solução:** Removidos arquivos `ContraptionGameTests.java` e `LittleTilesGameTests.java` problemáticos
+- ✅ **Correção:** GameTest no `src/gametest/java/SimpleCLCTests.java` corrigido e funcional
+- ✅ **Build:** `.\gradlew.bat build` executado com sucesso após correções
+
 ---
 
 ## 📋 Próximas Etapas
