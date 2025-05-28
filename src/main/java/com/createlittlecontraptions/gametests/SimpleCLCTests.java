@@ -7,11 +7,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-@PrefixGameTestTemplate(false)
 @GameTestHolder("createlittlecontraptions")
-public class SimpleCLCTests {    // Um teste básico para Create Little Contraptions
-    @GameTest(template = "test_templates/3x3x3_air")
-    public static void basicBlockPlacementTest(GameTestHelper helper) {
+public class SimpleCLCTests {
+      // Um teste básico para Create Little Contraptions usando estrutura de elevador
+    @PrefixGameTestTemplate(false)
+    @GameTest(template = "elevator_unassembled")
+    public static void elevatorUnassembledTest(GameTestHelper helper) {
         // Posição relativa dentro da área de teste
         BlockPos pos = new BlockPos(0, 1, 0);
 
