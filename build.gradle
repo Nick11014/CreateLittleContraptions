@@ -118,8 +118,6 @@ configurations {
 }
 
 dependencies {
-    // NOTE: No JUnit dependencies - using ManualTestRunner instead to avoid NeoForge conflicts
-    
     // Create, LittleTiles, and CreativeCore for compile-time Mixin support
     compileOnly files('libs/create-1.21.1-6.0.4.jar')
     compileOnly files('libs/LittleTiles_BETA_v1.6.0-pre163_mc1.21.1.jar')
@@ -196,39 +194,6 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-// Disable default test task since we're using ManualTestRunner
-test {
-    enabled = false
-}
-
-// Custom task to run manual tests (without JUnit dependencies)
-task runManualTests(type: JavaExec) {
-    group = 'verification'
-    description = 'Runs manual tests without JUnit to avoid NeoForge conflicts'
-    
-    dependsOn compileTestJava
-    
-    classpath = sourceSets.test.output
-    mainClass = 'com.createlittlecontraptions.test.ManualTestRunner'
-    
-    doFirst {
-        println "Running CreateLittleContraptions manual tests..."
-    }
-    
-    // Let Gradle handle the exit code automatically
-    ignoreExitValue = false
-}
-
-// Add manual tests to the build process
-build.dependsOn runManualTests
-
-// Also create a standalone task for just testing
-task testManual {
-    group = 'verification'
-    description = 'Runs only the manual tests'
-    dependsOn runManualTests
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

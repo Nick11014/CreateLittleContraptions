@@ -29,7 +29,8 @@ You are an AI assistant, Claude 4, working as an agent to develop the "CreateLit
    - The timeline must be a precise and up-to-date reflection of all development activities and their outcomes.
 
 **3. Git Commits:**
-   - Upon successfully completing and **validating** any distinct development step or sub-task (e.g., implementing a feature as per `Novo_Planejamento.md`, fixing a bug and verifying its resolution, successfully running tests after a code change), you **must** perform a Git commit.
+   - Upon successfully completing and **validating** any distinct development step, feature implementation, or bug fix, you **must** perform a Git commit.
+   - **Crucially, a successful build of the mod (e.g., executing `.\gradlew.bat build` and ensuring it passes without errors) is a mandatory prerequisite before making any commit.**
    - Commit messages should be clear, concise, and follow conventional commit message standards (e.g., prefixing with `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`).
    - Example commit messages:
      - `feat: Implement /contraption-debug command for block analysis`

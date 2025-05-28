@@ -34,15 +34,15 @@
 - ✅ **Resultado:** 1 LittleTiles detectado em contraption com 32 blocos totais
 - ✅ **Output:** BlockPos{x=-1, y=-3, z=0} -> block.littletiles.tiles *** LITTLETILES *** (BlockTile)
 
-#### **11:05 - Rollback para Validação do Step 1**
-- ⏪ **Ação:** Desfeitas todas as alterações realizadas após a validação do Step 1 (10:52).
-- 🗑️ **Arquivos/Diretórios Removidos:**
-    - `src/main/java/com/createlittlecontraptions/gametest/`
-    - `src/test/java/com/createlittlecontraptions/gametest/` (se existente)
-    - `GAMETEST_TEMPLATE_GUIDE.md`
-    - `TESTING_IMPLEMENTATION_SUMMARY.md`
-- 📝 **Build.gradle:** Verificado e confirmado que está no estado pós-Step 1 (sem dependências JUnit, com ManualTestRunner).
-- ✅ **Estado do Projeto:** Restaurado para o ponto onde apenas o `ManualTestRunner` e o comando `/contraption-debug` estavam implementados e validados.
+#### **11:10 - Remoção Completa da Implementação de Testes**
+- 🗑️ **Diretório Removido:** `src/test/` (incluindo `ManualTestRunner.java` e qualquer outra configuração de teste).
+- 🛠️ **Build.gradle Modificado:**
+    - Removidas as tasks `runManualTests` e `testManual`.
+    - Removida a dependência `build.dependsOn runManualTests`.
+    - Comentada/Removida a seção `test { enabled = false }` para reverter ao comportamento padrão do Gradle se necessário no futuro.
+    - Removida a linha `classpath = sourceSets.test.output` e `mainClass` da task `runManualTests` (agora inexistente).
+    - Removida a dependência `dependsOn compileTestJava` da task `runManualTests` (agora inexistente).
+- ✅ **Estado do Projeto:** Nenhuma forma de teste automatizado ou manual (via `ManualTestRunner`) está presente no projeto. O foco retorna exclusivamente ao desenvolvimento das funcionalidades principais do mod.
 
 ---
 
@@ -59,22 +59,15 @@
 ---
 
 ## 🎯 Status Atual
-- **Step 1:** ✅ COMPLETO E TESTADO
+- **Step 1:** ✅ COMPLETO E TESTADO (Funcionalidade principal)
 - **Step 2:** ⏪ REVERTIDO (Necessita Replanejamento)
 - **Step 3:** 📋 PLANEJADO
-
-## 🧪 Sistema de Testes
-- **Testes manuais:** ✅ `ManualTestRunner.java` implementado e funcional.
-- **Comando de teste:** `.\\gradlew.bat runManualTests` (ou `.\\gradlew.bat build` que o inclui)
-- **Automação:** Testes manuais não requerem cliente Minecraft.
-- **Cobertura:** Testes para detecção LittleTiles, formatação de mensagens, constantes do mod, operações de string e casos de borda.
+- **Testes:** ❌ REMOVIDOS
 
 ---
 
-## 📊 Estatísticas do Projeto (Pós-Rollback)
-- **Tempo decorrido (antes do rollback):** ~28 minutos
+## 📊 Estatísticas do Projeto (Pós-Remoção de Testes)
 - **Bugs resolvidos:** 1 (mixin configuration)
-- **Testes manuais (validados):** 1 (contraption debug command)
-- **Testes automatizados (ManualTestRunner):** 24 testes passando
-- **Lines of Code (aproximado, pós-rollback):** ~150 (ContraptionDebugCommand + ManualTestRunner)
+- **Testes manuais (validados):** 1 (contraption debug command via jogo)
+- **Lines of Code (aproximado):** ~70 (ContraptionDebugCommand)
 - **Comandos implementados:** 1 (`/contraption-debug`)
