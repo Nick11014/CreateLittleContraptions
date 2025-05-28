@@ -11,53 +11,36 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
-import com.createlittlecontraptions.registry.ModBlocks;
-import com.createlittlecontraptions.registry.ModItems;
-import com.createlittlecontraptions.registry.ModCreativeTabs;
-import com.createlittlecontraptions.dev.ContraptionInspectorCommand;
 import com.createlittlecontraptions.commands.ContraptionDebugCommand;
-import com.createlittlecontraptions.compat.create.CreateIntegration;
+import com.createlittlecontraptions.commands.ContraptionEventsCommand;
+import com.createlittlecontraptions.events.ContraptionEventHandler;
 
 @Mod(CreateLittleContraptions.MODID)
 public class CreateLittleContraptions {
     public static final String MODID = "createlittlecontraptions";
-    private static final Logger LOGGER = LogUtils.getLogger();
-
-    public CreateLittleContraptions(IEventBus modEventBus, ModContainer modContainer) {
-        // Register our mod content
-        ModBlocks.register(modEventBus);
-        ModItems.register(modEventBus);
-        ModCreativeTabs.register(modEventBus);
-
+    private static final Logger LOGGER = LogUtils.getLogger();    public CreateLittleContraptions(IEventBus modEventBus, ModContainer modContainer) {
         // Register mod lifecycle events
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
 
         // Register for server events (like command registration)
         NeoForge.EVENT_BUS.register(this);
+        
+        // Register event handlers
+        NeoForge.EVENT_BUS.register(ContraptionEventHandler.class);
 
         LOGGER.info("CreateLittleContraptions mod initializing...");
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
+    }private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("CreateLittleContraptions common setup");
-        
-        // Register Create integration during common setup
-        // This ensures both Create and LittleTiles are loaded
-        event.enqueueWork(() -> {
-            CreateIntegration.registerLittleTilesMovementBehaviour();
-            CreateIntegration.logIntegrationStatus();
-        });
+        // Future integration with Create and LittleTiles will be implemented here
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("CreateLittleContraptions client setup");
-    }
-
-    @SubscribeEvent
+    }    @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
-        ContraptionInspectorCommand.register(event.getDispatcher());
         ContraptionDebugCommand.register(event.getDispatcher());
+        ContraptionEventsCommand.register(event.getDispatcher());
     }
 }
