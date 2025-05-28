@@ -1,0 +1,37 @@
+{
+  "size": [3, 3, 3],
+  "palette": [
+    {
+      "Name": "minecraft:air"
+    },
+    {
+      "Name": "minecraft:structure_block",
+      "Properties": {
+        "mode": "data"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "pos": [1, 0, 1],
+      "state": 1,
+      "nbt": {
+        "name": "createlittlecontraptions:createintegrationtest",
+        "author": "CreateLittleContraptions",
+        "metadata": "",
+        "posX": 1,
+        "posY": 0,
+        "posZ": 1,
+        "sizeX": 3,
+        "sizeY": 3,
+        "sizeZ": 3,
+        "rotation": "NONE",
+        "mirror": "NONE",
+        "mode": "DATA",
+        "ignoreEntities": 1b
+      }
+    }
+  ],
+  "entities": [],
+  "DataVersion": 3837
+}
