@@ -380,4 +380,11 @@
   - Identificação de métodos Mixin do LittleTiles (`handler$zzn000$littletiles$isFaceSturdy`)
   - Base sólida estabelecida para implementação do Step 3 (Renderização Customizada)
 
+#### **16:25 - Documentação Finalizada: Step 2.5 Oficialmente Completo**
+- ✅ **Arquivo atualizado:** `Novo_Planejamento.md` com status ✅ COMPLETO para Step 2.5
+- ✅ **Resumo adicionado:** Conquistas principais do Step 2.5 documentadas
+- ✅ **Status consolidado:** Steps 1, 1.5, 2 e 2.5 oficialmente marcados como completados
+- ✅ **Preparação:** Projeto pronto para avançar ao Step 3 (Sistema de Renderização Customizado)
+- 📋 **Próximos passos:** Implementação do Step 3 com base nos insights de renderização coletados
+
 ---
