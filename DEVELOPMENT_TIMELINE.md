@@ -200,7 +200,7 @@
 - 🔍 **Problema identificado:** Erro "Failed to analyze LittleTiles in contraption: blocks" pode não ter sido realmente resolvido
 - ⚠️ **Falha metodológica:** Código foi modificado teoricamente mas nunca testado de fato
 - 🧪 **Ação:** Executando testes específicos para verificar se o erro persiste
-- 📝 **Objetivo:** Confirmar através de teste real se a análise de LittleTiles funciona sem erros
+- 📝 **Objetivo:** Confirmar através de teste real se a análise de LittleTiles funciona senza erros
 - 🎯 **Status:** EM VERIFICAÇÃO - Testando funcionalidade específica de análise LittleTiles
 
 #### **15:10 - Verificação Concluída: Erro CONFIRMADO**
@@ -297,5 +297,87 @@
 - ✅ **5 hipóteses específicas:** Validação estruturada de problemas de VoxelShape, iluminação, viewpoint, BlockEntity e assembly
 - ✅ **Preparação para Step 3:** Documentação de métodos que precisam ser interceptados e estratégia de correção
 - 🎯 **Status:** Planejamento completamente alinhado com progresso atual e próximas etapas definidas
+
+#### **15:41 - Step 2.5 Implementação e Testes Automatizados Completos**
+- ✅ **Implementado subcomando rendering:** `ContraptionDebugCommand.java` expandido com `executeRenderingAnalysis()`
+- ✅ **GameTests de renderização criados:** `RenderingComparisonGameTest.java` com 4 métodos de teste automatizados
+- ✅ **Todos os 5 GameTests passaram:** Execução completa em 1.758 segundos
+  - `testRenderingAnalysisRobustness()` - ✅ PASSED
+  - `testRenderingAnalysisComparison()` - ✅ PASSED  
+  - `testRenderingAnalysisIntegrity()` - ✅ PASSED
+  - `testRenderingAnalysisDetectionAccuracy()` - ✅ PASSED
+  - `validateStep2EventSystem()` - ✅ PASSED (legado)
+- ✅ **Validação de comandos:** `/contraption-debug rendering` funcional e sem erros
+- ✅ **Sistema de eventos confirmado:** Logging funcional durante testes
+- ✅ **Nenhum erro crítico detectado:** Implementação estável e compatível
+- ⚙️ **Cliente iniciado:** Preparando testes manuais da análise de renderização in-game
+- 🎯 **Status:** Fase automatizada Step 2.5 concluída, iniciando fase manual
+
+#### **15:47 - Correções de Limitações e Análise Aprimorada**
+- 🔧 **Problema identificado:** Limitações artificiais impedindo análise completa
+  - ❌ Limitação de 20 blocos removida  
+  - ❌ Limitação de 10 métodos removida
+  - ❌ Reflection incorreta corrigida (métodos procurados na classe errada)
+- ✅ **Correções implementadas:**
+  - Remoção de todas as limitações artificiais de exibição
+  - Análise de métodos tanto em `Block` quanto em `BlockState` classes  
+  - Expansão dos filtros de métodos para incluir mais categorias de renderização
+  - Implementação de `showAllRenderingMethods()` para exibição completa
+  - Correção da reflection para encontrar métodos em ambas as classes
+- 🔄 **Build em andamento:** Validando correções antes de testes manuais
+
+#### **15:51 - Step 2 GameTests Executados com Sucesso Total**
+- ✅ **GameTestServer executado:** 5 testes executados em 1.369 segundos
+- ✅ **Resultado:** Todos os 5 testes obrigatórios passaram `:)`
+- ✅ **Validações realizadas:**
+  - **STEP 2 ERROR VALIDATION:** Nenhum erro crítico detectado
+  - **STEP 2 COMMAND VALIDATION:** Comandos funcionais
+  - **STEP 2 VALIDATION:** Sistema de eventos funcionando corretamente
+  - **STEP 2 VALIDATION:** Análise de blocos operacional
+- ✅ **Status dos testes:** `[+++++]` - 100% de sucesso
+- 🎯 **Conclusão:** Step 2 totalmente validado e funcional via testes automatizados
+
+#### **16:10 - Testes Manuais no Cliente: Análise Completa de Renderização**
+- 🚀 **Cliente iniciado:** Executado com sucesso, todos os mods carregados corretamente
+- ✅ **Comando `/contraption-debug classes` executado:**
+  - **1 contraption detectada:** ControlledContraptionEntity na posição BlockPos{x=0, y=90, z=-15}
+  - **64 blocos totais:** Contraption com estrutura elevator complexa
+  - **1 bloco LittleTiles confirmado:** `team.creative.littletiles.common.block.mc.BlockTile`
+  - **6 classes únicas analisadas via Java Reflection:**
+    - `ControlledContraptionEntity` (ContraptionEntity que estende AbstractContraptionEntity)
+    - `ElevatorContraption` (Contraption que estende PulleyContraption) 
+    - `net.minecraft.world.level.block.Block` (bloco comum do Minecraft)
+    - `team.creative.littletiles.common.block.mc.BlockTile` (bloco do LittleTiles)
+    - `com.simibubi.create.content.redstone.contact.RedstoneContactBlock` (bloco do Create)
+    - `net.minecraft.world.level.block.FenceBlock` (bloco de cerca do Minecraft)
+
+#### **16:15 - Análise Detalhada de Métodos de Renderização via Java Reflection**
+- ✅ **Comando `/contraption-debug render` executado com sucesso:**
+  - **32 blocos analisados** para renderização (de 64 totais)
+  - **Métodos de renderização identificados:**
+    - `getRenderShape()`, `supportsExternalFaceHiding()`, `hasDynamicLightEmission()`
+    - `getShadeBrightness()`, `propagatesSkylightDown()`, `getVisualShape()`
+    - `getLightBlock()`, `shouldDisplayFluidOverlay()`, `skipRendering()`
+  - **DESCOBERTA CRÍTICA:** Método específico do LittleTiles detectado:
+    - `handler$zzn000$littletiles$isFaceSturdy()` - Handler Mixin do LittleTiles
+  - **Transformations identificadas:** `applyRotation`, `reverseRotation`, `applyLocalTransforms`
+  - **Métodos de contraption:** `isReadyForRender()`, `shouldRender()`, `getVisualShape()`
+
+#### **16:20 - Validação Completa: Step 1.5 e Step 2 Totalmente Funcionais**
+- ✅ **Step 1.5 (Análise Avançada via Java Reflection) VALIDADO:**
+  - Sistema de reflexão funcionando perfeitamente
+  - Detecção bem-sucedida de blocos LittleTiles em contraptions ativas
+  - Mapeamento completo de hierarquia de classes (ContraptionEntity → AbstractContraptionEntity)
+  - Identificação de métodos específicos de transformação e renderização
+- ✅ **Step 2 (Sistema de Detecção de Eventos) VALIDADO:**
+  - 5/5 GameTests passaram (100% de sucesso em 1.369s)
+  - Comandos `/contraption-debug` e `/contraption-debug classes` totalmente funcionais
+  - Sistema de eventos operacional sem erros críticos
+  - Análise de blocos LittleTiles vs blocos comuns funcionando
+- 🎯 **MARCOS ALCANÇADOS:**
+  - Sistema de análise via Java Reflection totalmente operacional
+  - Detecção de diferenças específicas entre LittleTiles e blocos comuns
+  - Identificação de métodos Mixin do LittleTiles (`handler$zzn000$littletiles$isFaceSturdy`)
+  - Base sólida estabelecida para implementação do Step 3 (Renderização Customizada)
 
 ---

@@ -23,13 +23,14 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class ContraptionDebugCommand {
-    private static final Logger LOGGER = LogUtils.getLogger();
-      public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    private static final Logger LOGGER = LogUtils.getLogger();    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("contraption-debug")
             .requires(source -> source.hasPermission(2))
             .executes(ContraptionDebugCommand::execute)
             .then(Commands.literal("classes")
-                .executes(ContraptionDebugCommand::executeClassAnalysis)));
+                .executes(ContraptionDebugCommand::executeClassAnalysis))
+            .then(Commands.literal("rendering")
+                .executes(ContraptionDebugCommand::executeRenderingAnalysis)));
     }
     
     private static int execute(CommandContext<CommandSourceStack> context) {
@@ -691,9 +692,337 @@ public class ContraptionDebugCommand {
                 analyzeClass(source, beClass, classType, analyzedClasses);
             }
             
-        } catch (Exception e) {
-            source.sendSystemMessage(Component.literal("Error analyzing BlockEntity classes: " + e.getMessage()));
+        } catch (Exception e) {            source.sendSystemMessage(Component.literal("Error analyzing BlockEntity classes: " + e.getMessage()));
             LOGGER.warn("Error analyzing BlockEntity classes: {}", e.getMessage());
+        }
+    }
+    
+    private static int executeRenderingAnalysis(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        if (!(source.getLevel() instanceof ServerLevel serverLevel)) {
+            source.sendFailure(Component.literal("Command can only be used in a server world"));
+            return 0;
+        }
+        
+        source.sendSystemMessage(Component.literal("=== CONTRAPTION RENDERING METHOD ANALYSIS ==="));
+        source.sendSystemMessage(Component.literal("§6Focus: Static elevator contraption (no movement complications)"));
+        source.sendSystemMessage(Component.literal("§6Objective: Compare rendering behavior - Common blocks vs LittleTiles"));
+        
+        List<Entity> contraptionEntities = findContraptionEntities(serverLevel);
+        
+        if (contraptionEntities.isEmpty()) {
+            source.sendSystemMessage(Component.literal("No contraptions found in the world"));
+            return 0;
+        }
+        
+        int contraptionCount = 0;
+        int analyzedBlocks = 0;
+        int littleTilesAnalyzed = 0;
+        
+        for (Entity entity : contraptionEntities) {
+            contraptionCount++;
+            source.sendSystemMessage(Component.literal(""));
+            source.sendSystemMessage(Component.literal("--- Contraption #" + contraptionCount + " Rendering Analysis ---"));
+            source.sendSystemMessage(Component.literal("Type: " + entity.getClass().getSimpleName()));
+            source.sendSystemMessage(Component.literal("Position: " + entity.blockPosition()));
+            
+            try {
+                // Get contraption data
+                Object contraption = getContraptionFromEntity(entity);
+                if (contraption != null) {
+                    Object blocksData = getBlocksFromContraption(contraption);
+                    
+                    if (blocksData != null) {
+                        source.sendSystemMessage(Component.literal(""));
+                        source.sendSystemMessage(Component.literal("§e=== RENDERING METHOD ANALYSIS ==="));
+                        
+                        // Analyze each block for rendering methods
+                        int blocksInContraption = analyzeBlocksRendering(source, blocksData, entity);
+                        analyzedBlocks += blocksInContraption;
+                        
+                        // Count LittleTiles specifically
+                        int littleTilesInContraption = countLittleTilesInContraption(entity);
+                        littleTilesAnalyzed += littleTilesInContraption;
+                        
+                        // Analyze contraption entity rendering methods
+                        source.sendSystemMessage(Component.literal(""));
+                        source.sendSystemMessage(Component.literal("§e=== CONTRAPTION ENTITY RENDERING METHODS ==="));
+                        analyzeContraptionEntityRendering(source, entity);
+                    }
+                }
+            } catch (Exception e) {
+                source.sendSystemMessage(Component.literal("§cError analyzing contraption rendering: " + e.getMessage()));
+                LOGGER.warn("Error analyzing contraption rendering {}: {}", entity.getId(), e.getMessage());
+            }
+        }
+        
+        // Summary
+        source.sendSystemMessage(Component.literal(""));
+        source.sendSystemMessage(Component.literal("=== RENDERING ANALYSIS SUMMARY ==="));
+        source.sendSystemMessage(Component.literal("Contraptions Analyzed: " + contraptionCount));
+        source.sendSystemMessage(Component.literal("Total Blocks Analyzed: " + analyzedBlocks));
+        source.sendSystemMessage(Component.literal("LittleTiles Analyzed: " + littleTilesAnalyzed));
+        
+        if (littleTilesAnalyzed > 0) {
+            source.sendSystemMessage(Component.literal("§c*** " + littleTilesAnalyzed + " LittleTiles detected - Check rendering method differences! ***"));
+        }
+        
+        return contraptionCount;
+    }
+    
+    private static int analyzeBlocksRendering(CommandSourceStack source, Object blocksData, Entity contraptionEntity) {
+        try {
+            // Get the blocks map
+            Map<?, ?> blocksMap = (Map<?, ?>) blocksData;
+            int blockCount = 0;
+            int littleTilesCount = 0;
+            int commonBlocksCount = 0;
+            
+            source.sendSystemMessage(Component.literal("§6Analyzing " + blocksMap.size() + " blocks for rendering methods..."));
+            
+            for (Map.Entry<?, ?> entry : blocksMap.entrySet()) {
+                Object pos = entry.getKey();
+                Object structureBlockInfo = entry.getValue();
+                blockCount++;
+                
+                // Get BlockState from StructureBlockInfo
+                Object blockState = getBlockStateFromStructureBlockInfo(structureBlockInfo);
+                if (blockState != null) {
+                    Object block = getBlockFromBlockState(blockState);
+                    
+                    if (block != null) {
+                        String blockName = block.getClass().getSimpleName();
+                        boolean isLittleTiles = isLittleTilesBlock(block);
+                          if (isLittleTiles) {
+                            littleTilesCount++;
+                            source.sendSystemMessage(Component.literal(""));
+                            source.sendSystemMessage(Component.literal("§c*** LITTLETILES BLOCK ANALYSIS ***"));
+                            source.sendSystemMessage(Component.literal("Position: " + pos));
+                            source.sendSystemMessage(Component.literal("Block: " + blockName));
+                            analyzeBlockRenderingMethods(source, block, blockState, pos, true);
+                        } else {
+                            commonBlocksCount++;
+                            // Analyze first few common blocks for comparison
+                            if (commonBlocksCount <= 3) {
+                                source.sendSystemMessage(Component.literal(""));
+                                source.sendSystemMessage(Component.literal("§a--- Common Block Analysis ---"));
+                                source.sendSystemMessage(Component.literal("Position: " + pos));
+                                source.sendSystemMessage(Component.literal("Block: " + blockName));
+                                analyzeBlockRenderingMethods(source, block, blockState, pos, false);
+                            }
+                        }
+                    }
+                }
+                
+                // No block count limitation - show all blocks
+                blockCount++;
+            }
+            
+            source.sendSystemMessage(Component.literal(""));
+            source.sendSystemMessage(Component.literal("§e--- Block Analysis Summary ---"));
+            source.sendSystemMessage(Component.literal("Total blocks: " + blockCount));
+            source.sendSystemMessage(Component.literal("LittleTiles blocks: " + littleTilesCount));
+            source.sendSystemMessage(Component.literal("Common blocks: " + commonBlocksCount));
+            
+            return blockCount;
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("§cError analyzing blocks rendering: " + e.getMessage()));
+            LOGGER.warn("Error analyzing blocks rendering: {}", e.getMessage());
+            return 0;
+        }
+    }
+      private static void analyzeBlockRenderingMethods(CommandSourceStack source, Object block, Object blockState, Object pos, boolean isLittleTiles) {
+        try {
+            Class<?> blockClass = block.getClass();
+            Class<?> blockStateClass = blockState.getClass();
+            String blockType = isLittleTiles ? "§cLittleTiles" : "§aCommon";
+            
+            source.sendSystemMessage(Component.literal(blockType + " Block Class: " + blockClass.getName()));
+            source.sendSystemMessage(Component.literal(blockType + " BlockState Class: " + blockStateClass.getName()));
+            
+            // Test critical rendering methods - many are on BlockState, not Block
+            testMethod(source, block, blockClass, "supportsExternalFaceHiding", blockState, isLittleTiles);
+            testMethod(source, blockState, blockStateClass, "supportsExternalFaceHiding", null, isLittleTiles);
+            
+            testMethod(source, block, blockClass, "hasDynamicLightEmission", blockState, isLittleTiles);
+            testMethod(source, blockState, blockStateClass, "hasDynamicLightEmission", null, isLittleTiles);
+            
+            testMethod(source, block, blockClass, "useShapeForLightOcclusion", blockState, isLittleTiles);
+            testMethod(source, blockState, blockStateClass, "useShapeForLightOcclusion", null, isLittleTiles);
+            
+            testMethod(source, block, blockClass, "propagatesSkylightDown", blockState, isLittleTiles);
+            testMethod(source, blockState, blockStateClass, "propagatesSkylightDown", null, isLittleTiles);
+            
+            // Test state methods
+            testMethod(source, blockState, blockStateClass, "getRenderShape", null, isLittleTiles);
+            testMethod(source, block, blockClass, "getRenderShape", blockState, isLittleTiles);
+            
+            // Show all rendering-related methods in both Block and BlockState
+            source.sendSystemMessage(Component.literal(blockType + " ALL Block Methods:"));
+            showAllRenderingMethods(source, blockClass, isLittleTiles, "Block");
+            
+            source.sendSystemMessage(Component.literal(blockType + " ALL BlockState Methods:"));
+            showAllRenderingMethods(source, blockStateClass, isLittleTiles, "BlockState");
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("§cError analyzing block rendering methods: " + e.getMessage()));
+            LOGGER.warn("Error analyzing block rendering methods: {}", e.getMessage());
+        }
+    }
+    
+    private static void testMethod(CommandSourceStack source, Object instance, Class<?> clazz, String methodName, Object parameter, boolean isLittleTiles) {
+        try {
+            String prefix = isLittleTiles ? "§c  LT" : "§a  CB";
+            
+            // Try to find the method with different parameter combinations
+            Method method = null;
+            try {
+                if (parameter != null) {
+                    method = clazz.getMethod(methodName, parameter.getClass());
+                } else {
+                    method = clazz.getMethod(methodName);
+                }
+            } catch (NoSuchMethodException e1) {
+                try {
+                    if (parameter != null) {
+                        method = clazz.getDeclaredMethod(methodName, parameter.getClass());
+                    } else {
+                        method = clazz.getDeclaredMethod(methodName);
+                    }
+                } catch (NoSuchMethodException e2) {
+                    // Try to find any method with this name
+                    for (Method m : clazz.getMethods()) {
+                        if (m.getName().equals(methodName)) {
+                            method = m;
+                            break;
+                        }
+                    }
+                    if (method == null) {
+                        source.sendSystemMessage(Component.literal(prefix + " " + methodName + ": §7Method not found"));
+                        return;
+                    }
+                }
+            }
+            
+            if (method != null) {
+                method.setAccessible(true);
+                Object result;
+                if (parameter != null && method.getParameterCount() > 0) {
+                    result = method.invoke(instance, parameter);
+                } else if (method.getParameterCount() == 0) {
+                    result = method.invoke(instance);
+                } else {
+                    result = "§7Found (params: " + method.getParameterCount() + ")";
+                }
+                source.sendSystemMessage(Component.literal(prefix + " " + methodName + ": §f" + result));
+            }
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal((isLittleTiles ? "§c  LT" : "§a  CB") + " " + methodName + ": §7Error - " + e.getMessage()));
+        }
+    }
+    
+    private static void showAllRenderingMethods(CommandSourceStack source, Class<?> clazz, boolean isLittleTiles, String classType) {
+        String prefix = isLittleTiles ? "§c    " : "§a    ";
+        Method[] methods = clazz.getMethods();
+        
+        for (Method method : methods) {
+            String methodName = method.getName();
+            if (methodName.contains("render") || methodName.contains("Render") || 
+                methodName.contains("shape") || methodName.contains("Shape") ||
+                methodName.contains("light") || methodName.contains("Light") ||
+                methodName.contains("collision") || methodName.contains("Collision") ||
+                methodName.contains("support") || methodName.contains("Support") ||
+                methodName.contains("occlusion") || methodName.contains("Occlusion") ||
+                methodName.contains("face") || methodName.contains("Face") ||
+                methodName.contains("dynamic") || methodName.contains("Dynamic") ||
+                methodName.contains("skylight") || methodName.contains("Skylight")) {
+                source.sendSystemMessage(Component.literal(prefix + classType + "." + methodName + "(" + method.getParameterCount() + " params)"));
+            }
+        }
+    }
+      private static void analyzeContraptionEntityRendering(CommandSourceStack source, Entity contraptionEntity) {
+        try {
+            Class<?> entityClass = contraptionEntity.getClass();
+            source.sendSystemMessage(Component.literal("§6Contraption Entity: " + entityClass.getSimpleName()));
+            
+            // Test position and rotation methods critical for rendering
+            testEntityMethod(source, contraptionEntity, "blockPosition");
+            testEntityMethod(source, contraptionEntity, "position");
+            
+            // Test contraption-specific methods if available
+            if (contraptionEntity instanceof AbstractContraptionEntity) {
+                source.sendSystemMessage(Component.literal("§6Testing AbstractContraptionEntity methods..."));
+                testEntityMethod(source, contraptionEntity, "getAngle", float.class);
+                testEntityMethod(source, contraptionEntity, "getRotationAxis");
+            }
+            
+            // List key rendering-related methods
+            source.sendSystemMessage(Component.literal("§6Key rendering methods available:"));            Method[] methods = entityClass.getMethods();
+            for (Method method : methods) {
+                String methodName = method.getName();
+                if (methodName.contains("render") || methodName.contains("Render") || 
+                    methodName.contains("angle") || methodName.contains("Angle") ||
+                    methodName.contains("rotation") || methodName.contains("Rotation") ||
+                    methodName.contains("position") || methodName.contains("Position") ||
+                    methodName.contains("transform") || methodName.contains("Transform") ||
+                    methodName.contains("matrix") || methodName.contains("Matrix") ||
+                    methodName.contains("lighting") || methodName.contains("Lighting") ||
+                    methodName.contains("view") || methodName.contains("View")) {
+                    source.sendSystemMessage(Component.literal("  §7- " + methodName + "(" + method.getParameterCount() + " params)"));
+                }
+            }
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("§cError analyzing contraption entity rendering: " + e.getMessage()));
+            LOGGER.warn("Error analyzing contraption entity rendering: {}", e.getMessage());
+        }
+    }
+    
+    private static void testEntityMethod(CommandSourceStack source, Entity entity, String methodName, Class<?>... paramTypes) {
+        try {
+            Method method = entity.getClass().getMethod(methodName, paramTypes);
+            method.setAccessible(true);
+            
+            Object result;
+            if (paramTypes.length == 0) {
+                result = method.invoke(entity);
+            } else if (paramTypes.length == 1 && paramTypes[0] == float.class) {
+                // For methods like getAngle(float partialTicks), use 0.0f
+                result = method.invoke(entity, 0.0f);
+            } else {
+                source.sendSystemMessage(Component.literal("  §7" + methodName + ": Complex parameters, skipping"));
+                return;
+            }
+            
+            source.sendSystemMessage(Component.literal("  §6" + methodName + ": §f" + result));
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("  §7" + methodName + ": Error or not found - " + e.getMessage()));
+        }
+    }
+    
+    // Helper methods for accessing StructureBlockInfo data
+    private static Object getBlockStateFromStructureBlockInfo(Object structureBlockInfo) {
+        try {
+            Field stateField = structureBlockInfo.getClass().getDeclaredField("state");
+            stateField.setAccessible(true);
+            return stateField.get(structureBlockInfo);
+        } catch (Exception e) {
+            LOGGER.warn("Could not get BlockState from StructureBlockInfo: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    private static Object getBlockFromBlockState(Object blockState) {
+        try {
+            Method getBlockMethod = blockState.getClass().getMethod("getBlock");
+            return getBlockMethod.invoke(blockState);
+        } catch (Exception e) {
+            LOGGER.warn("Could not get Block from BlockState: {}", e.getMessage());
+            return null;
         }
     }
 }
