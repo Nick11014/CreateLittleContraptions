@@ -1,0 +1,38 @@
+{
+    "size": [5, 5, 5],
+    "entities": [],
+    "blocks": [
+        {
+            "state": {
+                "Name": "minecraft:stone"
+            },
+            "pos": [2, 0, 2]
+        },
+        {
+            "state": {
+                "Name": "minecraft:piston"
+            },
+            "pos": [2, 1, 2]
+        },
+        {
+            "state": {
+                "Name": "minecraft:redstone_block"
+            },
+            "pos": [1, 1, 2]
+        }
+    ],
+    "palette": [
+        {
+            "Name": "minecraft:air"
+        },
+        {
+            "Name": "minecraft:stone"
+        },
+        {
+            "Name": "minecraft:piston"
+        },
+        {
+            "Name": "minecraft:redstone_block"
+        }
+    ]
+}

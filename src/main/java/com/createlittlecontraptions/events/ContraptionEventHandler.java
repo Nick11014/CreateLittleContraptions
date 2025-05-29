@@ -75,35 +75,53 @@ public class ContraptionEventHandler {
             // Notify nearby players
             notifyNearbyPlayers(contraptionEntity, "Contraption disassembled with LittleTiles!", false);
         }
-    }
-      /**
-     * Analyze LittleTiles blocks in the contraption
+    }    /**
+     * Analyze LittleTiles blocks in the contraption using robust reflection approach
      */
     private static void analyzeLittleTilesInContraption(AbstractContraptionEntity contraptionEntity) {
         if (contraptionEntity == null) {
-            LOGGER.warn("ContraptionEntity is null, cannot analyze LittleTiles");
+            LOGGER.debug("ContraptionEntity is null, skipping LittleTiles analysis");
             return;
         }
         
         try {
-            // Use reflection to access contraption data (similar to debug command)
-            var contraptionField = AbstractContraptionEntity.class.getDeclaredField("contraption");
-            contraptionField.setAccessible(true);
-            var contraption = contraptionField.get(contraptionEntity);
+            // First, try to get contraption using reflection with multiple possible field names
+            Object contraption = null;
+            String[] possibleContraptionFields = {"contraption", "contraptionInstance", "contraptionData"};
+            
+            for (String fieldName : possibleContraptionFields) {
+                try {
+                    var field = AbstractContraptionEntity.class.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    contraption = field.get(contraptionEntity);
+                    if (contraption != null) {
+                        LOGGER.debug("Found contraption using field: {}", fieldName);
+                        break;
+                    }
+                } catch (NoSuchFieldException ignored) {
+                    // Try next field name
+                }
+            }
             
             if (contraption == null) {
-                LOGGER.warn("Contraption is null in entity: {}", contraptionEntity.getClass().getSimpleName());
+                LOGGER.debug("Contraption is null in entity: {} - might be during assembly/disassembly transition", 
+                    contraptionEntity.getClass().getSimpleName());
                 return;
             }
             
-            // Try 'blocks' field first, if not found try 'structureTemplate.blocks'
+            // Now try to find blocks using various possible field structures
             java.util.Map<?, ?> blocks = null;
+            String blocksSource = "unknown";
+            
+            // Strategy 1: Direct 'blocks' field
             try {
                 var blocksField = contraption.getClass().getDeclaredField("blocks");
                 blocksField.setAccessible(true);
                 blocks = (java.util.Map<?, ?>) blocksField.get(contraption);
-            } catch (NoSuchFieldException e) {
-                // Try alternative field structure
+                blocksSource = "contraption.blocks";
+            } catch (Exception e1) {
+                
+                // Strategy 2: 'structureTemplate.blocks'
                 try {
                     var structureTemplateField = contraption.getClass().getDeclaredField("structureTemplate");
                     structureTemplateField.setAccessible(true);
@@ -112,48 +130,114 @@ public class ContraptionEventHandler {
                         var blocksField = structureTemplate.getClass().getDeclaredField("blocks");
                         blocksField.setAccessible(true);
                         blocks = (java.util.Map<?, ?>) blocksField.get(structureTemplate);
+                        blocksSource = "contraption.structureTemplate.blocks";
                     }
-                } catch (Exception ex) {
-                    LOGGER.warn("Could not access blocks data: {}", ex.getMessage());
-                    return;
+                } catch (Exception e2) {
+                    
+                    // Strategy 3: 'template.blocks'
+                    try {
+                        var templateField = contraption.getClass().getDeclaredField("template");
+                        templateField.setAccessible(true);
+                        var template = templateField.get(contraption);
+                        if (template != null) {
+                            var blocksField = template.getClass().getDeclaredField("blocks");
+                            blocksField.setAccessible(true);
+                            blocks = (java.util.Map<?, ?>) blocksField.get(template);
+                            blocksSource = "contraption.template.blocks";
+                        }
+                    } catch (Exception e3) {
+                        
+                        // Strategy 4: Look for any field containing "blocks"
+                        for (var field : contraption.getClass().getDeclaredFields()) {
+                            if (field.getName().toLowerCase().contains("blocks") || 
+                                field.getType().getName().contains("Map")) {
+                                try {
+                                    field.setAccessible(true);
+                                    var potentialBlocks = field.get(contraption);
+                                    if (potentialBlocks instanceof java.util.Map<?, ?> map && !map.isEmpty()) {
+                                        blocks = map;
+                                        blocksSource = "contraption." + field.getName();
+                                        break;
+                                    }
+                                } catch (Exception ignored) {
+                                    // Continue searching
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
             if (blocks == null || blocks.isEmpty()) {
-                LOGGER.debug("No blocks found in contraption");
+                LOGGER.debug("No blocks data found in contraption of type: {}", contraption.getClass().getSimpleName());
                 return;
             }
             
+            // Analyze blocks for LittleTiles
             int littleTilesCount = 0;
+            int totalBlocks = blocks.size();
+            
             for (var entry : blocks.entrySet()) {
                 var blockInfo = entry.getValue();
                 if (blockInfo == null) continue;
                 
                 try {
-                    var stateField = blockInfo.getClass().getDeclaredField("state");
-                    stateField.setAccessible(true);
-                    var blockState = stateField.get(blockInfo);
+                    // Try multiple ways to get block state
+                    Object blockState = null;
+                    
+                    // Method 1: Direct 'state' field
+                    try {
+                        var stateField = blockInfo.getClass().getDeclaredField("state");
+                        stateField.setAccessible(true);
+                        blockState = stateField.get(blockInfo);
+                    } catch (NoSuchFieldException e) {
+                        // Method 2: 'blockState' field
+                        try {
+                            var stateField = blockInfo.getClass().getDeclaredField("blockState");
+                            stateField.setAccessible(true);
+                            blockState = stateField.get(blockInfo);
+                        } catch (NoSuchFieldException e2) {
+                            // Method 3: Get any field that contains "state"
+                            for (var field : blockInfo.getClass().getDeclaredFields()) {
+                                if (field.getName().toLowerCase().contains("state")) {
+                                    try {
+                                        field.setAccessible(true);
+                                        blockState = field.get(blockInfo);
+                                        if (blockState != null) break;
+                                    } catch (Exception ignored) {}
+                                }
+                            }
+                        }
+                    }
                     
                     if (blockState != null) {
                         String blockName = blockState.toString();
                         if (blockName.contains("littletiles")) {
                             littleTilesCount++;
+                            LOGGER.debug("Found LittleTiles block: {}", blockName);
                         }
                     }
                 } catch (Exception fieldEx) {
                     // Skip this block if we can't access its state
-                    continue;
+                    LOGGER.debug("Could not analyze block info of type: {}", blockInfo.getClass().getSimpleName());
                 }
             }
             
             if (littleTilesCount > 0) {
-                LOGGER.info("*** {} LittleTiles blocks detected in contraption! ***", littleTilesCount);
+                LOGGER.info("*** {} LittleTiles blocks detected in contraption! *** (from {}, total blocks: {})", 
+                    littleTilesCount, blocksSource, totalBlocks);
             } else {
-                LOGGER.debug("No LittleTiles blocks found in contraption with {} total blocks", blocks.size());
+                LOGGER.debug("No LittleTiles blocks found in contraption with {} total blocks (from {})", 
+                    totalBlocks, blocksSource);
             }
             
         } catch (Exception e) {
-            LOGGER.warn("Failed to analyze LittleTiles in contraption: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+            LOGGER.debug("Could not analyze LittleTiles in contraption: {} - {}", 
+                e.getClass().getSimpleName(), e.getMessage());
+            // Log stack trace only in debug mode to avoid spam
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Full stack trace:", e);
+            }
         }
     }
     

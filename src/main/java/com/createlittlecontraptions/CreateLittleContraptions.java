@@ -18,7 +18,7 @@ import com.createlittlecontraptions.events.ContraptionEventHandler;
 @Mod(CreateLittleContraptions.MODID)
 public class CreateLittleContraptions {
     public static final String MODID = "createlittlecontraptions";
-    private static final Logger LOGGER = LogUtils.getLogger();    public CreateLittleContraptions(IEventBus modEventBus, ModContainer modContainer) {
+    public static final Logger LOGGER = LogUtils.getLogger();    public CreateLittleContraptions(IEventBus modEventBus, ModContainer modContainer) {
         // Register mod lifecycle events
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
