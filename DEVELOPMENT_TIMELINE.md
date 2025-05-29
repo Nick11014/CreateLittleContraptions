@@ -64,7 +64,7 @@
 - ✅ **GameTest namespace habilitado:** `[createlittlecontraptions]` detectado
 - ✅ **Problema "No test functions were given!" eliminado:** GameTestServer inicializou corretamente
 - 🎯 **Status:** Sistema de GameTest pronto para implementação de testes específicos
-- ✅ **Correção:** GameTest no `src/gametest/java/SimpleCLCTests.java` corrigido e funcional
+- ✅ **Correção:** GameTest no `src/main/java/com/createlittlecontraptions/gametests/SimpleCLCTests.java` corrigido e funcional
 - ✅ **Build:** `.\gradlew.bat build` executado com sucesso após correções
 
 #### **20:15 - GameTests Implementados com Sucesso**
@@ -76,9 +76,30 @@
 - ✅ **Validação completa:** Sistema de testes automatizados funcionando corretamente
 - 🎯 **Status:** Framework de GameTest operacional e pronto para expansão
 
+#### **20:52 - Planejamento: Análise de Classes e Métodos via Reflection**
+- 📋 **Objetivo:** Expandir `/contraption-debug` com informações detalhadas sobre classes e métodos
+- 🎯 **Estratégia:** Implementação orientada a testes para minimizar testes manuais
+- 📝 **Plano de Execução:**
+  1. **Fase 1:** Implementar funcionalidade de reflection no `ContraptionDebugCommand.java`
+  2. **Fase 2:** Criar GameTests automatizados para verificar robustez (sem exceções)
+  3. **Fase 3:** Teste manual final no client apenas para validação visual
+- ✅ **Benefício:** Reduzir drasticamente o número de execuções manuais do client durante desenvolvimento
+
 ---
 
 ## 📋 Próximas Etapas
+
+### **Step 1.5: Análise Avançada de Contraptions (EM ANDAMENTO)**
+- [ ] **Fase 1:** Implementar análise de classes via Java Reflection em `ContraptionDebugCommand.java`
+  - [ ] Detectar classe da contraption
+  - [ ] Identificar classes dos elementos internos
+  - [ ] Listar todos os métodos de cada classe
+  - [ ] Formatação organizada da saída
+- [ ] **Fase 2:** Criar GameTests automatizados para validação
+  - [ ] Teste de robustez (sem exceções)
+  - [ ] Verificação de classes esperadas
+  - [ ] Validação de formatação de saída
+- [ ] **Fase 3:** Teste manual final no client (validação visual única)
 
 ### **Step 2: Event Detection System (Replanejar)**
 - [ ] **Revisão:** Analisar a necessidade e o escopo do sistema de detecção de eventos.
@@ -92,6 +113,7 @@
 
 ## 🎯 Status Atual
 - **Step 1:** ✅ COMPLETO E TESTADO (Funcionalidade principal)
+- **Step 1.5:** 🚧 EM ANDAMENTO (Análise avançada via reflection)
 - **Step 2:** ⏪ REVERTIDO (Necessita Replanejamento)
 - **Step 3:** 📋 PLANEJADO
 - **Testes:** ✅ IMPLEMENTADOS E FUNCIONAIS (GameTests operacionais)
