@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
@@ -77,40 +76,84 @@ public class ContraptionEventHandler {
             notifyNearbyPlayers(contraptionEntity, "Contraption disassembled with LittleTiles!", false);
         }
     }
-    
-    /**
+      /**
      * Analyze LittleTiles blocks in the contraption
      */
     private static void analyzeLittleTilesInContraption(AbstractContraptionEntity contraptionEntity) {
+        if (contraptionEntity == null) {
+            LOGGER.warn("ContraptionEntity is null, cannot analyze LittleTiles");
+            return;
+        }
+        
         try {
             // Use reflection to access contraption data (similar to debug command)
             var contraptionField = AbstractContraptionEntity.class.getDeclaredField("contraption");
             contraptionField.setAccessible(true);
             var contraption = contraptionField.get(contraptionEntity);
             
-            var blocksField = contraption.getClass().getDeclaredField("blocks");
-            blocksField.setAccessible(true);
-            var blocks = (java.util.Map<?, ?>) blocksField.get(contraption);
+            if (contraption == null) {
+                LOGGER.warn("Contraption is null in entity: {}", contraptionEntity.getClass().getSimpleName());
+                return;
+            }
+            
+            // Try 'blocks' field first, if not found try 'structureTemplate.blocks'
+            java.util.Map<?, ?> blocks = null;
+            try {
+                var blocksField = contraption.getClass().getDeclaredField("blocks");
+                blocksField.setAccessible(true);
+                blocks = (java.util.Map<?, ?>) blocksField.get(contraption);
+            } catch (NoSuchFieldException e) {
+                // Try alternative field structure
+                try {
+                    var structureTemplateField = contraption.getClass().getDeclaredField("structureTemplate");
+                    structureTemplateField.setAccessible(true);
+                    var structureTemplate = structureTemplateField.get(contraption);
+                    if (structureTemplate != null) {
+                        var blocksField = structureTemplate.getClass().getDeclaredField("blocks");
+                        blocksField.setAccessible(true);
+                        blocks = (java.util.Map<?, ?>) blocksField.get(structureTemplate);
+                    }
+                } catch (Exception ex) {
+                    LOGGER.warn("Could not access blocks data: {}", ex.getMessage());
+                    return;
+                }
+            }
+            
+            if (blocks == null || blocks.isEmpty()) {
+                LOGGER.debug("No blocks found in contraption");
+                return;
+            }
             
             int littleTilesCount = 0;
             for (var entry : blocks.entrySet()) {
                 var blockInfo = entry.getValue();
-                var stateField = blockInfo.getClass().getDeclaredField("state");
-                stateField.setAccessible(true);
-                var blockState = stateField.get(blockInfo);
+                if (blockInfo == null) continue;
                 
-                String blockName = blockState.toString();
-                if (blockName.contains("littletiles")) {
-                    littleTilesCount++;
+                try {
+                    var stateField = blockInfo.getClass().getDeclaredField("state");
+                    stateField.setAccessible(true);
+                    var blockState = stateField.get(blockInfo);
+                    
+                    if (blockState != null) {
+                        String blockName = blockState.toString();
+                        if (blockName.contains("littletiles")) {
+                            littleTilesCount++;
+                        }
+                    }
+                } catch (Exception fieldEx) {
+                    // Skip this block if we can't access its state
+                    continue;
                 }
             }
             
             if (littleTilesCount > 0) {
                 LOGGER.info("*** {} LittleTiles blocks detected in contraption! ***", littleTilesCount);
+            } else {
+                LOGGER.debug("No LittleTiles blocks found in contraption with {} total blocks", blocks.size());
             }
             
         } catch (Exception e) {
-            LOGGER.warn("Failed to analyze LittleTiles in contraption: {}", e.getMessage());
+            LOGGER.warn("Failed to analyze LittleTiles in contraption: {} - {}", e.getClass().getSimpleName(), e.getMessage());
         }
     }
     
