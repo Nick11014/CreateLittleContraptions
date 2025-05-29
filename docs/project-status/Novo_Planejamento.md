@@ -4,78 +4,138 @@
 
 ---
 
-## Etapa 1: Identificar Contraptions Ativas no Mundo (via Comando de Chat)
+## Etapa 1: Identificar Contraptions Ativas no Mundo (via Comando de Chat) ✅ COMPLETO
 
 *Objetivo:* Criar um comando de chat que liste as contraptions ativas do Create, seus tipos, posições e os blocos que as compõem.
 
 * *Checklist de Tarefas Técnicas:*
-    * \[ ] *Criar Classe de Comando:*
-        * \[ ] Criar arquivo InspectContraptionsCommand.java.
-        * \[ ] Implementar a estrutura básica de um comando registrável no NeoForge/Forge.
-    * \[ ] *Registrar Comando:*
-        * \[ ] Adicionar lógica para registrar o comando /inspectcontraptions durante a inicialização do mod.
-    * \[ ] **Implementar Lógica do Comando (execute):**
-        * \[ ] No método execute(CommandContext<CommandSourceStack> context):
-            * \[ ] Obter ServerLevel a partir de context.getSource().getLevel().
-            * \[ ] *Acessar Contraptions Ativas:*
-                * Utilizar a API do Create para obter a lista de contraptions ativas no ServerLevel (ex: através de um ContraptionManager ou WorldStorage).
-            * \[ ] *Iterar e Coletar Dados:*
-                * Para cada IContraption ativa:
-                    * Obter e armazenar o tipo da contraption (se disponível).
-                    * Obter e armazenar a BlockPos de âncora/origem da contraption no mundo.
-                    * Obter a coleção de Structure.StructureBlockInfo (ou tipo equivalente) da contraption (ex: contraption.getBlocks().values()).
-                    * Para cada StructureBlockInfo:
-                        * Armazenar info.state (o BlockState).
-                        * Armazenar info.pos (a BlockPos local dentro da contraption).
-            * \[ ] *Formatar e Enviar Resposta:*
-                * Construir uma MutableComponent ou uma lista de componentes para a saída.
-                * Para cada contraption:
-                    * Adicionar linha: "Contraption ID/Tipo: [ID/Tipo], Posição Mundo: [X, Y, Z]".
-                    * Para cada bloco na contraption:
-                        * Adicionar linha recuada: "  - Bloco: [BlockState.toString()], Posição Local: [LX, LY, LZ]".
-                * Enviar a(s) componente(s) para context.getSource().sendSuccess(...).
-    * \[ ] *Testar Comando:*
-        * \[ ] Compilar e executar o Minecraft com o mod.
-        * \[ ] Criar algumas contraptions do Create no mundo.
-        * \[ ] Executar /inspectcontraptions e verificar se a saída no chat está correta e completa.
+    * \[x] *Criar Classe de Comando:*
+        * \[x] Criar arquivo `ContraptionDebugCommand.java` (implementado como `/contraption-debug`).
+        * \[x] Implementar a estrutura básica de um comando registrável no NeoForge.
+    * \[x] *Registrar Comando:*
+        * \[x] Adicionar lógica para registrar o comando durante a inicialização do mod.
+    * \[x] **Implementar Lógica do Comando (execute):**
+        * \[x] Obter `ServerLevel` a partir de `context.getSource().getLevel()`.
+        * \[x] *Acessar Contraptions Ativas:* Detectar contraptions próximas ao jogador.
+        * \[x] *Iterar e Coletar Dados:* Análise completa de blocos na contraption.
+        * \[x] *Formatar e Enviar Resposta:* Output detalhado com identificação de LittleTiles.
+    * \[x] *Testar Comando:* Validado em produção com elevator contraption (33 blocos, 2 LittleTiles detectados).
+
+### Etapa 1.5: Análise Avançada de Contraptions (via Java Reflection) ✅ COMPLETO
+
+*Objetivo:* Expandir comando com análise detalhada de classes, métodos e hierarquia usando reflection.
+
+* *Checklist de Tarefas Técnicas:*
+    * \[x] **Implementar Subcomando `classes`:**
+        * \[x] Adicionar `/contraption-debug classes` ao comando existente.
+        * \[x] Implementar análise via Java Reflection de todas as classes envolvidas.
+    * \[x] **Análise Detalhada de Classes:**
+        * \[x] Análise de `ControlledContraptionEntity` (23 métodos identificados).
+        * \[x] Análise de contraption interna (`ElevatorContraption`, 15 métodos).
+        * \[x] Análise de classes de blocos (`BlockTile` com 78 métodos, hierarquia completa).
+        * \[x] Detecção de herança e interfaces implementadas.
+    * \[x] **GameTests de Validação:**
+        * \[x] Teste `contraptionDebugClassesRobustnessTest()` implementado e funcionando.
+        * \[x] Validação de execução sem exceções.
+    * \[x] **Validação Manual:** Testado em produção, ambos comandos funcionando perfeitamente.
 
 ---
 
-## Etapa 2: Identificar Assembly e Disassembly (via Comando de Chat e Notificações)
+## Etapa 2: Identificar Assembly e Disassembly (via Comando de Chat e Notificações) ✅ COMPLETO
 
 *Objetivo:* Criar um comando para alternar o logging de eventos de assembly/disassembly e exibir notificações no chat quando esses eventos ocorrerem.
 
 * *Checklist de Tarefas Técnicas:*
-    * \[ ] *Criar Variável de Estado Global:*
-        * \[ ] Definir public static boolean enableContraptionEventLogging = false; em uma classe apropriada (ex: sua classe principal do mod ou uma classe de gerenciamento).
-    * \[ ] *Criar Classe de Comando de Alternância:*
-        * \[ ] Criar arquivo ToggleContraptionLogCommand.java.
-        * \[ ] Implementar e registrar o comando /togglecontraptionlog.
-        * \[ ] No método execute:
-            * \[ ] Inverter o valor de enableContraptionEventLogging.
-            * \[ ] Enviar mensagem de feedback ao jogador: "Log de eventos de contraption: ATIVADO/DESATIVADO".
-    * \[ ] *Criar Classe de Handler de Eventos:*
-        * \[ ] Criar arquivo CreateContraptionEventHandler.java.
-        * \[ ] Registrar esta classe no event bus do NeoForge/Forge (ex: NeoForge.EVENT_BUS.register(new CreateContraptionEventHandler())).
-    * \[ ] **Implementar Listener de ContraptionEvents.ContraptionAssemblyEvent:**
-        * \[ ] No CreateContraptionEventHandler.java, criar um método público com a anotação @SubscribeEvent que recebe com.simibubi.create.api.event.たとえば.ContraptionEvents.ContraptionAssemblyEvent como parâmetro.
-        * \[ ] Dentro do método:
-            * \[ ] Verificar if (!enableContraptionEventLogging) return;.
-            * \[ ] Obter IContraption contraption = event.getContraption();.
-            * \[ ] Obter Level world = contraption.getContraptionWorld(); (ou o nível onde a contraption foi montada, se o evento fornecer).
-            * \[ ] Obter a BlockPos anchorPos = contraption.getAnchor(); (ou a posição relevante).
-            * \[ ] Enviar mensagem para o chat (ex: para o jogador que está próximo ou para todos, usando Player.sendSystemMessage ou ServerLifecycleHooks.getCurrentServer().getPlayerList().broadcastSystemMessage): "Contraption [ID/Tipo] montada em [X,Y,Z]".
-    * \[ ] **Implementar Listener de ContraptionEvents.ContraptionDisassemblyEvent:**
-        * \[ ] No CreateContraptionEventHandler.java, criar um método público com a anotação @SubscribeEvent que recebe com.simibubi.create.api.event.たとえば.ContraptionEvents.ContraptionDisassemblyEvent como parâmetro.
-        * \[ ] Dentro do método:
-            * \[ ] Verificar if (!enableContraptionEventLogging) return;.
-            * \[ ] Obter informações da contraption (event.getContraption()) e sua posição antes da desmontagem (se possível através do evento).
-            * \[ ] Enviar mensagem para o chat: "Contraption [ID/Tipo] desmontada (anteriormente em [X,Y,Z])".
-    * \[ ] *Testar no Jogo:*
-        * \[ ] Compilar e executar.
-        * \[ ] Usar /togglecontraptionlog para ativar.
-        * \[ ] Montar e desmontar contraptions, verificando as mensagens no chat.
-        * \[ ] Desativar o log e verificar se as mensagens param.
+    * \[x] *Criar Variável de Estado Global:*
+        * \[x] Definir `public static boolean enableContraptionEventLogging = false;` em `ContraptionEventHandler.java`.
+    * \[x] *Criar Classe de Comando de Alternância:*
+        * \[x] Criar arquivo `ContraptionEventsCommand.java`.
+        * \[x] Implementar e registrar o comando `/contraption-events`.
+        * \[x] No método execute: Toggle de logging com feedback colorido (§a ENABLED, §c DISABLED).
+    * \[x] *Criar Classe de Handler de Eventos:*
+        * \[x] Criar arquivo `ContraptionEventHandler.java`.
+        * \[x] Registrar esta classe no event bus do NeoForge.
+    * \[x] **Implementar Listener de Assembly Events:**
+        * \[x] Método `onContraptionAssembled()` com detecção via `EntityJoinLevelEvent`.
+        * \[x] Análise automática de LittleTiles usando reflection.
+        * \[x] Notificações para jogadores num raio de 64 blocos.
+        * \[x] Logs estruturados com informações detalhadas.
+    * \[x] **Implementar Listener de Disassembly Events:**
+        * \[x] Método `onContraptionDisassembled()` com detecção via `EntityLeaveLevelEvent`.
+        * \[x] Notificações de desmontagem no chat.
+    * \[x] *Testar no Jogo:* Validado em produção - assembly e disassembly detectados corretamente.
+
+---
+
+## Etapa 2.5: Investigação Detalhada dos Métodos de Renderização (LittleTiles vs Blocos Comuns)
+
+*Objetivo:* Investigar e documentar as diferenças entre renderização de blocos comuns e LittleTiles em contraptions estáticas, identificando métodos que podem estar impedindo a renderização correta.
+
+*Contexto:* Todos os testes serão realizados com elevator contraption **parado** para isolar problemas de renderização básica, sem complicações de movimento.
+
+* *Checklist de Tarefas Técnicas:*
+    * \[ ] **Expandir Comando `/contraption-debug` com Análise de Renderização:**
+        * \[ ] Adicionar subcomando `rendering` ao `ContraptionDebugCommand.java`.
+        * \[ ] Implementar método `analyzeRenderingMethods()` que:
+            * \[ ] Para cada bloco LittleTiles na contraption:
+                * \[ ] Testar `VoxelShape getBlockSupportShape(BlockState, BlockGetter, BlockPos)` e documentar resultado.
+                * \[ ] Testar `boolean supportsExternalFaceHiding(BlockState)` e comparar com blocos comuns.
+                * \[ ] Testar `boolean hasDynamicLightEmission(BlockState)` e verificar diferenças.
+                * \[ ] Testar `boolean useShapeForLightOcclusion(BlockState)` e analisar impacto.
+                * \[ ] **CRÍTICO:** Testar `BlockState getStateAtViewpoint(BlockState, BlockGetter, BlockPos, Vec3)` com diferentes viewpoints.
+                * \[ ] Testar `boolean propagatesSkylightDown(BlockState, BlockGetter, BlockPos)` e verificar propagação.
+            * \[ ] Para contraption entity:
+                * \[ ] Analisar `Map<BlockPos, StructureBlockInfo> getBlocks()` e verificar integridade dos dados LittleTiles.
+                * \[ ] Investigar transformações de posição via `Vec3 applyRotation(Vec3, float)` (mesmo parado).
+                * \[ ] Verificar `float getAngle(float)` para contraption estática.
+        * \[ ] Formatar saída com comparação lado-a-lado: bloco comum vs LittleTiles.
+    * \[ ] **Implementar GameTests para Comparação Automatizada:**
+        * \[ ] Criar `RenderingComparisonGameTest.java`.
+        * \[ ] Implementar teste `compareBlockRenderingBehavior()`:
+            * \[ ] Criar contraption com bloco comum (ex: stone).
+            * \[ ] Criar contraption com LittleTiles.
+            * \[ ] Executar análise de renderização em ambas.
+            * \[ ] Comparar resultados automaticamente.
+            * \[ ] Documentar diferenças encontradas.
+        * \[ ] Implementar teste `validateLittleTilesDataIntegrity()`:
+            * \[ ] Verificar se `StructureBlockInfo` preserva dados específicos do LittleTiles.
+            * \[ ] Validar presença de `BlockEntity` data.
+            * \[ ] Confirmar integridade de `CompoundTag` do LittleTiles.
+    * \[ ] **Execução de Testes Manuais Focados:**
+        * \[ ] Criar mundo de teste com elevator contraption **parado** contendo:
+            * \[ ] 1 bloco comum (stone/wood) para referência.
+            * \[ ] 1 bloco LittleTiles simples.
+            * \[ ] 1 bloco LittleTiles complexo (múltiplas tiles).
+        * \[ ] Executar `/contraption-debug rendering` e documentar output completo.
+        * \[ ] Fazer screenshots comparativos de renderização visual.
+        * \[ ] Testar em diferentes condições de iluminação (dia/noite/subterrâneo).
+    * \[ ] **Validação das 5 Hipóteses Principais:**
+        * \[ ] **Hipótese 1 - Problemas de VoxelShape:**
+            * \[ ] Comparar `VoxelShape` retornado por LittleTiles vs bloco comum.
+            * \[ ] Verificar se shapes complexos são preservados na contraption.
+        * \[ ] **Hipótese 2 - Conflitos de Iluminação:**
+            * \[ ] Analisar `hasDynamicLightEmission()` e `useShapeForLightOcclusion()`.
+            * \[ ] Testar renderização com diferentes níveis de luz.
+        * \[ ] **Hipótese 3 - Problemas de Viewpoint (CRÍTICA):**
+            * \[ ] Testar `getStateAtViewpoint()` com viewpoints de diferentes ângulos.
+            * \[ ] Verificar se viewpoint é calculado corretamente para blocos na contraption.
+        * \[ ] **Hipótese 4 - Perda de BlockEntity:**
+            * \[ ] Verificar presença de `BlockEntity` data em `StructureBlockInfo`.
+            * \[ ] Confirmar se `createBlockEntity()` é chamado adequadamente.
+        * \[ ] **Hipótese 5 - Problemas de Assembly:**
+            * \[ ] Analisar `StructureBlockInfo` antes e depois do assembly.
+            * \[ ] Verificar integridade de `CompoundTag` específico do LittleTiles.
+    * \[ ] **Documentação e Análise de Resultados:**
+        * \[ ] Atualizar `docs/contraption-analysis/rendering-methods-research.md` com dados coletados.
+        * \[ ] Criar tabela comparativa completa: bloco comum vs LittleTiles.
+        * \[ ] Identificar **métodos específicos** que retornam valores problemáticos.
+        * \[ ] Documentar **pontos exatos** onde renderização falha.
+        * \[ ] Formular **estratégia de correção** baseada nos achados.
+    * \[ ] **Preparação para Etapa 3:**
+        * \[ ] Listar métodos que precisam ser interceptados/modificados.
+        * \[ ] Identificar transformações de coordenadas necessárias.
+        * \[ ] Documentar dados específicos do LittleTiles que devem ser preservados.
+        * \[ ] Criar plano de implementação de Mixins/hooks necessários.
 
 ---
 

@@ -175,34 +175,20 @@
 - ✅ **Assembly detectado:** Contraption montada com notificação "Contraption assembled with 33 blocks"
 - ✅ **Disassembly detectado:** Contraption desmontada com notificação "Contraption disassembled"
 - ✅ **Chat notifications:** Mensagens coloridas funcionando corretamente
-- ✅ **Comando funcional:** `/contraption-events` habilitando/desabilitando logging
 
-#### **14:32 - Bug de Reflexão Identificado**
-- ❌ **Problema:** Erro no método `analyzeLittleTilesInContraption`
-- 🔍 **Causa 1:** Campo "blocks" não encontrado (estrutura diferente)
-- 🔍 **Causa 2:** Contraption nula em alguns casos
-
-#### **14:35 - Bug de Reflexão Corrigido**
-- ✅ **Solução implementada:** Tratamento robusto de exceções com fallbacks
-- ✅ **Melhorias adicionadas:**
-  - Verificação de null para contraptionEntity e contraption
-  - Tentativa de acesso a campo 'blocks' com fallback para 'structureTemplate.blocks'
-  - Tratamento individual de cada bloco para evitar falhas
-  - Logging detalhado com informações de debug
-- ✅ **Build validado:** Compilação bem-sucedida
-- ✅ **Import limpo:** Removida importação não utilizada `LevelEvent`
-
-#### **14:40 - Step 2 Validação Final Bem-sucedida**
-- ✅ **Teste completo realizado:** Sistema de eventos testado em ambiente real
-- ✅ **Assembly events:** Detectados e notificados corretamente
-  - Chat notification: "Contraption assembled with 33 blocks"
-  - Logging detalhado com tipo (ControlledContraptionEntity), posição, ID
-- ✅ **Disassembly events:** Detectados e notificados corretamente
-  - Chat notification: "Contraption disassembled"
-  - Logging completo de desmontagem
-- ✅ **Comando funcional:** `/contraption-events` habilitando/desabilitando eventos
-- ✅ **Análise LittleTiles:** Funcionando com warnings de debug (esperado)
-- 🎯 **Step 2 COMPLETAMENTE VALIDADO** - Sistema de eventos operacional em produção
+#### **15:30 - Step 2.5: Planejamento de Pesquisa de Renderização**
+- ✅ **Arquivo criado:** `docs/contraption-analysis/rendering-methods-research.md`
+- ✅ **Objetivos definidos:** 3 questões principais sobre renderização identificadas
+  - Parâmetros e retornos dos métodos de renderização
+  - Diferenças entre renderização de blocos comuns vs LittleTiles
+  - Métodos que podem estar bloqueando renderização do LittleTiles
+- ✅ **Metodologia estruturada:** 3 fases de investigação planejadas
+  - Expansão do comando `/contraption-debug` com análise de renderização
+  - GameTests para comparação automatizada
+  - Testes manuais focados em renderização
+- ✅ **5 hipóteses formuladas:** Problemas de VoxelShape, conflitos de iluminação, problemas de viewpoint, perda de BlockEntity, problemas de assembly
+- ✅ **Métodos críticos identificados:** 15+ métodos específicos para investigação detalhada
+- 🎯 **Status:** Roadmap técnico completo para investigação pré-Step 3
 
 #### **14:45 - Commit de Correções e Validação**
 - ✅ **Build final:** `.\gradlew.bat build` executado com sucesso
@@ -299,5 +285,17 @@
 - ✅ **Comandos debug confirmados:** Ambos comandos executando sem falhas
 - ✅ **Estrutura limpa:** Recursos desnecessários removidos, projeto otimizado
 - 🎯 **VALIDAÇÃO COMPLETA** - Sistema totalmente funcional e testado, pronto para próxima fase
+
+#### **15:45 - Atualização do Planejamento Estratégico**
+- ✅ **Etapa 2.5 adicionada:** Investigação detalhada de métodos de renderização inserida entre Etapa 2 e 3
+- ✅ **Foco específico:** Análise de renderização com elevator contraption **parado** para isolar problemas básicos
+- ✅ **Checklists atualizados:** Etapas 1, 1.5 e 2 marcadas como ✅ COMPLETO com detalhes de implementação
+- ✅ **Metodologia estruturada:** 3 fases de investigação definidas:
+  - Expansão do `/contraption-debug` com subcomando `rendering`
+  - GameTests para comparação automatizada bloco comum vs LittleTiles
+  - Testes manuais focados em diferentes condições de iluminação
+- ✅ **5 hipóteses específicas:** Validação estruturada de problemas de VoxelShape, iluminação, viewpoint, BlockEntity e assembly
+- ✅ **Preparação para Step 3:** Documentação de métodos que precisam ser interceptados e estratégia de correção
+- 🎯 **Status:** Planejamento completamente alinhado com progresso atual e próximas etapas definidas
 
 ---
