@@ -59,6 +59,61 @@ public class LittleTilesAPIFacade {    private static final Logger LOGGER = LogM
     private static long lastIndividualRenderingTime = 0;
     private static final long PER_MESSAGE_INTERVAL_MS = 8000; // 8 seconds per specific message for debugging
     
+    // Debug control flags
+    private static boolean debugEnabled = false;
+    
+    /**
+     * Enables or disables debug logging for LittleTiles contraption rendering.
+     * 
+     * @param enabled true to enable debug logging, false to disable
+     */
+    public static void setDebugEnabled(boolean enabled) {
+        debugEnabled = enabled;
+        if (enabled) {
+            LOGGER.info("LittleTiles contraption rendering debug logging ENABLED");
+        } else {
+            LOGGER.info("LittleTiles contraption rendering debug logging DISABLED");
+        }
+    }
+    
+    /**
+     * Checks if debug logging is currently enabled.
+     * 
+     * @return true if debug logging is enabled
+     */
+    public static boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+    
+    /**
+     * Logs a debug message if debug logging is enabled.
+     * 
+     * @param message The debug message to log
+     */
+    public static void logDebug(String message) {
+        if (debugEnabled) {
+            LOGGER.debug("[LT-RENDERING] " + message);
+        }
+    }
+    
+    /**
+     * Logs an error message.
+     * 
+     * @param message The error message to log
+     */
+    public static void logError(String message) {
+        LOGGER.error("[LT-RENDERING] " + message);
+    }
+    
+    /**
+     * Logs an info message.
+     * 
+     * @param message The info message to log
+     */
+    public static void logInfo(String message) {
+        LOGGER.info("[LT-RENDERING] " + message);
+    }
+    
     /**
      * Check if enough time has passed to allow logging (throttling)
      */

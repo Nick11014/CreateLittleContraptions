@@ -30,7 +30,9 @@ public class ContraptionDebugCommand {
             .then(Commands.literal("classes")
                 .executes(ContraptionDebugCommand::executeClassAnalysis))
             .then(Commands.literal("rendering")
-                .executes(ContraptionDebugCommand::executeRenderingAnalysis)));
+                .executes(ContraptionDebugCommand::executeRenderingAnalysis))
+            .then(Commands.literal("test-movement")
+                .executes(ContraptionDebugCommand::executeMovementTest)));
     }
     
     private static int execute(CommandContext<CommandSourceStack> context) {
@@ -1024,5 +1026,74 @@ public class ContraptionDebugCommand {
             LOGGER.warn("Could not get Block from BlockState: {}", e.getMessage());
             return null;
         }
+    }
+    
+    /**
+     * Tests the MovementBehaviour registration and functionality.
+     */
+    private static int executeMovementTest(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        if (!(source.getLevel() instanceof ServerLevel serverLevel)) {
+            source.sendFailure(Component.literal("Command can only be used in a server world"));
+            return 0;
+        }
+        
+        source.sendSystemMessage(Component.literal("=== MOVEMENT BEHAVIOUR TEST ==="));
+        
+        // Check if Create movement system is available
+        try {
+            Class<?> allMovementBehaviours = Class.forName("com.simibubi.create.AllMovementBehaviours");
+            source.sendSystemMessage(Component.literal("✅ Create AllMovementBehaviours class found"));            // Check for LittleTiles block
+            net.minecraft.world.level.block.Block littleTilesBlock = net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("littletiles", "tiles")
+            );
+            
+            if (littleTilesBlock != null && !littleTilesBlock.equals(net.minecraft.world.level.block.Blocks.AIR)) {
+                source.sendSystemMessage(Component.literal("✅ LittleTiles block found: " + littleTilesBlock));
+                
+                // Try to access registered behaviours
+                try {
+                    Method getBehaviourMethod = allMovementBehaviours.getMethod("getBehaviour", net.minecraft.world.level.block.state.BlockState.class);
+                    Object behaviour = getBehaviourMethod.invoke(null, littleTilesBlock.defaultBlockState());
+                    
+                    if (behaviour != null) {
+                        source.sendSystemMessage(Component.literal("✅ LittleTilesMovementBehaviour registered: " + behaviour.getClass().getSimpleName()));
+                        
+                        // Test if it's our implementation
+                        if (behaviour instanceof com.createlittlecontraptions.compat.littletiles.LittleTilesMovementBehaviour) {
+                            source.sendSystemMessage(Component.literal("✅ MovementBehaviour is our custom implementation"));
+                        } else {
+                            source.sendSystemMessage(Component.literal("⚠️ MovementBehaviour is different implementation: " + behaviour.getClass().getName()));
+                        }
+                    } else {
+                        source.sendSystemMessage(Component.literal("❌ No MovementBehaviour registered for LittleTiles"));
+                    }
+                    
+                } catch (Exception e) {
+                    source.sendSystemMessage(Component.literal("❌ Error checking MovementBehaviour registration: " + e.getMessage()));
+                }
+                
+            } else {
+                source.sendSystemMessage(Component.literal("❌ LittleTiles block not found"));
+            }
+            
+        } catch (ClassNotFoundException e) {
+            source.sendSystemMessage(Component.literal("❌ Create AllMovementBehaviours not found - Create mod missing?"));
+            return 0;
+        }
+        
+        // Test debug settings
+        boolean debugEnabled = com.createlittlecontraptions.compat.littletiles.LittleTilesAPIFacade.isDebugEnabled();
+        source.sendSystemMessage(Component.literal("Debug logging: " + (debugEnabled ? "§aENABLED" : "§cDISABLED")));
+        
+        // Enable debug for testing
+        if (!debugEnabled) {
+            com.createlittlecontraptions.compat.littletiles.LittleTilesAPIFacade.setDebugEnabled(true);
+            source.sendSystemMessage(Component.literal("§aEnabled debug logging for testing"));
+        }
+        
+        source.sendSystemMessage(Component.literal("=== MOVEMENT TEST COMPLETED ==="));
+        return 1;
     }
 }

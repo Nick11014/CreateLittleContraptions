@@ -14,6 +14,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import com.createlittlecontraptions.commands.ContraptionDebugCommand;
 import com.createlittlecontraptions.commands.ContraptionEventsCommand;
 import com.createlittlecontraptions.events.ContraptionEventHandler;
+import com.createlittlecontraptions.compat.create.CreateMovementRegistry;
 
 @Mod(CreateLittleContraptions.MODID)
 public class CreateLittleContraptions {
@@ -30,9 +31,13 @@ public class CreateLittleContraptions {
         NeoForge.EVENT_BUS.register(ContraptionEventHandler.class);
 
         LOGGER.info("CreateLittleContraptions mod initializing...");
-    }private void commonSetup(final FMLCommonSetupEvent event) {
+    }    private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("CreateLittleContraptions common setup");
-        // Future integration with Create and LittleTiles will be implemented here
+        
+        // Register MovementBehaviours for Create integration
+        CreateMovementRegistry.registerMovementBehaviours(event);
+        
+        LOGGER.info("CreateLittleContraptions common setup completed");
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

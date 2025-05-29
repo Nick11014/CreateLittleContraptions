@@ -387,4 +387,24 @@
 - ✅ **Preparação:** Projeto pronto para avançar ao Step 3 (Sistema de Renderização Customizado)
 - 📋 **Próximos passos:** Implementação do Step 3 com base nos insights de renderização coletados
 
+#### **16:25 - Step 3 Implementação da Base de Renderização: Correções de Compilação**
+- 🚀 **Objetivo iniciado:** Implementar sistema de renderização customizado para LittleTiles em contraptions
+- ✅ **Arquivos criados/modificados:**
+  - `LittleTilesMovementBehaviour.java` - Comportamento de movimento personalizado (placeholder)
+  - `LittleTilesContraptionRenderer.java` - Renderer especializado para LittleTiles
+  - `CreateMovementRegistry.java` - Sistema de registro de MovementBehaviour
+  - `LittleTilesAPIFacade.java` - Métodos de debug e logging adicionados
+  - `CreateLittleContraptions.java` - Integração do registro de MovementBehaviour
+  - `ContraptionDebugCommand.java` - Subcomando `test-movement` adicionado
+- ❌ **Problemas iniciais de compilação:**
+  - `NeoForgeRegistries.BLOCKS` não disponível → resolvido com `BuiltInRegistries.BLOCK`
+  - `AllMovementBehaviours.registerBehaviour()` API do Create indisponível
+- ✅ **Soluções implementadas:**
+  - Correção de imports: `net.minecraftforge.*` → `net.neoforged.*`
+  - Sistema de registro via reflexão como fallback
+  - Implementação robusta com verificação de disponibilidade de APIs
+  - Placeholder implementations para evitar dependências não resolvidas
+- ✅ **Build executado:** `.\gradlew.bat build` concluído com sucesso após correções
+- 🎯 **Status:** Base da Etapa 3 implementada e compilando corretamente, pronta para expansão funcional
+
 ---
