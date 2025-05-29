@@ -85,21 +85,46 @@
   3. **Fase 3:** Teste manual final no client apenas para validação visual
 - ✅ **Benefício:** Reduzir drasticamente o número de execuções manuais do client durante desenvolvimento
 
+### **29 de Maio de 2025**
+
+#### **14:30 - Step 1.5 Análise Avançada Completa**
+- ✅ **Implementação verificada:** Comando `/contraption-debug classes` totalmente funcional
+- ✅ **Reflection implementada:** Análise detalhada de classes, métodos, interfaces e hierarquia
+- ✅ **GameTests validados:** Teste `contraptionDebugClassesRobustnessTest()` executando ambos os comandos sem exceções
+- ✅ **Funcionalidades completas:**
+  - Análise de classes de ContraptionEntity
+  - Análise de classes de Contraption interna
+  - Análise de classes de blocos dentro da contraption
+  - Análise de classes de BlockEntity data
+  - Formatação detalhada de métodos com signatures
+  - Detecção de herança e interfaces
+- 🎯 **Status:** Step 1.5 marcado como ✅ COMPLETO (todas as 3 fases concluídas)
+
+#### **21:45 - Step 1.5 Validação Manual Final Bem-sucedida**
+- ✅ **Teste em produção:** Contraption real (ControlledContraptionEntity/ElevatorContraption) com 33 blocos
+- ✅ **2 LittleTiles detectados:** Posições `{x=1, y=-3, z=0}` e `{x=1, y=-2, z=0}` corretamente identificadas
+- ✅ **Comando básico:** `/contraption-debug` executado sem erros, formatação perfeita
+- ✅ **Comando avançado:** `/contraption-debug classes` executado sem erros, reflection funcional
+- ✅ **6 classes analisadas:** Incluindo `team.creative.littletiles.common.block.mc.BlockTile` com 78 métodos
+- ✅ **Hierarchia completa:** Extends/implements identificados (BaseEntityBlock, LittlePhysicBlock, SimpleWaterloggedBlock)
+- ✅ **Zero exceções:** Ambos os comandos executaram perfeitamente no client
+- 🎯 **Step 1.5 VALIDADO E COMPLETO** - Pronto para commit e próxima etapa
+
 ---
 
 ## 📋 Próximas Etapas
 
-### **Step 1.5: Análise Avançada de Contraptions (EM ANDAMENTO)**
-- [ ] **Fase 1:** Implementar análise de classes via Java Reflection em `ContraptionDebugCommand.java`
-  - [ ] Detectar classe da contraption
-  - [ ] Identificar classes dos elementos internos
-  - [ ] Listar todos os métodos de cada classe
-  - [ ] Formatação organizada da saída
-- [ ] **Fase 2:** Criar GameTests automatizados para validação
-  - [ ] Teste de robustez (sem exceções)
-  - [ ] Verificação de classes esperadas
-  - [ ] Validação de formatação de saída
-- [ ] **Fase 3:** Teste manual final no client (validação visual única)
+### **Step 1.5: Análise Avançada de Contraptions ✅ COMPLETO**
+- [x] **Fase 1:** Implementar análise de classes via Java Reflection em `ContraptionDebugCommand.java`
+  - [x] Detectar classe da contraption
+  - [x] Identificar classes dos elementos internos
+  - [x] Listar todos os métodos de cada classe
+  - [x] Formatação organizada da saída
+- [x] **Fase 2:** Criar GameTests automatizados para validação
+  - [x] Teste de robustez (sem exceções)
+  - [x] Verificação de classes esperadas
+  - [x] Validação de formatação de saída
+- [x] **Fase 3:** Teste manual final no client (validação visual única)
 
 ### **Step 2: Event Detection System (Replanejar)**
 - [ ] **Revisão:** Analisar a necessidade e o escopo do sistema de detecção de eventos.
@@ -113,7 +138,7 @@
 
 ## 🎯 Status Atual
 - **Step 1:** ✅ COMPLETO E TESTADO (Funcionalidade principal)
-- **Step 1.5:** 🚧 EM ANDAMENTO (Análise avançada via reflection)
+- **Step 1.5:** ✅ COMPLETO E TESTADO (Análise avançada via reflection)
 - **Step 2:** ⏪ REVERTIDO (Necessita Replanejamento)
 - **Step 3:** 📋 PLANEJADO
 - **Testes:** ✅ IMPLEMENTADOS E FUNCIONAIS (GameTests operacionais)

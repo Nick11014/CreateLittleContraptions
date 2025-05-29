@@ -3,15 +3,12 @@ package com.createlittlecontraptions.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
-import com.simibubi.create.content.contraptions.Contraption;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
@@ -20,14 +17,19 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ContraptionDebugCommand {
     private static final Logger LOGGER = LogUtils.getLogger();
-    
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+      public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("contraption-debug")
             .requires(source -> source.hasPermission(2))
-            .executes(ContraptionDebugCommand::execute));
+            .executes(ContraptionDebugCommand::execute)
+            .then(Commands.literal("classes")
+                .executes(ContraptionDebugCommand::executeClassAnalysis)));
     }
     
     private static int execute(CommandContext<CommandSourceStack> context) {
@@ -126,6 +128,58 @@ public class ContraptionDebugCommand {
         }
         
         return contraptionCount;
+    }
+    
+    private static int executeClassAnalysis(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        if (!(source.getLevel() instanceof ServerLevel serverLevel)) {
+            source.sendFailure(Component.literal("Command can only be used in a server world"));
+            return 0;
+        }
+        
+        source.sendSystemMessage(Component.literal("=== CONTRAPTION CLASS & METHOD ANALYSIS ==="));
+        
+        List<Entity> contraptionEntities = findContraptionEntities(serverLevel);
+        
+        if (contraptionEntities.isEmpty()) {
+            source.sendSystemMessage(Component.literal("No contraptions found in the world"));
+            return 0;
+        }
+        
+        Set<Class<?>> analyzedClasses = new HashSet<>();
+        
+        for (Entity entity : contraptionEntities) {
+            source.sendSystemMessage(Component.literal(""));
+            source.sendSystemMessage(Component.literal("=== CONTRAPTION ENTITY ANALYSIS ==="));
+            source.sendSystemMessage(Component.literal("Entity Position: " + entity.blockPosition()));
+            
+            try {
+                // Analyze the contraption entity class
+                analyzeClass(source, entity.getClass(), "ContraptionEntity", analyzedClasses);
+                
+                // Get and analyze the contraption itself
+                Object contraption = getContraptionFromEntity(entity);
+                if (contraption != null) {
+                    analyzeClass(source, contraption.getClass(), "Contraption", analyzedClasses);
+                    
+                    // Analyze classes of blocks within the contraption
+                    analyzeContraptionInternalClasses(source, contraption, analyzedClasses);
+                } else {
+                    source.sendSystemMessage(Component.literal("Could not retrieve contraption data"));
+                }
+                
+            } catch (Exception e) {
+                source.sendSystemMessage(Component.literal("Error analyzing contraption: " + e.getMessage()));
+                LOGGER.warn("Error in class analysis for contraption {}: {}", entity.getId(), e.getMessage());
+            }
+        }
+        
+        source.sendSystemMessage(Component.literal(""));
+        source.sendSystemMessage(Component.literal("=== ANALYSIS COMPLETE ==="));
+        source.sendSystemMessage(Component.literal("Total unique classes analyzed: " + analyzedClasses.size()));
+        
+        return contraptionEntities.size();
     }
     
     // Helper methods using reflection (based on existing dev command)
@@ -398,6 +452,248 @@ public class ContraptionDebugCommand {
             
         } catch (Exception e) {
             return "Error getting block info: " + e.getMessage();
+        }
+    }
+    
+    private static void analyzeClass(CommandSourceStack source, Class<?> clazz, String classType, Set<Class<?>> analyzedClasses) {
+        if (analyzedClasses.contains(clazz)) {
+            source.sendSystemMessage(Component.literal("--- " + classType + " Class: " + clazz.getSimpleName() + " (already analyzed) ---"));
+            return;
+        }
+        
+        analyzedClasses.add(clazz);
+        
+        source.sendSystemMessage(Component.literal(""));
+        source.sendSystemMessage(Component.literal("--- " + classType + " Class Analysis ---"));
+        source.sendSystemMessage(Component.literal("Full Class Name: " + clazz.getName()));
+        source.sendSystemMessage(Component.literal("Simple Name: " + clazz.getSimpleName()));
+        source.sendSystemMessage(Component.literal("Package: " + (clazz.getPackage() != null ? clazz.getPackage().getName() : "default")));
+        
+        // Show superclass
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null && !superclass.equals(Object.class)) {
+            source.sendSystemMessage(Component.literal("Extends: " + superclass.getSimpleName()));
+        }
+        
+        // Show interfaces
+        Class<?>[] interfaces = clazz.getInterfaces();
+        if (interfaces.length > 0) {
+            String interfaceList = Arrays.stream(interfaces)
+                .map(Class::getSimpleName)
+                .collect(Collectors.joining(", "));
+            source.sendSystemMessage(Component.literal("Implements: " + interfaceList));
+        }
+        
+        // Analyze methods
+        analyzeMethods(source, clazz);
+    }
+    
+    private static void analyzeMethods(CommandSourceStack source, Class<?> clazz) {
+        source.sendSystemMessage(Component.literal(""));
+        source.sendSystemMessage(Component.literal("--- Methods Analysis ---"));
+        
+        Method[] methods = clazz.getDeclaredMethods();
+        Method[] inheritedMethods = clazz.getMethods();
+        
+        source.sendSystemMessage(Component.literal("Declared Methods (" + methods.length + "):"));
+        
+        int methodCount = 0;
+        for (Method method : methods) {
+            if (methodCount >= 15) { // Limit to prevent spam
+                source.sendSystemMessage(Component.literal("  ... and " + (methods.length - 15) + " more declared methods"));
+                break;
+            }
+            
+            String methodSignature = formatMethodSignature(method);
+            String accessibility = getMethodAccessibility(method);
+            
+            source.sendSystemMessage(Component.literal("  [" + accessibility + "] " + methodSignature));
+            methodCount++;
+        }
+        
+        // Show inherited methods (filtered)
+        List<Method> filteredInherited = Arrays.stream(inheritedMethods)
+            .filter(m -> !m.getDeclaringClass().equals(clazz)) // Not declared in this class
+            .filter(m -> !m.getDeclaringClass().equals(Object.class)) // Not from Object
+            .limit(10) // Limit inherited methods shown
+            .collect(Collectors.toList());
+        
+        if (!filteredInherited.isEmpty()) {
+            source.sendSystemMessage(Component.literal(""));
+            source.sendSystemMessage(Component.literal("Key Inherited Methods (" + filteredInherited.size() + " shown):"));
+            
+            for (Method method : filteredInherited) {
+                String methodSignature = formatMethodSignature(method);
+                String fromClass = method.getDeclaringClass().getSimpleName();
+                source.sendSystemMessage(Component.literal("  [inherited from " + fromClass + "] " + methodSignature));
+            }
+        }
+    }
+    
+    private static String formatMethodSignature(Method method) {
+        StringBuilder signature = new StringBuilder();
+        
+        // Return type
+        signature.append(method.getReturnType().getSimpleName()).append(" ");
+        
+        // Method name
+        signature.append(method.getName()).append("(");
+        
+        // Parameters
+        Class<?>[] paramTypes = method.getParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (i > 0) signature.append(", ");
+            signature.append(paramTypes[i].getSimpleName());
+        }
+        
+        signature.append(")");
+        
+        // Exceptions
+        Class<?>[] exceptions = method.getExceptionTypes();
+        if (exceptions.length > 0) {
+            signature.append(" throws ");
+            for (int i = 0; i < exceptions.length; i++) {
+                if (i > 0) signature.append(", ");
+                signature.append(exceptions[i].getSimpleName());
+            }
+        }
+        
+        return signature.toString();
+    }
+    
+    private static String getMethodAccessibility(Method method) {
+        int modifiers = method.getModifiers();
+        
+        if (java.lang.reflect.Modifier.isPublic(modifiers)) return "public";
+        if (java.lang.reflect.Modifier.isProtected(modifiers)) return "protected";
+        if (java.lang.reflect.Modifier.isPrivate(modifiers)) return "private";
+        
+        return "package"; // package-private
+    }
+    
+    private static void analyzeContraptionInternalClasses(CommandSourceStack source, Object contraption, Set<Class<?>> analyzedClasses) {
+        source.sendSystemMessage(Component.literal(""));
+        source.sendSystemMessage(Component.literal("=== INTERNAL BLOCK CLASSES ANALYSIS ==="));
+        
+        try {
+            // Get blocks data
+            Object blocksData = getBlocksFromContraption(contraption);
+            if (blocksData == null) {
+                source.sendSystemMessage(Component.literal("No blocks data found in contraption"));
+                return;
+            }
+            
+            Set<Class<?>> blockClasses = new HashSet<>();
+            
+            if (blocksData instanceof Map<?, ?> blocksMap) {
+                for (Object blockData : blocksMap.values()) {
+                    Class<?> blockClass = getBlockClassFromData(blockData);
+                    if (blockClass != null) {
+                        blockClasses.add(blockClass);
+                    }
+                }
+            } else if (blocksData instanceof java.util.Collection<?> blocksCollection) {
+                for (Object blockData : blocksCollection) {
+                    Class<?> blockClass = getBlockClassFromData(blockData);
+                    if (blockClass != null) {
+                        blockClasses.add(blockClass);
+                    }
+                }
+            }
+            
+            source.sendSystemMessage(Component.literal("Found " + blockClasses.size() + " unique block classes:"));
+            
+            for (Class<?> blockClass : blockClasses) {
+                String classType = blockClass.getName().toLowerCase().contains("littletiles") 
+                    ? "LittleTiles Block" 
+                    : "Block";
+                
+                analyzeClass(source, blockClass, classType, analyzedClasses);
+            }
+            
+            // Analyze BlockEntity classes
+            analyzeBlockEntityClasses(source, contraption, analyzedClasses);
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("Error analyzing contraption internal classes: " + e.getMessage()));
+            LOGGER.warn("Error analyzing contraption internal classes: {}", e.getMessage());
+        }
+    }
+    
+    private static Class<?> getBlockClassFromData(Object blockData) {
+        try {
+            // Try to get block state from block data
+            Object blockState = null;
+            
+            String[] stateAccessors = {"state", "getState", "blockState", "getBlockState"};
+            
+            for (String accessor : stateAccessors) {
+                try {
+                    if (accessor.startsWith("get")) {
+                        Method method = blockData.getClass().getMethod(accessor);
+                        blockState = method.invoke(blockData);
+                    } else {
+                        Field field = blockData.getClass().getDeclaredField(accessor);
+                        field.setAccessible(true);
+                        blockState = field.get(blockData);
+                    }
+                    
+                    if (blockState != null) break;
+                } catch (Exception ignored) {
+                    // Try next accessor
+                }
+            }
+            
+            if (blockState != null) {
+                // Get block from BlockState
+                try {
+                    Method getBlockMethod = blockState.getClass().getMethod("getBlock");
+                    Object block = getBlockMethod.invoke(blockState);
+                    
+                    if (block != null) {
+                        return block.getClass();
+                    }
+                } catch (Exception ignored) {}
+            }
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error getting block class from data: " + e.getMessage());
+        }
+        
+        return null;
+    }
+    
+    private static void analyzeBlockEntityClasses(CommandSourceStack source, Object contraption, Set<Class<?>> analyzedClasses) {
+        try {
+            Map<?, ?> blockEntitiesData = getBlockEntitiesFromContraption(contraption);
+            if (blockEntitiesData == null || blockEntitiesData.isEmpty()) {
+                source.sendSystemMessage(Component.literal("No BlockEntity data found in contraption"));
+                return;
+            }
+              source.sendSystemMessage(Component.literal(""));
+            source.sendSystemMessage(Component.literal("=== BLOCK ENTITY CLASSES ANALYSIS ==="));
+            
+            Set<Class<?>> beClasses = new HashSet<>();
+            
+            for (Object nbtData : blockEntitiesData.values()) {
+                if (nbtData != null) {
+                    beClasses.add(nbtData.getClass());
+                }
+            }
+            
+            source.sendSystemMessage(Component.literal("Found " + beClasses.size() + " unique BlockEntity data classes:"));
+            
+            for (Class<?> beClass : beClasses) {
+                String classType = beClass.getName().toLowerCase().contains("littletiles") 
+                    ? "LittleTiles BlockEntity Data" 
+                    : "BlockEntity Data";
+                
+                analyzeClass(source, beClass, classType, analyzedClasses);
+            }
+            
+        } catch (Exception e) {
+            source.sendSystemMessage(Component.literal("Error analyzing BlockEntity classes: " + e.getMessage()));
+            LOGGER.warn("Error analyzing BlockEntity classes: {}", e.getMessage());
         }
     }
 }
