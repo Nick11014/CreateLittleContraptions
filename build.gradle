@@ -118,6 +118,10 @@ configurations {
 }
 
 dependencies {
+    // Mixin framework
+    implementation 'org.spongepowered:mixin:0.8.5'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    
     // Create, LittleTiles, and CreativeCore for compile-time Mixin support
     compileOnly files('libs/create-1.21.1-6.0.4.jar')
     compileOnly files('libs/LittleTiles_BETA_v1.6.0-pre163_mc1.21.1.jar')

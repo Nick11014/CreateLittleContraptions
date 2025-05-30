@@ -1,0 +1,405 @@
+[30mai.2025 00:47:51.558] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeclientdev, --version, 21.1.172, --assetIndex, 17, --assetsDir, C:\\Users\\mathe\\.gradle\\caches\\neoformruntime\\assets, --gameDir, ., --fml.fmlVersion, 4.0.39, --fml.mcVersion, 1.21.1, --fml.neoForgeVersion, 21.1.172, --fml.neoFormVersion, 20240808.144430]
+[30mai.2025 00:47:51.564] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Microsoft OpenJDK 64-Bit Server VM 21.0.7+6-LTS
+[30mai.2025 00:47:51.566] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.7 by Microsoft; OS Windows 10 arch amd64 version 10.0
+[30mai.2025 00:47:51.757] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[30mai.2025 00:47:52.050] [main/INFO] [EARLYDISPLAY/]: Trying GL version 4.6
+[30mai.2025 00:47:52.369] [main/INFO] [EARLYDISPLAY/]: Requested GL version 4.6 got version 4.6
+[30mai.2025 00:47:52.533] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/mathe/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23138!/ Service=ModLauncher Env=CLIENT
+[30mai.2025 00:47:53.331] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce GTX 980/PCIe/SSE2 GL version 4.6.0 NVIDIA 576.02, NVIDIA Corporation
+[30mai.2025 00:47:54.039] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 5 dependencies adding them to mods collection
+[30mai.2025 00:47:54.042] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		Create 6.0.4 (create)
+		Create Little Contraptions 1.0.0 (createlittlecontraptions)
+		CreativeCore 2.13.5 (creativecore)
+		Flywheel 1.0.2 (flywheel)
+		LittleTiles 1.6.0-pre163 (littletiles)
+		Minecraft 1.21.1 (minecraft)
+		NeoForge 21.1.172 (neoforge)
+		Ponder 1.0.46 (ponder)
+[30mai.2025 00:47:56.005] [main/WARN] [mixin/]: Compatibility level JAVA_21 specified by flywheel.backend.mixins.json is higher than the maximum level supported by this version of mixin (JAVA_13).
+[30mai.2025 00:47:56.006] [main/INFO] [mixin/]: Compatibility level set to JAVA_21
+[30mai.2025 00:47:56.015] [main/WARN] [mixin/]: Compatibility level JAVA_17 specified by ponder.mixins.json is higher than the maximum level supported by this version of mixin (JAVA_13).
+[30mai.2025 00:47:56.042] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeclientdev' with arguments [--version, 21.1.172, --gameDir, ., --assetsDir, C:\Users\mathe\.gradle\caches\neoformruntime\assets, --assetIndex, 17]
+[30mai.2025 00:47:56.108] [main/INFO] [mixin/]: Attempting to load Fernflower decompiler (Threaded mode)
+[30mai.2025 00:47:56.109] [main/INFO] [mixin/]: Fernflower could not be loaded, exported classes will not be decompiled. NoClassDefFoundError: org/jetbrains/java/decompiler/main/extern/IResultSaver
+[30mai.2025 00:47:56.355] [main/INFO] [mixin/]: Preparing mixins for MixinEnvironment[DEFAULT]
+[30mai.2025 00:47:56.356] [main/INFO] [mixin/]: Selecting config flywheel.backend.mixins.json
+[30mai.2025 00:47:56.365] [main/INFO] [mixin/]: Selecting config flywheel.impl.mixins.json
+[30mai.2025 00:47:56.367] [main/INFO] [mixin/]: Selecting config littletiles.mixins.json
+[30mai.2025 00:47:56.368] [main/WARN] [mixin/]: Reference map 'littletiles.mixins.refmap.json' for littletiles.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.369] [main/INFO] [mixin/]: Selecting config creativecore.mixins.json
+[30mai.2025 00:47:56.375] [main/WARN] [mixin/]: Reference map 'creativecore.mixins.refmap.json' for creativecore.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.376] [main/INFO] [mixin/]: Selecting config creativecore.forge.mixins.json
+[30mai.2025 00:47:56.376] [main/WARN] [mixin/]: Reference map 'creativecore.mixins.refmap.json' for creativecore.forge.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.377] [main/INFO] [mixin/]: Selecting config ponder.mixins.json
+[30mai.2025 00:47:56.377] [main/WARN] [mixin/]: Reference map 'ponder.refmap.json' for ponder.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.377] [main/INFO] [mixin/]: Selecting config create.mixins.json
+[30mai.2025 00:47:56.383] [main/WARN] [mixin/]: Reference map 'create.refmap.json' for create.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.383] [main/INFO] [mixin/]: Selecting config createlittlecontraptions.mixins.json
+[30mai.2025 00:47:56.384] [main/WARN] [mixin/]: Reference map 'createlittlecontraptions.refmap.json' for createlittlecontraptions.mixins.json could not be read. If this is a development environment you can ignore this message
+[30mai.2025 00:47:56.384] [main/INFO] [mixin/]: Selecting config neoforge.mixins.json
+[30mai.2025 00:47:56.385] [main/INFO] [mixin/]: Selecting config mixinextras.init.mixins.json
+[30mai.2025 00:47:56.489] [main/INFO] [mixin/]: Preparing flywheel.backend.mixins.json (8)
+[30mai.2025 00:47:56.646] [main/INFO] [mixin/]: Preparing flywheel.impl.mixins.json (14)
+[30mai.2025 00:47:56.762] [main/INFO] [mixin/]: Preparing littletiles.mixins.json (77)
+[30mai.2025 00:47:57.139] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/buffers/BakedChunkModelBuilder (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.BakedChunkModelBuilder)
+[30mai.2025 00:47:57.142] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.BakedChunkModelBuilder was not found littletiles.mixins.json:sodium.BakedChunkModelBuilderMixin from mod littletiles
+[30mai.2025 00:47:57.144] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderContext (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext)
+[30mai.2025 00:47:57.145] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext was not found littletiles.mixins.json:sodium.BlockRenderContextAccessor from mod littletiles
+[30mai.2025 00:47:57.146] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer)
+[30mai.2025 00:47:57.146] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer was not found littletiles.mixins.json:sodium.BlockRendererMixin from mod littletiles
+[30mai.2025 00:47:57.147] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts)
+[30mai.2025 00:47:57.148] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts was not found littletiles.mixins.json:sodium.BuiltSectionMeshPartsMixin from mod littletiles
+[30mai.2025 00:47:57.149] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers)
+[30mai.2025 00:47:57.149] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers was not found littletiles.mixins.json:sodium.ChunkBuildBuffersAccessor from mod littletiles
+[30mai.2025 00:47:57.150] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers)
+[30mai.2025 00:47:57.150] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers was not found littletiles.mixins.json:sodium.ChunkBuildBuffersMixin from mod littletiles
+[30mai.2025 00:47:57.152] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/executor/ChunkBuilder (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkBuilder)
+[30mai.2025 00:47:57.152] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.executor.ChunkBuilder was not found littletiles.mixins.json:sodium.ChunkBuilderAccessor from mod littletiles
+[30mai.2025 00:47:57.153] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/compile/tasks/ChunkBuilderMeshingTask (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask)
+[30mai.2025 00:47:57.153] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask was not found littletiles.mixins.json:sodium.ChunkBuilderMeshingTaskMixin from mod littletiles
+[30mai.2025 00:47:57.159] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/vertex/builder/ChunkMeshBufferBuilder (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder)
+[30mai.2025 00:47:57.159] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.vertex.builder.ChunkMeshBufferBuilder was not found littletiles.mixins.json:sodium.ChunkMeshBufferBuilderAccessor from mod littletiles
+[30mai.2025 00:47:57.160] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer)
+[30mai.2025 00:47:57.161] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer was not found littletiles.mixins.json:sodium.DefaultChunkRendererMixin from mod littletiles
+[30mai.2025 00:47:57.162] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/SodiumWorldRenderer (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer)
+[30mai.2025 00:47:57.162] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer was not found littletiles.mixins.json:sodium.SodiumWorldRendererAccessor from mod littletiles
+[30mai.2025 00:47:57.163] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/gl/buffer/GlBuffer (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer)
+[30mai.2025 00:47:57.163] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.gl.buffer.GlBuffer was not found littletiles.mixins.json:sodium.GlBufferMixin from mod littletiles
+[30mai.2025 00:47:57.165] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/gl/arena/GlBufferSegment (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.gl.arena.GlBufferSegment)
+[30mai.2025 00:47:57.165] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.gl.arena.GlBufferSegment was not found littletiles.mixins.json:sodium.GlBufferSegmentAccessor from mod littletiles
+[30mai.2025 00:47:57.166] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/gl/device/GLRenderDevice (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.gl.device.GLRenderDevice)
+[30mai.2025 00:47:57.166] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.gl.device.GLRenderDevice was not found littletiles.mixins.json:sodium.GLRenderDeviceAccessor from mod littletiles
+[30mai.2025 00:47:57.167] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/world/LevelSlice (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.world.LevelSlice)
+[30mai.2025 00:47:57.167] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.world.LevelSlice was not found littletiles.mixins.json:sodium.LevelSliceMixin from mod littletiles
+[30mai.2025 00:47:57.168] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/region/RenderRegionManager$PendingSectionMeshUpload (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegionManager$PendingSectionMeshUpload)
+[30mai.2025 00:47:57.169] [main/WARN] [mixin/]: @Mixin target net/caffeinemc/mods/sodium/client/render/chunk/region/RenderRegionManager$PendingSectionMeshUpload was not found littletiles.mixins.json:sodium.PendingSectionMeshUploadAccessor from mod littletiles
+[30mai.2025 00:47:57.170] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/region/RenderRegionManager (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegionManager)
+[30mai.2025 00:47:57.170] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegionManager was not found littletiles.mixins.json:sodium.RenderRegionManagerMixin from mod littletiles
+[30mai.2025 00:47:57.172] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/RenderSectionManager (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager)
+[30mai.2025 00:47:57.173] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager was not found littletiles.mixins.json:sodium.RenderSectionManagerAccessor from mod littletiles
+[30mai.2025 00:47:57.174] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/RenderSection (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.RenderSection)
+[30mai.2025 00:47:57.174] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.RenderSection was not found littletiles.mixins.json:sodium.RenderSectionMixin from mod littletiles
+[30mai.2025 00:47:57.176] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/data/SectionRenderDataStorage (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage)
+[30mai.2025 00:47:57.176] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage was not found littletiles.mixins.json:sodium.SectionRenderDataStorageAccessor from mod littletiles
+[30mai.2025 00:47:57.177] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass)
+[30mai.2025 00:47:57.178] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass was not found littletiles.mixins.json:sodium.TerrainRenderPassAccessor from mod littletiles
+[30mai.2025 00:47:57.179] [main/WARN] [mixin/]: Error loading class: net/caffeinemc/mods/sodium/client/render/chunk/translucent_sorting/TranslucentGeometryCollector (java.lang.ClassNotFoundException: net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector)
+[30mai.2025 00:47:57.179] [main/WARN] [mixin/]: @Mixin target net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector was not found littletiles.mixins.json:sodium.TranslucentGeometryCollectorAccessor from mod littletiles
+[30mai.2025 00:47:57.179] [main/INFO] [mixin/]: Preparing creativecore.mixins.json (7)
+[30mai.2025 00:47:57.200] [main/INFO] [mixin/]: Preparing creativecore.forge.mixins.json (2)
+[30mai.2025 00:47:57.205] [main/INFO] [mixin/]: Preparing ponder.mixins.json (13)
+[30mai.2025 00:47:57.228] [main/INFO] [mixin/]: Preparing createlittlecontraptions.mixins.json (3)
+[30mai.2025 00:47:57.240] [main/INFO] [mixin/]: Preparing neoforge.mixins.json (2)
+[30mai.2025 00:47:57.253] [main/INFO] [mixin/]: Preparing mixinextras.init.mixins.json (0)
+[30mai.2025 00:47:57.254] [main/INFO] [mixin/]: Preparing create.mixins.json (60)
+[30mai.2025 00:47:57.327] [main/WARN] [mixin/]: Error loading class: journeymap/client/render/map/MapRenderer (java.lang.ClassNotFoundException: journeymap.client.render.map.MapRenderer)
+[30mai.2025 00:47:57.328] [main/WARN] [mixin/]: @Mixin target journeymap.client.render.map.MapRenderer was not found create.mixins.json:compat.journeymap.MapRendererAccessor from mod create
+[30mai.2025 00:47:57.383] [main/WARN] [mixin/]: Error loading class: journeymap/client/ui/fullscreen/Fullscreen (java.lang.ClassNotFoundException: journeymap.client.ui.fullscreen.Fullscreen)
+[30mai.2025 00:47:57.383] [main/WARN] [mixin/]: @Mixin target journeymap.client.ui.fullscreen.Fullscreen was not found create.mixins.json:compat.journeymap.JourneyFullscreenMapMixin from mod create
+[30mai.2025 00:47:57.497] [main/INFO] [mixin/]: Prepared 162 mixins in 1,138 sec (7,0ms avg) (0ms load, 0ms transform, 0ms plugin)
+[30mai.2025 00:47:57.543] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[30mai.2025 00:47:57.557] [main/INFO] [mixin/]: Mixing MinecraftMixin from flywheel.impl.mixins.json into net.minecraft.client.Minecraft
+[30mai.2025 00:47:57.588] [main/INFO] [mixin/]: Mixing client.MinecraftMixin from littletiles.mixins.json into net.minecraft.client.Minecraft
+[30mai.2025 00:47:57.719] [main/INFO] [mixin/]: Mixing client.WindowResizeMixin from ponder.mixins.json into net.minecraft.client.Minecraft
+[30mai.2025 00:47:57.720] [main/WARN] [mixin/]: ponder.mixins.json:client.WindowResizeMixin from mod ponder: Class version 65 required is higher than the class version supported by the current version of Mixin (JAVA_17 supports class version 61)
+[30mai.2025 00:47:57.725] [main/INFO] [mixin/]: Mixing accessor.MinecraftAccessor from create.mixins.json into net.minecraft.client.Minecraft
+[30mai.2025 00:47:58.310] [main/INFO] [mixin/]: Mixing accessor.NbtAccounterAccessor from create.mixins.json into net.minecraft.nbt.NbtAccounter
+[30mai.2025 00:47:58.528] [main/INFO] [mixin/]: Mixing datafixer.BlockPosFormatAndRenamesFixMixin from create.mixins.json into net.minecraft.util.datafix.fixes.BlockPosFormatAndRenamesFix
+[30mai.2025 00:47:58.529] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$addFixers$2(Lcom/mojang/datafixers/OpticFinder;Lcom/simibubi/create/foundation/utility/DataFixerHelper$BlockPosFixer;Lcom/mojang/datafixers/Typed;)Lcom/mojang/datafixers/Typed; to md61d4dd$create$lambda$create$addFixers$2$0 in create.mixins.json:datafixer.BlockPosFormatAndRenamesFixMixin from mod create
+[30mai.2025 00:47:58.529] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$addFixers$1(Lcom/simibubi/create/foundation/utility/DataFixerHelper$BlockPosFixer;Lcom/mojang/datafixers/Typed;)Lcom/mojang/datafixers/Typed; to md61d4dd$create$lambda$create$addFixers$1$1 in create.mixins.json:datafixer.BlockPosFormatAndRenamesFixMixin from mod create
+[30mai.2025 00:47:58.529] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$addFixers$0(Lcom/simibubi/create/foundation/utility/DataFixerHelper$BlockPosFixer;Lcom/mojang/serialization/Dynamic;)Lcom/mojang/serialization/Dynamic; to md61d4dd$create$lambda$create$addFixers$0$2 in create.mixins.json:datafixer.BlockPosFormatAndRenamesFixMixin from mod create
+[30mai.2025 00:47:58.596] [main/INFO] [mixin/]: Mixing datafixer.ItemStackComponentizationFixMixin from create.mixins.json into net.minecraft.util.datafix.fixes.ItemStackComponentizationFix
+[30mai.2025 00:47:58.597] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$moveItemStackHandlerToItemContainerContents$4(Lcom/mojang/serialization/Dynamic;Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Ljava/lang/String;Lcom/mojang/serialization/Dynamic;)V to md61d4dd$create$lambda$create$moveItemStackHandlerToItemContainerContents$4$0 in create.mixins.json:datafixer.ItemStackComponentizationFixMixin from mod create
+[30mai.2025 00:47:58.598] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$moveItemStackHandlerToItemContainerContents$3(Lcom/mojang/serialization/Dynamic;Ljava/util/List;Lcom/mojang/serialization/Dynamic;)V to md61d4dd$create$lambda$create$moveItemStackHandlerToItemContainerContents$3$1 in create.mixins.json:datafixer.ItemStackComponentizationFixMixin from mod create
+[30mai.2025 00:47:58.598] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$moveTagToEnumComponent$2([Ljava/lang/Enum;Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Ljava/lang/String;Lcom/mojang/serialization/Dynamic;)V to md61d4dd$create$lambda$create$moveTagToEnumComponent$2$2 in create.mixins.json:datafixer.ItemStackComponentizationFixMixin from mod create
+[30mai.2025 00:47:58.598] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$fixItemsAndTranslateNBTIntoComponents$1(Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Lcom/mojang/serialization/Dynamic;)V to md61d4dd$create$lambda$create$fixItemsAndTranslateNBTIntoComponents$1$3 in create.mixins.json:datafixer.ItemStackComponentizationFixMixin from mod create
+[30mai.2025 00:47:58.598] [main/INFO] [mixin/]: Renaming synthetic method lambda$create$fixItemsAndTranslateNBTIntoComponents$0(Lcom/mojang/serialization/Dynamic;Lnet/minecraft/util/datafix/fixes/ItemStackComponentizationFix$ItemStackData;Lcom/mojang/serialization/Dynamic;)V to md61d4dd$create$lambda$create$fixItemsAndTranslateNBTIntoComponents$0$4 in create.mixins.json:datafixer.ItemStackComponentizationFixMixin from mod create
+[30mai.2025 00:47:59.129] [main/INFO] [mixin/]: Mixing datafixer.V1460Mixin from create.mixins.json into net.minecraft.util.datafix.schemas.V1460
+[30mai.2025 00:47:59.532] [main/INFO] [mixin/]: Mixing accessor.SystemReportAccessor from create.mixins.json into net.minecraft.SystemReport
+[30mai.2025 00:47:59.533] [main/INFO] [mixin/]: Renaming @Accessor method getOPERATING_SYSTEM()Ljava/lang/String; to getOPERATING_SYSTEM$create_$md$61d4dd$0 in create.mixins.json:accessor.SystemReportAccessor from mod create
+[30mai.2025 00:47:59.534] [main/INFO] [mixin/]: Renaming @Accessor method getJAVA_VERSION()Ljava/lang/String; to getJAVA_VERSION$create_$md$61d4dd$1 in create.mixins.json:accessor.SystemReportAccessor from mod create
+[30mai.2025 00:48:00.158] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 229 Datafixer optimizations took 636 milliseconds
+[30mai.2025 00:48:00.288] [pool-12-thread-1/INFO] [mixin/]: Mixing BuiltInRegistriesMixin from create.mixins.json into net.minecraft.core.registries.BuiltInRegistries
+[30mai.2025 00:48:00.289] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$ourRegistriesAreNotEmpty$0(Ljava/util/function/Consumer;Lnet/minecraft/core/Registry;)V to md61d4dd$create$lambda$create$ourRegistriesAreNotEmpty$0$0 in create.mixins.json:BuiltInRegistriesMixin from mod create
+[30mai.2025 00:48:00.315] [pool-12-thread-1/INFO] [mixin/]: Mixing MappedRegistryAccessor from neoforge.mixins.json into net.minecraft.core.MappedRegistry
+[30mai.2025 00:48:00.316] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.MappedRegistryAccessor from create.mixins.json into net.minecraft.core.MappedRegistry
+[30mai.2025 00:48:00.454] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.AbstractRegistrateAccessor from create.mixins.json into com.tterrag.registrate.AbstractRegistrate
+[30mai.2025 00:48:00.551] [pool-12-thread-1/INFO] [mixin/]: Mixing common.block.BlockMixin from littletiles.mixins.json into net.minecraft.world.level.block.Block
+[30mai.2025 00:48:00.603] [pool-12-thread-1/INFO] [mixin/]: Mixing common.level.BlockBehaviourAccessor from littletiles.mixins.json into net.minecraft.world.level.block.state.BlockBehaviour
+[30mai.2025 00:48:00.604] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.BlockBehaviourAccessor from create.mixins.json into net.minecraft.world.level.block.state.BlockBehaviour
+[30mai.2025 00:48:00.642] [pool-12-thread-1/INFO] [mixin/]: Mixing EntityTypeMixin from flywheel.impl.mixins.json into net.minecraft.world.entity.EntityType
+[30mai.2025 00:48:00.692] [pool-12-thread-1/INFO] [mixin/]: Mixing common.entity.PlayerBedMixin from littletiles.mixins.json into net.minecraft.world.entity.player.Player
+[30mai.2025 00:48:00.717] [pool-12-thread-1/INFO] [mixin/]: Mixing PlayerMixin from create.mixins.json into net.minecraft.world.entity.player.Player
+[30mai.2025 00:48:00.811] [pool-12-thread-1/INFO] [mixin/]: Mixing common.entity.LivingEntityBedMixin from littletiles.mixins.json into net.minecraft.world.entity.LivingEntity
+[30mai.2025 00:48:00.813] [pool-12-thread-1/INFO] [mixin/]: Mixing CustomItemUseEffectsMixin from create.mixins.json into net.minecraft.world.entity.LivingEntity
+[30mai.2025 00:48:00.818] [pool-12-thread-1/INFO] [mixin/]: Mixing LavaSwimmingMixin from create.mixins.json into net.minecraft.world.entity.LivingEntity
+[30mai.2025 00:48:00.827] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.LivingEntityAccessor from create.mixins.json into net.minecraft.world.entity.LivingEntity
+[30mai.2025 00:48:00.904] [pool-12-thread-1/INFO] [mixin/]: Mixing common.entity.EntityAccessor from littletiles.mixins.json into net.minecraft.world.entity.Entity
+[30mai.2025 00:48:00.905] [pool-12-thread-1/INFO] [mixin/]: Mixing common.entity.EntityMixin from littletiles.mixins.json into net.minecraft.world.entity.Entity
+[30mai.2025 00:48:00.927] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.EntityAccessor from ponder.mixins.json into net.minecraft.world.entity.Entity
+[30mai.2025 00:48:00.927] [pool-12-thread-1/INFO] [mixin/]: Mixing client.EntityContraptionInteractionMixin from create.mixins.json into net.minecraft.world.entity.Entity
+[30mai.2025 00:48:00.928] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$onSpawnSprintParticle$4(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lcom/simibubi/create/content/contraptions/Contraption;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V to md61d4dd$create$lambda$create$onSpawnSprintParticle$4$0 in create.mixins.json:client.EntityContraptionInteractionMixin from mod create
+[30mai.2025 00:48:00.929] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$onMove$3(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/Entity;Lcom/simibubi/create/content/contraptions/AbstractContraptionEntity;)Z to md61d4dd$create$lambda$create$onMove$3$1 in create.mixins.json:client.EntityContraptionInteractionMixin from mod create
+[30mai.2025 00:48:00.929] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$contraptionStepSounds$2(Lorg/apache/commons/lang3/mutable/MutableBoolean;Lcom/simibubi/create/content/contraptions/Contraption;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V to md61d4dd$create$lambda$create$contraptionStepSounds$2$2 in create.mixins.json:client.EntityContraptionInteractionMixin from mod create
+[30mai.2025 00:48:00.929] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$forCollision$1(Lnet/minecraft/world/phys/Vec3;Lorg/apache/logging/log4j/util/TriConsumer;Lcom/simibubi/create/content/contraptions/AbstractContraptionEntity;)V to md61d4dd$create$lambda$create$forCollision$1$3 in create.mixins.json:client.EntityContraptionInteractionMixin from mod create
+[30mai.2025 00:48:00.929] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$getIntersectionContraptionsStream$0(Lcom/simibubi/create/content/contraptions/AbstractContraptionEntity;)Z to md61d4dd$create$lambda$create$getIntersectionContraptionsStream$0$4 in create.mixins.json:client.EntityContraptionInteractionMixin from mod create
+[30mai.2025 00:48:00.957] [pool-12-thread-1/INFO] [mixin/]: Mixing EntityMixin from create.mixins.json into net.minecraft.world.entity.Entity
+[30mai.2025 00:48:01.149] [pool-12-thread-1/INFO] [mixin/]: Mixing common.block.BlockStateBaseMixin from littletiles.mixins.json into net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase
+[30mai.2025 00:48:01.164] [pool-12-thread-1/INFO] [mixin/]: Mixing common.block.StateHolderAccessor from littletiles.mixins.json into net.minecraft.world.level.block.state.StateHolder
+[30mai.2025 00:48:01.164] [pool-12-thread-1/INFO] [mixin/]: Renaming @Accessor method getPROPERTY_ENTRY_TO_STRING_FUNCTION()Ljava/util/function/Function; to getPROPERTY_ENTRY_TO_STRING_FUNCTION$littletiles_$md$61d4dd$0 in littletiles.mixins.json:common.block.StateHolderAccessor from mod littletiles
+[30mai.2025 00:48:01.165] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.StateHolderAccessor from create.mixins.json into net.minecraft.world.level.block.state.StateHolder
+[30mai.2025 00:48:01.205] [pool-12-thread-1/INFO] [mixin/]: Mixing LevelMixin from flywheel.impl.mixins.json into net.minecraft.world.level.Level
+[30mai.2025 00:48:01.206] [pool-12-thread-1/INFO] [mixin/]: Mixing common.level.LevelAccessor from littletiles.mixins.json into net.minecraft.world.level.Level
+[30mai.2025 00:48:01.206] [pool-12-thread-1/INFO] [mixin/]: Mixing common.level.LevelMixin from littletiles.mixins.json into net.minecraft.world.level.Level
+[30mai.2025 00:48:01.208] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$findFreePosition$2(DDDLnet/minecraft/world/phys/AABB;)Lnet/minecraft/world/phys/AABB; to md61d4dd$littletiles$lambda$findFreePosition$2$0 in littletiles.mixins.json:common.level.LevelMixin from mod littletiles
+[30mai.2025 00:48:01.208] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$findFreePosition$1(Lnet/minecraft/world/phys/shapes/VoxelShape;)Ljava/util/stream/Stream; to md61d4dd$littletiles$lambda$findFreePosition$1$1 in littletiles.mixins.json:common.level.LevelMixin from mod littletiles
+[30mai.2025 00:48:01.209] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$findFreePosition$0(Lnet/minecraft/world/phys/shapes/VoxelShape;)Z to md61d4dd$littletiles$lambda$findFreePosition$0$2 in littletiles.mixins.json:common.level.LevelMixin from mod littletiles
+[30mai.2025 00:48:01.243] [pool-12-thread-1/INFO] [mixin/]: Mixing server.level.ServerLevelMixin from littletiles.mixins.json into net.minecraft.server.level.ServerLevel
+[30mai.2025 00:48:01.248] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.ServerLevelAccessor from create.mixins.json into net.minecraft.server.level.ServerLevel
+[30mai.2025 00:48:01.338] [pool-12-thread-1/INFO] [mixin/]: Mixing ShapesMixin from creativecore.mixins.json into net.minecraft.world.phys.shapes.Shapes
+[30mai.2025 00:48:01.408] [pool-12-thread-1/INFO] [mixin/]: Mixing VoxelShapeAccessor from creativecore.mixins.json into net.minecraft.world.phys.shapes.VoxelShape
+[30mai.2025 00:48:01.587] [pool-12-thread-1/INFO] [mixin/]: Mixing common.network.FriendlyByteBufMixin from littletiles.mixins.json into net.minecraft.network.FriendlyByteBuf
+[30mai.2025 00:48:01.761] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.DispenserBlockAccessor from create.mixins.json into net.minecraft.world.level.block.DispenserBlock
+[30mai.2025 00:48:02.003] [pool-12-thread-1/INFO] [mixin/]: Mixing ShulkerBoxBlockMixin from create.mixins.json into net.minecraft.world.level.block.ShulkerBoxBlock
+[30mai.2025 00:48:02.127] [pool-12-thread-1/INFO] [mixin/]: Mixing WaterWheelFluidSpreadMixin from create.mixins.json into net.minecraft.world.level.material.FlowingFluid
+[30mai.2025 00:48:02.137] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.FlowingFluidAccessor from create.mixins.json into net.minecraft.world.level.material.FlowingFluid
+[30mai.2025 00:48:02.212] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.FallingBlockEntityAccessor from create.mixins.json into net.minecraft.world.entity.item.FallingBlockEntity
+[30mai.2025 00:48:02.213] [pool-12-thread-1/INFO] [mixin/]: Renaming @Invoker method create$callInit(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/entity/item/FallingBlockEntity; to callInit$create_$md$61d4dd$0 in create.mixins.json:accessor.FallingBlockEntityAccessor from mod create
+[30mai.2025 00:48:02.218] [pool-12-thread-1/INFO] [mixin/]: Mixing visualmanage.BlockEntityMixin from flywheel.impl.mixins.json into net.minecraft.world.level.block.entity.BlockEntity
+[30mai.2025 00:48:02.545] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.MobEffectInstanceAccessor from create.mixins.json into net.minecraft.world.effect.MobEffectInstance
+[30mai.2025 00:48:02.578] [pool-12-thread-1/INFO] [mixin/]: Mixing MobMixin from create.mixins.json into net.minecraft.world.entity.Mob
+[30mai.2025 00:48:02.597] [pool-12-thread-1/INFO] [mixin/]: Mixing common.entity.PrimedTntAccessor from littletiles.mixins.json into net.minecraft.world.entity.item.PrimedTnt
+[30mai.2025 00:48:02.680] [pool-12-thread-1/INFO] [mixin/]: Mixing BlockEntityTypeMixin from flywheel.impl.mixins.json into net.minecraft.world.level.block.entity.BlockEntityType
+[30mai.2025 00:48:02.682] [pool-12-thread-1/INFO] [mixin/]: Mixing BlockEntityTypeAccessor from neoforge.mixins.json into net.minecraft.world.level.block.entity.BlockEntityType
+[30mai.2025 00:48:03.249] [pool-12-thread-1/INFO] [mixin/]: Mixing SmithingMenuMixin from create.mixins.json into net.minecraft.world.inventory.SmithingMenu
+[30mai.2025 00:48:03.251] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$create$preventUnbreakingOnBacktanks$0(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/Holder;)Z to md61d4dd$create$lambda$create$preventUnbreakingOnBacktanks$0$0 in create.mixins.json:SmithingMenuMixin from mod create
+[30mai.2025 00:48:04.209] [pool-12-thread-1/INFO] [mixin/]: Mixing BlockItemMixin from create.mixins.json into net.minecraft.world.item.BlockItem
+[30mai.2025 00:48:04.443] [pool-12-thread-1/INFO] [mixin/]: Mixing ArmorTrimMixin from create.mixins.json into net.minecraft.world.item.armortrim.ArmorTrim
+[30mai.2025 00:48:04.444] [pool-12-thread-1/INFO] [mixin/]: Renaming synthetic method lambda$new$0(Ljava/lang/Boolean;Lnet/minecraft/core/Holder;)Lnet/minecraft/resources/ResourceLocation; to md61d4dd$create$lambda$new$0$0 in create.mixins.json:ArmorTrimMixin from mod create
+[30mai.2025 00:48:04.486] [pool-12-thread-1/INFO] [mixin/]: Mixing visualmanage.LevelChunkMixin from flywheel.impl.mixins.json into net.minecraft.world.level.chunk.LevelChunk
+[30mai.2025 00:48:04.589] [pool-12-thread-1/INFO] [mixin/]: Mixing common.collision.CommonHooksMixin from littletiles.mixins.json into net.neoforged.neoforge.common.CommonHooks
+[30mai.2025 00:48:04.643] [pool-12-thread-1/INFO] [mixin/]: Mixing common.item.BlockPlaceContextMixin from littletiles.mixins.json into net.minecraft.world.item.context.BlockPlaceContext
+[30mai.2025 00:48:04.661] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.UseOnContextAccessor from create.mixins.json into net.minecraft.world.item.context.UseOnContext
+[30mai.2025 00:48:04.845] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.MinecartFurnaceAccessor from create.mixins.json into net.minecraft.world.entity.vehicle.MinecartFurnace
+[30mai.2025 00:48:05.866] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.ProjectileDispenseBehaviorAccessor from create.mixins.json into net.minecraft.core.dispenser.ProjectileDispenseBehavior
+[30mai.2025 00:48:05.978] [pool-12-thread-1/INFO] [mixin/]: Mixing accessor.ShapedRecipeAccessor from create.mixins.json into net.minecraft.world.item.crafting.ShapedRecipe
+[30mai.2025 00:48:06.030] [pool-12-thread-1/INFO] [mixin/]: Mixing SmithingTrimRecipeMixin from create.mixins.json into net.minecraft.world.item.crafting.SmithingTrimRecipe
+[30mai.2025 00:48:06.164] [pool-12-thread-1/INFO] [mixin/]: Mixing EnchantedCountIncreaseFunctionMixin from create.mixins.json into net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction
+[30mai.2025 00:48:07.227] [main/INFO] [mixin/]: Mixing server.level.MinecraftServerAccessor from littletiles.mixins.json into net.minecraft.server.MinecraftServer
+[30mai.2025 00:48:07.228] [main/INFO] [mixin/]: Mixing accessor.MinecraftServerAccessor from ponder.mixins.json into net.minecraft.server.MinecraftServer
+[30mai.2025 00:48:07.302] [main/INFO] [mixin/]: Mixing server.level.ServerChunkCacheMixin from littletiles.mixins.json into net.minecraft.server.level.ServerChunkCache
+[30mai.2025 00:48:07.304] [main/INFO] [mixin/]: Mixing server.level.ServerChunkCacheAccessor from littletiles.mixins.json into net.minecraft.server.level.ServerChunkCache
+[30mai.2025 00:48:07.315] [main/INFO] [mixin/]: Mixing MapItemSavedDataMixin from create.mixins.json into net.minecraft.world.level.saveddata.maps.MapItemSavedData
+[30mai.2025 00:48:07.998] [main/INFO] [mixin/]: Mixing TestCommandMixin from create.mixins.json into net.minecraft.gametest.framework.TestCommand
+[30mai.2025 00:48:08.141] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[30mai.2025 00:48:08.147] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[30mai.2025 00:48:08.152] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[30mai.2025 00:48:08.154] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[30mai.2025 00:48:08.156] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[30mai.2025 00:48:08.175] [Render thread/INFO] [mixin/]: Mixing RenderSystemMixin from flywheel.backend.mixins.json into com.mojang.blaze3d.systems.RenderSystem
+[30mai.2025 00:48:08.178] [Render thread/INFO] [mixin/]: Mixing client.accessor.RenderSystemAccessor from ponder.mixins.json into com.mojang.blaze3d.systems.RenderSystem
+[30mai.2025 00:48:08.179] [Render thread/INFO] [mixin/]: Renaming @Accessor method catnip$getShaderLightDirections()[Lorg/joml/Vector3f; to catnip$getShaderLightDirections$ponder_$md$61d4dd$0 in ponder.mixins.json:client.accessor.RenderSystemAccessor from mod ponder
+[30mai.2025 00:48:08.197] [Render thread/INFO] [mixin/]: Mixing client.render.ByteBufferBuilderAccessor from littletiles.mixins.json into com.mojang.blaze3d.vertex.ByteBufferBuilder
+[30mai.2025 00:48:08.215] [Render thread/INFO] [mixin/]: Mixing client.accessor.ScreenAccessor from ponder.mixins.json into net.minecraft.client.gui.screens.Screen
+[30mai.2025 00:48:08.231] [Render thread/INFO] [mixin/]: Mixing client.level.ClientLevelMixin from littletiles.mixins.json into net.minecraft.client.multiplayer.ClientLevel
+[30mai.2025 00:48:08.256] [Render thread/INFO] [mixin/]: Mixing client.HeavyBootsOnPlayerMixin from create.mixins.json into net.minecraft.client.player.LocalPlayer
+[30mai.2025 00:48:08.264] [Render thread/INFO] [mixin/]: Mixing AbstractClientPlayerAccessor from flywheel.backend.mixins.json into net.minecraft.client.player.AbstractClientPlayer
+[30mai.2025 00:48:08.285] [Render thread/INFO] [mixin/]: Mixing accessor.TimerAccessor from ponder.mixins.json into net.minecraft.client.DeltaTracker$Timer
+[30mai.2025 00:48:08.286] [Render thread/INFO] [mixin/]: Mixing accessor.TimerAccessor from create.mixins.json into net.minecraft.client.DeltaTracker$Timer
+[30mai.2025 00:48:08.378] [Render thread/INFO] [mixin/]: Mixing VanillaPackResourcesAccessor from creativecore.mixins.json into net.minecraft.server.packs.VanillaPackResources
+[30mai.2025 00:48:08.385] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/mathe/Desktop/Minecraft%20Modding/CreateLittleContraptions/build/moddev/artifacts/neoforge-21.1.172.jar%23192!/assets/.mcassetsroot' uses unexpected schema
+[30mai.2025 00:48:08.385] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/mathe/Desktop/Minecraft%20Modding/CreateLittleContraptions/build/moddev/artifacts/neoforge-21.1.172.jar%23192!/data/.mcassetsroot' uses unexpected schema
+[30mai.2025 00:48:08.427] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[30mai.2025 00:48:08.446] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[30mai.2025 00:48:08.457] [Render thread/INFO] [mixin/]: Mixing OptionsMixin from flywheel.backend.mixins.json into net.minecraft.client.Options
+[30mai.2025 00:48:08.640] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
+[30mai.2025 00:48:08.692] [Render thread/INFO] [mixin/]: Mixing GlStateManagerMixin from flywheel.backend.mixins.json into com.mojang.blaze3d.platform.GlStateManager
+[30mai.2025 00:48:08.727] [Render thread/INFO] [mixin/]: Mixing PathPackResourcesAccessor from creativecore.mixins.json into net.minecraft.server.packs.PathPackResources
+[30mai.2025 00:48:08.762] [Render thread/INFO] [mixin/]: Mixing MouseHandlerAccessor from creativecore.mixins.json into net.minecraft.client.MouseHandler
+[30mai.2025 00:48:08.762] [Render thread/INFO] [mixin/]: Mixing accessor.MouseHandlerAccessor from create.mixins.json into net.minecraft.client.MouseHandler
+[30mai.2025 00:48:09.036] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.172, for MC 1.21.1
+[30mai.2025 00:48:09.180] [modloading-worker-0/INFO] [com.simibubi.create.Create/]: Create 6.0.4 initializing! Commit hash: 8d3eda53e4de913a966c9daf050e3fb893b5d638
+[30mai.2025 00:48:09.285] [modloading-worker-0/INFO] [mixin/]: Mixing PoseStackAccessor from flywheel.impl.mixins.json into com.mojang.blaze3d.vertex.PoseStack
+[30mai.2025 00:48:09.285] [modloading-worker-0/INFO] [mixin/]: Mixing PoseStackMixin from flywheel.impl.mixins.json into com.mojang.blaze3d.vertex.PoseStack
+[30mai.2025 00:48:09.369] [modloading-worker-0/INFO] [mixin/]: Mixing client.accessor.RenderTypeAccessor from ponder.mixins.json into net.minecraft.client.renderer.RenderType
+[30mai.2025 00:48:09.371] [modloading-worker-0/INFO] [mixin/]: Renaming @Invoker method catnip$create(Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType; to catnip$create$ponder_$md$61d4dd$0 in ponder.mixins.json:client.accessor.RenderTypeAccessor from mod ponder
+[30mai.2025 00:48:09.385] [modloading-worker-0/INFO] [mixin/]: Mixing client.render.GameRendererAccessor from littletiles.mixins.json into net.minecraft.client.renderer.GameRenderer
+[30mai.2025 00:48:09.385] [modloading-worker-0/INFO] [mixin/]: Mixing client.render.GameRendererMixin from littletiles.mixins.json into net.minecraft.client.renderer.GameRenderer
+[30mai.2025 00:48:09.386] [modloading-worker-0/INFO] [mixin/]: Mixing client.accessor.GameRendererAccessor from ponder.mixins.json into net.minecraft.client.renderer.GameRenderer
+[30mai.2025 00:48:09.386] [modloading-worker-0/INFO] [mixin/]: Mixing client.GameRendererMixin from create.mixins.json into net.minecraft.client.renderer.GameRenderer
+[30mai.2025 00:48:09.428] [modloading-worker-0/INFO] [mixin/]: Mixing client.accessor.ItemRendererAccessor from ponder.mixins.json into net.minecraft.client.renderer.entity.ItemRenderer
+[30mai.2025 00:48:09.441] [modloading-worker-0/INFO] [mixin/]: Mixing LevelRendererAccessor from flywheel.backend.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.441] [modloading-worker-0/INFO] [mixin/]: Mixing fix.FixFabulousDepthMixin from flywheel.impl.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.442] [modloading-worker-0/INFO] [mixin/]: Mixing visualmanage.LevelRendererMixin from flywheel.impl.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.443] [modloading-worker-0/INFO] [mixin/]: Mixing client.render.LevelRendererAccessor from littletiles.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.443] [modloading-worker-0/INFO] [mixin/]: Mixing accessor.LevelRendererAccessor from create.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.443] [modloading-worker-0/INFO] [mixin/]: Mixing client.LevelRendererMixin from create.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.444] [modloading-worker-0/INFO] [mixin/]: Renaming synthetic method lambda$create$onDestroyBlockProgress$0(J)Ljava/util/SortedSet; to md61d4dd$create$lambda$create$onDestroyBlockProgress$0$0 in create.mixins.json:client.LevelRendererMixin from mod create
+[30mai.2025 00:48:09.447] [modloading-worker-0/INFO] [mixin/]: Mixing LevelRendererMixin from flywheel.impl.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.450] [modloading-worker-0/INFO] [mixin/]: Mixing client.render.LevelRendererMixin from littletiles.mixins.json into net.minecraft.client.renderer.LevelRenderer
+[30mai.2025 00:48:09.669] [modloading-worker-0/INFO] [mixin/]: Mixing ContraptionRendererMixin from createlittlecontraptions.mixins.json into com.simibubi.create.content.contraptions.AbstractContraptionEntity
+[30mai.2025 00:48:09.671] [modloading-worker-0/INFO] [mixin/]: Mixing ContraptionDisassemblyMixin from createlittlecontraptions.mixins.json into com.simibubi.create.content.contraptions.AbstractContraptionEntity
+[30mai.2025 00:48:10.148] [modloading-worker-0/INFO] [mixin/]: Mixing accessor.ItemStackHandlerAccessor from create.mixins.json into net.neoforged.neoforge.items.ItemStackHandler
+[30mai.2025 00:48:10.610] [modloading-worker-0/INFO] [mixin/]: Mixing server.network.ServerGamePacketListenerImplAccessor from littletiles.mixins.json into net.minecraft.server.network.ServerGamePacketListenerImpl
+[30mai.2025 00:48:10.611] [modloading-worker-0/INFO] [mixin/]: Mixing server.network.ServerGamePacketListenerImplMixin from littletiles.mixins.json into net.minecraft.server.network.ServerGamePacketListenerImpl
+[30mai.2025 00:48:10.674] [modloading-worker-0/INFO] [mixin/]: Mixing server.level.ServerEntityMixin from littletiles.mixins.json into net.minecraft.server.level.ServerEntity
+[30mai.2025 00:48:10.675] [modloading-worker-0/INFO] [mixin/]: Mixing server.level.ServerEntityAccessor from littletiles.mixins.json into net.minecraft.server.level.ServerEntity
+[30mai.2025 00:48:10.790] [modloading-worker-0/INFO] [com.createlittlecontraptions.CreateLittleContraptions/]: CreateLittleContraptions mod initializing...
+[30mai.2025 00:48:11.763] [modloading-sync-worker/INFO] [mixin/]: Mixing client.HumanoidModelMixin from create.mixins.json into net.minecraft.client.model.HumanoidModel
+[30mai.2025 00:48:11.776] [modloading-sync-worker/INFO] [mixin/]: Mixing accessor.AgeableListModelAccessor from create.mixins.json into net.minecraft.client.model.AgeableListModel
+[30mai.2025 00:48:11.794] [modloading-sync-worker/INFO] [mixin/]: Mixing accessor.ItemModelGeneratorsAccessor from create.mixins.json into net.minecraft.data.models.ItemModelGenerators
+[30mai.2025 00:48:11.794] [modloading-sync-worker/INFO] [mixin/]: Renaming @Accessor method create$getGENERATED_TRIM_MODELS()Ljava/util/List; to getGENERATED_TRIM_MODELS$create_$md$61d4dd$0 in create.mixins.json:accessor.ItemModelGeneratorsAccessor from mod create
+[30mai.2025 00:48:11.851] [modloading-sync-worker/INFO] [mixin/]: Mixing accessor.FontAccessor from create.mixins.json into net.minecraft.client.gui.Font
+[30mai.2025 00:48:13.095] [Render thread/INFO] [mixin/]: Mixing FilePackResourcesAccessor from creativecore.mixins.json into net.minecraft.server.packs.FilePackResources
+[30mai.2025 00:48:13.095] [Render thread/INFO] [mixin/]: Renaming @Invoker method callGetPathFromLocation(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/resources/ResourceLocation;)Ljava/lang/String; to callGetPathFromLocation$creativecore_$md$61d4dd$0 in creativecore.mixins.json:FilePackResourcesAccessor from mod creativecore
+[30mai.2025 00:48:13.231] [Render thread/INFO] [mixin/]: Mixing StringSplitterAccessor from creativecore.mixins.json into net.minecraft.client.StringSplitter
+[30mai.2025 00:48:13.273] [Render thread/INFO] [mixin/]: Mixing accessor.EntityRenderDispatcherAccessor from create.mixins.json into net.minecraft.client.renderer.entity.EntityRenderDispatcher
+[30mai.2025 00:48:13.311] [Render thread/INFO] [mixin/]: Mixing ForgeModelBlockRendererAccessor from creativecore.forge.mixins.json into net.neoforged.neoforge.client.model.lighting.LightPipelineAwareModelBlockRenderer
+[30mai.2025 00:48:13.318] [Render thread/INFO] [mixin/]: Mixing QuadLighterMixin from creativecore.forge.mixins.json into net.neoforged.neoforge.client.model.lighting.QuadLighter
+[30mai.2025 00:48:13.336] [Render thread/INFO] [mixin/]: Mixing client.render.ParticleEngineAccessor from littletiles.mixins.json into net.minecraft.client.particle.ParticleEngine
+[30mai.2025 00:48:13.336] [Render thread/INFO] [mixin/]: Mixing client.accessor.ParticleEngineAccessor from ponder.mixins.json into net.minecraft.client.particle.ParticleEngine
+[30mai.2025 00:48:13.437] [Render thread/INFO] [mixin/]: Mixing client.CameraMixin from create.mixins.json into net.minecraft.client.Camera
+[30mai.2025 00:48:13.442] [Render thread/INFO] [mixin/]: Mixing client.render.LightTextureAccessor from littletiles.mixins.json into net.minecraft.client.renderer.LightTexture
+[30mai.2025 00:48:13.449] [Render thread/INFO] [mixin/]: Mixing client.render.VertexBufferMixin from littletiles.mixins.json into com.mojang.blaze3d.vertex.VertexBuffer
+[30mai.2025 00:48:13.460] [Render thread/INFO] [mixin/]: Mixing client.render.BufferBuilderAccessor from littletiles.mixins.json into com.mojang.blaze3d.vertex.BufferBuilder
+[30mai.2025 00:48:13.460] [Render thread/INFO] [mixin/]: Mixing client.render.BufferBuilderMixin from littletiles.mixins.json into com.mojang.blaze3d.vertex.BufferBuilder
+[30mai.2025 00:48:13.461] [Render thread/WARN] [mixin/]: @Shadow target littletiles.mixins.json:client.render.BufferBuilderMixin from mod littletiles::vertexSize is final but shadow is not decorated with @Final
+[30mai.2025 00:48:13.464] [Render thread/INFO] [mixin/]: Mixing client.accessor.BufferBuilderAccessor from ponder.mixins.json into com.mojang.blaze3d.vertex.BufferBuilder
+[30mai.2025 00:48:13.476] [Render thread/INFO] [mixin/]: Mixing client.render.ByteBufferBuilderResultAccessor from littletiles.mixins.json into com.mojang.blaze3d.vertex.ByteBufferBuilder$Result
+[30mai.2025 00:48:13.481] [Render thread/INFO] [mixin/]: Mixing client.render.MeshDataAccessor from littletiles.mixins.json into com.mojang.blaze3d.vertex.MeshData
+[30mai.2025 00:48:13.481] [Render thread/INFO] [mixin/]: Mixing client.render.MeshDataMixin from littletiles.mixins.json into com.mojang.blaze3d.vertex.MeshData
+[30mai.2025 00:48:13.502] [Render thread/INFO] [mixin/]: Mixing accessor.GuiAccessor from create.mixins.json into net.minecraft.client.gui.Gui
+[30mai.2025 00:48:13.586] [Render thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [createlittlecontraptions]
+[30mai.2025 00:48:13.592] [Render thread/INFO] [mixin/]: Mixing accessor.GameTestHelperAccessor from create.mixins.json into net.minecraft.gametest.framework.GameTestHelper
+[30mai.2025 00:48:13.671] [Render thread/INFO] [mixin/]: Mixing ContraptionEntityRendererMixin from createlittlecontraptions.mixins.json into com.simibubi.create.content.contraptions.render.ContraptionEntityRenderer
+[30mai.2025 00:48:13.681] [Render thread/INFO] [mixin/]: Mixing client.PlayerRendererMixin from create.mixins.json into net.minecraft.client.renderer.entity.player.PlayerRenderer
+[30mai.2025 00:48:13.700] [Render thread/INFO] [mixin/]: Mixing accessor.HumanoidArmorLayerAccessor from create.mixins.json into net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer
+[30mai.2025 00:48:13.700] [Render thread/INFO] [mixin/]: Renaming @Accessor method create$getArmorLocationCache()Ljava/util/Map; to getArmorLocationCache$create_$md$61d4dd$0 in create.mixins.json:accessor.HumanoidArmorLayerAccessor from mod create
+[30mai.2025 00:48:13.701] [Render thread/INFO] [mixin/]: Mixing client.HumanoidArmorLayerMixin from create.mixins.json into net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer
+[30mai.2025 00:48:13.845] [Render thread/INFO] [mixin/]: Mixing ModelPartAccessor from flywheel.impl.mixins.json into net.minecraft.client.model.geom.ModelPart
+[30mai.2025 00:48:13.972] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/flywheel, mod/littletiles, mod/creativecore, mod/ponder, mod/create, mod/createlittlecontraptions, mod/neoforge
+[30mai.2025 00:48:14.003] [Worker-Main-1/INFO] [mixin/]: Mixing accessor.FluidInteractionRegistryAccessor from create.mixins.json into net.neoforged.neoforge.fluids.FluidInteractionRegistry
+[30mai.2025 00:48:14.004] [Worker-Main-1/INFO] [mixin/]: Renaming @Accessor method getInteractions()Ljava/util/Map; to getInteractions$create_$md$61d4dd$0 in create.mixins.json:accessor.FluidInteractionRegistryAccessor from mod create
+[30mai.2025 00:48:14.099] [NeoForge Version Check/INFO] [net.neoforged.fml.VersionChecker/]: [createlittlecontraptions] Starting version check at https://github.com/youruser/CreateLittleContraptions/releases
+[30mai.2025 00:48:14.119] [Worker-Main-8/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-15.1.05.hex, loading
+[30mai.2025 00:48:14.396] [Worker-Main-2/INFO] [com.createlittlecontraptions.CreateLittleContraptions/]: CreateLittleContraptions common setup
+[30mai.2025 00:48:14.437] [Render thread/ERROR] [com.createlittlecontraptions.CreateLittleContraptions/]: Error registering LittleTiles MovementBehaviour: INSTANCE
+[30mai.2025 00:48:14.464] [Worker-Main-3/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-15.1.05.hex, loading
+[30mai.2025 00:48:14.906] [NeoForge Version Check/WARN] [net.neoforged.fml.VersionChecker/]: Failed to process update information
+com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 9 column 1 path $
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1238) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1137) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1047) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:982) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/fml_loader@4.0.39/net.neoforged.fml.VersionChecker$1.process(VersionChecker.java:167) ~[loader-4.0.39.jar%23146!/:4.0]
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75) [?:?]
+	at MC-BOOTSTRAP/fml_loader@4.0.39/net.neoforged.fml.VersionChecker$1.run(VersionChecker.java:105) [loader-4.0.39.jar%23146!/:4.0]
+Caused by: java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 9 column 1 path $
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.stream.JsonReader.beginObject(JsonReader.java:393) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.MapTypeAdapterFactory$Adapter.read(MapTypeAdapterFactory.java:182) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.internal.bind.MapTypeAdapterFactory$Adapter.read(MapTypeAdapterFactory.java:144) ~[gson-2.10.1.jar%23110!/:?]
+	at MC-BOOTSTRAP/com.google.gson@2.10.1/com.google.gson.Gson.fromJson(Gson.java:1227) ~[gson-2.10.1.jar%23110!/:?]
+	... 6 more
+[30mai.2025 00:48:15.135] [Worker-Main-2/INFO] [com.createlittlecontraptions.CreateLittleContraptions/]: CreateLittleContraptions client setup
+[30mai.2025 00:48:16.062] [Worker-Main-5/WARN] [net.minecraft.client.resources.model.BlockStateModelLoader/]: Exception loading blockstate definition: 'littletiles:blockstates/missing.json' missing model for variant: 'littletiles:missing#'
+[30mai.2025 00:48:16.431] [Worker-Main-5/WARN] [net.minecraft.client.resources.model.ModelBakery/]: Unable to load model: 'littletiles:item/missing' referenced from: littletiles:item/missing: java.io.FileNotFoundException: littletiles:models/item/missing.json
+[30mai.2025 00:48:17.404] [Worker-Main-5/WARN] [net.minecraft.client.resources.model.ModelBakery/]: Unable to bake model: 'littletiles:glove#inventory': java.lang.RuntimeException: Could not find renderer null, littletiles:glove
+[30mai.2025 00:48:17.776] [Worker-Main-7/INFO] [PonderIndex/]: Registering Ponder Scenes took 101.9 ms
+[30mai.2025 00:48:17.785] [Worker-Main-7/INFO] [PonderIndex/]: Registering Ponder Tags took 8.115 ms
+[30mai.2025 00:48:17.971] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:item.goat_horn.play
+[30mai.2025 00:48:17.971] [Render thread/WARN] [net.minecraft.client.sounds.SoundEngine/]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+[30mai.2025 00:48:18.133] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Fones de ouvido (Astro A50 Game)
+[30mai.2025 00:48:18.134] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[30mai.2025 00:48:18.308] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 2048x1024x4 minecraft:textures/atlas/blocks.png-atlas
+[30mai.2025 00:48:18.325] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[30mai.2025 00:48:18.325] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[30mai.2025 00:48:18.326] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[30mai.2025 00:48:18.326] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 2048x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[30mai.2025 00:48:18.334] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[30mai.2025 00:48:18.334] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[30mai.2025 00:48:18.334] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[30mai.2025 00:48:18.335] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[30mai.2025 00:48:18.414] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[30mai.2025 00:48:18.416] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[30mai.2025 00:48:18.416] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[30mai.2025 00:48:18.416] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[30mai.2025 00:48:18.417] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[30mai.2025 00:48:18.444] [Render thread/WARN] [net.minecraft.client.renderer.ShaderInstance/]: Shader rendertype_entity_translucent_emissive could not find sampler named Sampler2 in the specified shader program.
+[30mai.2025 00:48:18.557] [Render thread/INFO] [flywheel/backend/shaders/]: Loaded 77 shader sources in 44,546 ms
+[30mai.2025 00:48:18.586] [Render thread/INFO] [com.simibubi.create.Create/]: Loaded 51 train hat configurations.
+[30mai.2025 00:48:18.586] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
+[30mai.2025 00:48:36.097] [Render thread/INFO] [com.simibubi.create.Create/]: Created 141 recipes which will be injected into the game
+[30mai.2025 00:48:36.103] [Render thread/INFO] [com.simibubi.create.Create/]: Created 0 tags which will be injected into the game
+[30mai.2025 00:48:36.965] [Worker-Main-11/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:littletiles:blocks/colored_white_lava_flowing - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: littletiles:colored_white_lava_flowing
+[30mai.2025 00:48:37.092] [Worker-Main-11/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:littletiles:blocks/colored_lava_flowing - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: littletiles:colored_lava_flowing
+[30mai.2025 00:48:37.112] [Worker-Main-11/ERROR] [net.minecraft.world.level.storage.loot.LootDataType/]: Couldn't parse element ResourceKey[minecraft:root / minecraft:loot_table]:littletiles:blocks/colored_water_flowing - Unknown registry key in ResourceKey[minecraft:root / minecraft:item]: littletiles:colored_water_flowing
+[30mai.2025 00:48:37.240] [Worker-Main-11/INFO] [com.createlittlecontraptions.CreateLittleContraptions/]: Registering commands for CreateLittleContraptions...
+[30mai.2025 00:48:37.731] [Render thread/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 2804 recipes
+[30mai.2025 00:48:38.092] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 2475 advancements
+[30mai.2025 00:48:39.447] [Render thread/INFO] [mixin/]: Mixing accessor.PotionBrewingAccessor from create.mixins.json into net.minecraft.world.item.alchemy.PotionBrewing
+[30mai.2025 00:48:39.478] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Starting integrated minecraft server version 1.21.1
+[30mai.2025 00:48:39.479] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[30mai.2025 00:48:39.751] [Server thread/INFO] [littletiles/]: Loaded 21 premade structure models
+[30mai.2025 00:48:39.767] [Server thread/INFO] [littletiles/]: Loaded 21 premade structure models
+[30mai.2025 00:48:39.803] [Server thread/INFO] [mixin/]: Mixing accessor.BiomeManagerAccessor from ponder.mixins.json into net.minecraft.world.level.biome.BiomeManager
+[30mai.2025 00:48:39.897] [Server thread/INFO] [mixin/]: Mixing server.level.ChunkMapAccessor from littletiles.mixins.json into net.minecraft.server.level.ChunkMap
+[30mai.2025 00:48:40.071] [Server thread/INFO] [mixin/]: Mixing light.LightEngineAccessor from flywheel.backend.mixins.json into net.minecraft.world.level.lighting.LightEngine
+[30mai.2025 00:48:40.081] [Server thread/INFO] [mixin/]: Mixing light.SkyLightSectionStorageMixin from flywheel.backend.mixins.json into net.minecraft.world.level.lighting.SkyLightSectionStorage
+[30mai.2025 00:48:40.088] [Server thread/INFO] [mixin/]: Mixing light.SkyDataLayerStorageMapAccessor from flywheel.backend.mixins.json into net.minecraft.world.level.lighting.SkyLightSectionStorage$SkyDataLayerStorageMap
+[30mai.2025 00:48:41.373] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[30mai.2025 00:48:41.452] [Server thread/INFO] [mixin/]: Mixing server.level.ChunkSerializerAccessor from littletiles.mixins.json into net.minecraft.world.level.chunk.storage.ChunkSerializer
+[30mai.2025 00:48:41.453] [Server thread/INFO] [mixin/]: Renaming @Accessor method getBLOCK_STATE_CODEC()Lcom/mojang/serialization/Codec; to getBLOCK_STATE_CODEC$littletiles_$md$61d4dd$0 in littletiles.mixins.json:server.level.ChunkSerializerAccessor from mod littletiles
+[30mai.2025 00:48:41.782] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 0%
+[30mai.2025 00:48:41.886] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 51%
+[30mai.2025 00:48:41.912] [entity-deserializer/INFO] [mixin/]: Mixing ProjectileUtilMixin from create.mixins.json into net.minecraft.world.entity.projectile.ProjectileUtil
+[30mai.2025 00:48:41.949] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[30mai.2025 00:48:41.965] [progressListener/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 587 ms
+[30mai.2025 00:48:42.069] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing view distance to 12, from 10
+[30mai.2025 00:48:42.070] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Changing simulation distance to 12, from 0
+[30mai.2025 00:48:42.097] [Server thread/INFO] [mixin/]: Mixing common.collision.BlockCollisionsMixin from littletiles.mixins.json into net.minecraft.world.level.BlockCollisions
+[30mai.2025 00:48:42.519] [Netty Server IO #1/INFO] [mixin/]: Mixing server.network.DiscardedPayloadMixin from littletiles.mixins.json into net.minecraft.network.protocol.common.custom.DiscardedPayload
+[30mai.2025 00:48:42.652] [Render thread/INFO] [com.simibubi.create.Create/]: Created 141 recipes which will be injected into the game
+[30mai.2025 00:48:42.654] [Render thread/INFO] [com.simibubi.create.Create/]: Created 0 tags which will be injected into the game
+[30mai.2025 00:48:42.892] [Render thread/INFO] [mixin/]: Mixing client.network.ClientPacketListenerAccessor from littletiles.mixins.json into net.minecraft.client.multiplayer.ClientPacketListener
+[30mai.2025 00:48:42.894] [Render thread/INFO] [mixin/]: Mixing client.network.ClientPacketListenerMixin from littletiles.mixins.json into net.minecraft.client.multiplayer.ClientPacketListener
+[30mai.2025 00:48:42.894] [Render thread/INFO] [mixin/]: Mixing client.accessor.ClientPacketListenerAccessor from ponder.mixins.json into net.minecraft.client.multiplayer.ClientPacketListener
+[30mai.2025 00:48:43.021] [Server thread/INFO] [net.minecraft.server.players.PlayerList/]: Dev[local:E:f5ea0b81] logged in with entity id 49 at (-5.162032222988624, 64.0, 17.540543957936922)
+[30mai.2025 00:48:43.031] [Render thread/INFO] [mixin/]: Mixing client.MultiPlayerGameModeAccessor from littletiles.mixins.json into net.minecraft.client.multiplayer.MultiPlayerGameMode
+[30mai.2025 00:48:43.040] [Render thread/INFO] [mixin/]: Mixing ClientChunkCacheMixin from flywheel.impl.mixins.json into net.minecraft.client.multiplayer.ClientChunkCache
+[30mai.2025 00:48:43.041] [Render thread/INFO] [mixin/]: Mixing client.level.ClientChunkCacheAccessor from littletiles.mixins.json into net.minecraft.client.multiplayer.ClientChunkCache
+[30mai.2025 00:48:43.042] [Render thread/INFO] [mixin/]: Mixing client.level.ClientChunkCacheMixin from littletiles.mixins.json into net.minecraft.client.multiplayer.ClientChunkCache
+[30mai.2025 00:48:43.075] [Render thread/INFO] [mixin/]: Mixing client.level.BlockStatePredictionHandlerMixin from littletiles.mixins.json into net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler
+[30mai.2025 00:48:43.108] [Render thread/INFO] [mixin/]: Mixing visualmanage.SectionCompilerMixin from flywheel.impl.mixins.json into net.minecraft.client.renderer.chunk.SectionCompiler
+[30mai.2025 00:48:43.109] [Render thread/INFO] [mixin/]: Mixing client.render.SectionCompilerMixin from littletiles.mixins.json into net.minecraft.client.renderer.chunk.SectionCompiler
+[30mai.2025 00:48:43.109] [Render thread/INFO] [mixin/]: Renaming synthetic method lambda$compile$1(Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;Lnet/minecraft/client/renderer/RenderType;)Lteam/creative/littletiles/client/render/cache/buffer/BufferCollection; to md61d4dd$littletiles$lambda$compile$1$0 in littletiles.mixins.json:client.render.SectionCompilerMixin from mod littletiles
+[30mai.2025 00:48:43.109] [Render thread/INFO] [mixin/]: Renaming synthetic method lambda$compile$0(Ljava/util/Map;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Lnet/minecraft/client/renderer/RenderType;)Lteam/creative/littletiles/client/render/cache/buffer/ChunkBufferUploader; to md61d4dd$littletiles$lambda$compile$0$1 in littletiles.mixins.json:client.render.SectionCompilerMixin from mod littletiles
+[30mai.2025 00:48:43.110] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Dev joined the game
+[30mai.2025 00:48:43.135] [Render thread/INFO] [littletiles/]: Loaded 21 premade structure models
+[30mai.2025 00:48:43.163] [Render thread/INFO] [mixin/]: Mixing client.render.ViewAreaMixin from littletiles.mixins.json into net.minecraft.client.renderer.ViewArea
+[30mai.2025 00:48:43.169] [Render thread/INFO] [mixin/]: Mixing client.render.RenderChunkMixin from littletiles.mixins.json into net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection
+[30mai.2025 00:48:43.181] [Render thread/INFO] [mixin/]: Mixing client.render.RebuildTaskMixin from littletiles.mixins.json into net.minecraft.client.renderer.chunk.SectionRenderDispatcher$RenderSection$RebuildTask
+[30mai.2025 00:48:43.182] [Render thread/INFO] [mixin/]: Renaming synthetic method lambda$injected$0(Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;Ljava/lang/Object;Ljava/lang/Object;)V to md61d4dd$littletiles$lambda$injected$0$0 in littletiles.mixins.json:client.render.RebuildTaskMixin from mod littletiles
+[30mai.2025 00:48:43.182] [Render thread/WARN] [mixin/]: @Shadow target littletiles.mixins.json:client.render.RebuildTaskMixin from mod littletiles::this$1 is final but shadow is not decorated with @Final
+[30mai.2025 00:48:43.191] [Render thread/INFO] [mixin/]: Mixing client.render.CompiledSectionAccessor from littletiles.mixins.json into net.minecraft.client.renderer.chunk.SectionRenderDispatcher$CompiledSection
+[30mai.2025 00:48:43.837] [Render thread/INFO] [flywheel/]: Started 6 worker threads
+[30mai.2025 00:48:43.943] [Render thread/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 48 advancements
+[30mai.2025 00:48:44.579] [Render thread/INFO] [mixin/]: Mixing client.render.RenderChunkRegionMixin from littletiles.mixins.json into net.minecraft.client.renderer.chunk.RenderChunkRegion
+[30mai.2025 00:48:44.581] [Render thread/WARN] [mixin/]: @Shadow target littletiles.mixins.json:client.render.RenderChunkRegionMixin from mod littletiles::level is final but shadow is not decorated with @Final
+[30mai.2025 00:48:44.596] [rend_chk_rebuild/INFO] [mixin/]: Mixing client.render.SectionCompilerResultsMixin from littletiles.mixins.json into net.minecraft.client.renderer.chunk.SectionCompiler$Results
+[30mai.2025 00:48:52.319] [Render thread/INFO] [mixin/]: Mixing client.level.ServerVerifiedStateAccessor from littletiles.mixins.json into net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler$ServerVerifiedState
+[30mai.2025 00:48:54.604] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[30mai.2025 00:48:54.631] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[30mai.2025 00:48:54.667] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[30mai.2025 00:48:54.668] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[30mai.2025 00:49:13.854] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[30mai.2025 00:49:13.869] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[30mai.2025 00:49:13.887] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[30mai.2025 00:49:13.888] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[30mai.2025 00:50:26.358] [Server thread/INFO] [net.minecraft.client.server.IntegratedServer/]: Saving and pausing game...
+[30mai.2025 00:50:26.373] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[30mai.2025 00:50:26.392] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[30mai.2025 00:50:26.392] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end

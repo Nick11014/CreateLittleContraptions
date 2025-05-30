@@ -54,3 +54,7 @@ versionRange = "[2.13.5,2.14.0)"
 ordering = "AFTER"
 side = "BOTH"
 
+# Mixin configuration
+[[mixins]]
+config = "createlittlecontraptions.mixins.json"
+

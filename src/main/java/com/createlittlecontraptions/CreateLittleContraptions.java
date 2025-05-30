@@ -12,7 +12,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import com.createlittlecontraptions.commands.ContraptionDebugCommand;
-import com.createlittlecontraptions.commands.ContraptionEventsCommand;
+import com.createlittlecontraptions.commands.ContraptionDisassemblyCommand;
+import com.createlittlecontraptions.commands.ContraptionAssemblyCommand;
+import com.createlittlecontraptions.commands.ContraptionRenderCommand;
 import com.createlittlecontraptions.events.ContraptionEventHandler;
 
 @Mod(CreateLittleContraptions.MODID)
@@ -30,9 +32,27 @@ public class CreateLittleContraptions {
         NeoForge.EVENT_BUS.register(ContraptionEventHandler.class);
 
         LOGGER.info("CreateLittleContraptions mod initializing...");
-    }private void commonSetup(final FMLCommonSetupEvent event) {
+    }    private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("CreateLittleContraptions common setup");
-        // Future integration with Create and LittleTiles will be implemented here
+        
+        // Register LittleTiles MovementBehaviour for contraption rendering control
+        event.enqueueWork(() -> {
+            try {
+                registerLittleTilesMovementBehaviour();
+            } catch (Exception e) {
+                LOGGER.error("Failed to register LittleTiles MovementBehaviour: {}", e.getMessage());
+            }
+        });    }    /**
+     * Registra o MovementBehaviour para blocos LittleTiles
+     */
+    public static void registerLittleTilesMovementBehaviour() {
+        try {
+            // Note: This registration is simplified - complex compatibility was removed
+            LOGGER.info("LittleTiles MovementBehaviour registration skipped - experimental code removed");
+            
+        } catch (Exception e) {
+            LOGGER.error("Error in MovementBehaviour registration: {}", e.getMessage());
+        }
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -41,6 +61,8 @@ public class CreateLittleContraptions {
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
         ContraptionDebugCommand.register(event.getDispatcher());
-        ContraptionEventsCommand.register(event.getDispatcher());
+        ContraptionRenderCommand.register(event.getDispatcher());
+        ContraptionDisassemblyCommand.register(event.getDispatcher());
+        ContraptionAssemblyCommand.register(event.getDispatcher());
     }
 }
