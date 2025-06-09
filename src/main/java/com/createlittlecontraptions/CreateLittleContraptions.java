@@ -34,30 +34,9 @@ public class CreateLittleContraptions {
         LOGGER.info("CreateLittleContraptions mod initializing...");
     }    private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("CreateLittleContraptions common setup");
-        
-        // Register LittleTiles MovementBehaviour for contraption rendering control
-        event.enqueueWork(() -> {
-            try {
-                registerLittleTilesMovementBehaviour();
-            } catch (Exception e) {
-                LOGGER.error("Failed to register LittleTiles MovementBehaviour: {}", e.getMessage());
-            }
-        });    }    /**
-     * Registra o MovementBehaviour para blocos LittleTiles
-     */
-    public static void registerLittleTilesMovementBehaviour() {
-        try {
-            // Note: This registration is simplified - complex compatibility was removed
-            LOGGER.info("LittleTiles MovementBehaviour registration skipped - experimental code removed");
-            
-        } catch (Exception e) {
-            LOGGER.error("Error in MovementBehaviour registration: {}", e.getMessage());
-        }
-    }
-
-    private void clientSetup(final FMLClientSetupEvent event) {
+    }    private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("CreateLittleContraptions client setup");
-    }    @SubscribeEvent
+    }@SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
         ContraptionDebugCommand.register(event.getDispatcher());
