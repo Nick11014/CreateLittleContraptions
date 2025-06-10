@@ -4,8 +4,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.client.resources.model.BakedModel;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import com.simibubi.create.content.contraptions.Contraption;
 import com.createlittlecontraptions.CreateLittleContraptions;
+import com.createlittlecontraptions.rendering.baking.LittleTilesModelBaker;
+import com.createlittlecontraptions.rendering.cache.ContraptionModelCache;
+
+import java.util.Optional;
 
 @EventBusSubscriber(modid = CreateLittleContraptions.MODID)
 public class ContraptionEventHandler {
@@ -16,11 +23,11 @@ public class ContraptionEventHandler {
         if (event.getEntity() instanceof AbstractContraptionEntity contraptionEntity) {
             CreateLittleContraptions.LOGGER.info("Contraption assembled: {}", contraptionEntity.getUUID());
             
-            // TODO: Implementar baking de modelos aqui
-            // 1. Obter a contraption: contraptionEntity.getContraption()
-            // 2. Iterar sobre os BlockEntities: contraption.getRenderedBEs()
-            // 3. Para cada BE do LittleTiles, chamar LittleTilesModelBaker.bake()
-            // 4. Armazenar no cache: ContraptionModelCache.cacheModel()
+            // Implement model baking for LittleTiles blocks
+            Contraption contraption = contraptionEntity.getContraption();
+            if (contraption != null) {
+                performModelBaking(contraptionEntity.getUUID(), contraption);
+            }
         }
     }
 
@@ -30,8 +37,55 @@ public class ContraptionEventHandler {
         if (event.getEntity() instanceof AbstractContraptionEntity contraptionEntity) {
             CreateLittleContraptions.LOGGER.info("Contraption disassembled: {}", contraptionEntity.getUUID());
             
-            // TODO: Limpar cache de modelos
-            // ContraptionModelCache.clearCache(contraptionEntity.getUUID());
+            // Clear cached models to free memory
+            ContraptionModelCache.clearCache(contraptionEntity.getUUID());
+        }
+    }
+    
+    /**
+     * Perform model baking for all LittleTiles blocks in the contraption.
+     */
+    private static void performModelBaking(java.util.UUID contraptionId, Contraption contraption) {
+        try {
+            // Get all rendered block entities in the contraption
+            var renderedBEs = contraption.getRenderedBEs();
+            int littleTilesCount = 0;
+            int bakedCount = 0;
+            
+            CreateLittleContraptions.LOGGER.info("Starting model baking for contraption {} with {} rendered block entities", 
+                                                contraptionId, renderedBEs.size());
+            
+            for (BlockEntity blockEntity : renderedBEs) {
+                try {
+                    // Attempt to bake a model for this block entity
+                    Optional<BakedModel> bakedModel = LittleTilesModelBaker.bake(blockEntity);
+                    
+                    if (bakedModel.isPresent()) {
+                        // Store the baked model in cache
+                        ContraptionModelCache.cacheModel(contraptionId, blockEntity.getBlockPos(), bakedModel.get());
+                        bakedCount++;
+                        CreateLittleContraptions.LOGGER.debug("Successfully baked model for LittleTiles block at {}", 
+                                                            blockEntity.getBlockPos());
+                    }
+                    
+                    // Check if this was a LittleTiles block (for statistics)
+                    String className = blockEntity.getClass().getName();
+                    if (className.contains("littletiles")) {
+                        littleTilesCount++;
+                    }
+                    
+                } catch (Exception e) {
+                    CreateLittleContraptions.LOGGER.warn("Failed to bake model for block entity at {}: {}", 
+                                                       blockEntity.getBlockPos(), e.getMessage());
+                }
+            }
+            
+            CreateLittleContraptions.LOGGER.info("Model baking completed for contraption {}: {} LittleTiles blocks found, {} models baked", 
+                                                contraptionId, littleTilesCount, bakedCount);
+            
+        } catch (Exception e) {
+            CreateLittleContraptions.LOGGER.error("Error during model baking for contraption {}: {}", 
+                                                 contraptionId, e.getMessage());
         }
     }
 }

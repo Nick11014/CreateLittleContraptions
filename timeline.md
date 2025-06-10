@@ -50,7 +50,7 @@
 
 - **PROBLEMA:** Build falhando com erro "To use the NeoForge plugin, please run Gradle with Java 17 or newer. You are currently running on Java 1 (1.8)."
 - **SOLUÇÃO:** Instalado JDK 24 em `C:\Program Files\Java\jdk-24` e configurado `gradle.properties` para usar esta versão.
-- **AÇÃO:** Modificado `gradle.properties` para incluir `org.gradle.java.home=C:\\Program Files\\Java\\jdk-24` e flag `--enable-native-access=ALL-UNNAMED`.
+- **AÇÃO:** Modificado `gradle.properties` para incluir `org.gradle.java.home=C:\\ Program Files\\Java\\jdk-24` e flag `--enable-native-access=ALL-UNNAMED`.
 
 - **PROBLEMA:** Arquivo `ContraptionEventHandler.java` estava vazio após edição manual.
 - **SOLUÇÃO:** Restaurado o conteúdo básico da classe com listeners para assembly/disassembly e TODOs para implementação futura do baking.
@@ -59,3 +59,42 @@
 - **SOLUÇÃO:** Adicionado método `getOverrides()` retornando `ItemOverrides.EMPTY` e import necessário.
 
 - **RESULTADO:** ✅ **BUILD SUCCESSFUL** - O projeto agora compila corretamente com Java 24 e todas as classes estão sintaticamente corretas.
+
+## Fase 3: Refatoração da Abordagem de Model Baking
+
+- **PROBLEMA:** Erros de compilação no `LittleTilesModelBaker.java` devido a mudanças na API do VertexConsumer.
+- **ANÁLISE:** Descoberto que a abordagem original de capturar geometria via VertexConsumer não é a forma correta de implementar BakedModels segundo a documentação do NeoForge.
+- **SOLUÇÃO:** Refatoração completa do `LittleTilesModelBaker.java` baseada na documentação oficial do NeoForge sobre BakedModels.
+
+### Mudanças Implementadas:
+
+- **AÇÃO:** Removida completamente a implementação de VertexConsumer customizado.
+- **MOTIVO:** A interface VertexConsumer mudou entre versões do Minecraft/NeoForge, causando erros de compilação. Além disso, a documentação do NeoForge indica que BakedModels devem funcionar através do método `getQuads()` que retorna `BakedQuad`s diretamente.
+
+- **AÇÃO:** Implementada abordagem correta baseada em `BakedQuad`s diretos.
+- **MOTIVO:** BakedModels funcionam retornando listas de `BakedQuad`s através do método `getQuads()`, que são processados diretamente pelo sistema de renderização do Minecraft.
+
+- **AÇÃO:** Criado sistema de placeholder com geometria de cubo simples.
+- **MOTIVO:** Implementação inicial funcional que pode ser expandida no futuro para extrair geometria real do LittleTiles.
+
+- **AÇÃO:** Implementada classe `LittleTilesBakedModel` que extende `BakedModel`.
+- **MOTIVO:** Implementação completa de todos os métodos necessários do BakedModel, incluindo métodos específicos do NeoForge como `getRenderTypes()` e `getModelData()`.
+
+- **AÇÃO:** Corrigido erro de sintaxe (chave extra no final do arquivo).
+- **MOTIVO:** Erro de sintaxe que impedia compilação após a refatoração.
+
+### Técnicas Utilizadas:
+
+- **Vertex Format:** Uso do `DefaultVertexFormat.BLOCK` para criar dados de vértice corretos.
+- **Quad Generation:** Criação programática de `BakedQuad`s com dados de posição, cor, textura e normais.
+- **Face Organization:** Separação de quads por faces (Direction) para renderização eficiente.
+- **Texture Mapping:** Uso de sprites de textura do atlas do Minecraft.
+
+- **RESULTADO:** ✅ **BUILD SUCCESSFUL** - O `LittleTilesModelBaker.java` agora compila corretamente e segue as práticas recomendadas do NeoForge.
+- **WARNING:** Apenas um warning sobre mapeamento de obfuscação no `ContraptionRenderInfoMixin.java`, que é normal em desenvolvimento.
+
+### Próximos Passos Identificados:
+
+1. **Integração com LittleTiles:** Expandir o sistema para acessar a estrutura interna do LittleTiles e extrair geometria real.
+2. **Otimização de Cache:** Implementar cache inteligente de modelos para melhor performance.
+3. **Testes Funcionais:** Testar o sistema em contraptions reais do Create.
