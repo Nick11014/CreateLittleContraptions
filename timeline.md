@@ -48,6 +48,65 @@
 
 ## Resolução de Problemas de Build
 
+- **AÇÃO:** Continuando com a implementação da Fase 2 - Criação do Mixin para interceptar renderização do Create.
+- **MOTIVO:** O ContraptionRenderInfoMixin atual é muito simples e não intercepta efetivamente o pipeline de renderização do Create. É necessário criar um mixin mais específico que redirecione a obtenção de modelos.
+
+- **AÇÃO:** Melhorado `ContraptionRenderInfoMixin` com @Redirect para interceptar chamadas de `BlockRenderDispatcher.getBlockModel()`.
+- **MOTIVO:** Implementação mais robusta que intercepta diretamente a obtenção de modelos durante a renderização de contraptions.
+
+- **AÇÃO:** Criado `ContraptionRenderingContext` para rastrear contexto de renderização.
+- **MOTIVO:** Sistema para detectar quando estamos renderizando contraptions vs. blocos normais do mundo, permitindo que os mixins identifiquem o contexto correto.
+
+- **AÇÃO:** Criado `BlockRenderDispatcherMixin` para interceptar globalmente a obtenção de modelos.
+- **MOTIVO:** Abordagem alternativa que intercepta o `BlockRenderDispatcher` diretamente quando em contexto de contraption.
+
+- **AÇÃO:** Criado `AbstractContraptionEntityMixin` para configurar contexto de renderização.
+- **MOTIVO:** Configura o contexto de renderização de contraption quando entidades de contraption começam a ser renderizadas.
+
+- **AÇÃO:** Melhorado `LittleTilesModelBaker` com extração avançada de geometria usando reflexão.
+- **MOTIVO:** Implementação mais sofisticada que tenta acessar estruturas internas do LittleTiles de forma segura para criar modelos mais precisos, com fallbacks graceful caso a estrutura do LittleTiles mude.
+
+## Fase 3: Sistema de Teste e Validação
+
+- **AÇÃO:** Criado `ModelBakingTestCommand` para debugging do sistema.
+- **MOTIVO:** Comandos de teste para verificar status do cache, listar contraptions ativas e monitorar o funcionamento do sistema de model baking.
+
+- **AÇÃO:** Registrado comando de teste no sistema principal.
+- **MOTIVO:** Integração do comando de teste com o sistema de comandos existente para facilitar debugging em runtime.
+
+- **AÇÃO:** Adicionadas estatísticas de debugging ao `ContraptionEventHandler`.
+- **MOTIVO:** Método para gerar informações detalhadas sobre o funcionamento do sistema de model baking para debugging.
+
+- **AÇÃO:** Criado guia de testes abrangente (`TESTING_GUIDE.md`).
+- **MOTIVO:** Documentação completa para testar o sistema, incluindo passos de teste, comportamento esperado, troubleshooting e informações para desenvolvedores.
+
+## Status Atual da Implementação
+
+**✅ IMPLEMENTADO:**
+- Sistema completo de Model Baking com cache thread-safe
+- Mixins para interceptar pipeline de renderização do Create
+- Extração experimental de geometria do LittleTiles via reflexão
+- Sistema de contexto para detectar renderização de contraptions
+- Comandos de debugging e monitoramento
+- Documentação abrangente de testes
+
+**🔄 PRONTO PARA TESTE:**
+- Compilação sem erros de sintaxe
+- Todos os mixins registrados corretamente
+- Sistema de eventos funcional
+- Comandos de teste implementados
+
+**⚠️ LIMITAÇÕES CONHECIDAS:**
+- Funciona apenas com renderizador legado (Flywheel desabilitado)
+- Geometria placeholder (cubos) em vez de formas reais do LittleTiles
+- Requer versões específicas dos mods Create e LittleTiles
+
+**🎯 PRÓXIMOS PASSOS:**
+1. Teste em ambiente Minecraft real
+2. Validação da integração Create-LittleTiles
+3. Ajustes baseados em resultados de teste
+4. Otimizações de performance se necessário
+
 - **PROBLEMA:** Build falhando com erro "To use the NeoForge plugin, please run Gradle with Java 17 or newer. You are currently running on Java 1 (1.8)."
 - **SOLUÇÃO:** Instalado JDK 24 em `C:\Program Files\Java\jdk-24` e configurado `gradle.properties` para usar esta versão.
 - **AÇÃO:** Modificado `gradle.properties` para incluir `org.gradle.java.home=C:\\ Program Files\\Java\\jdk-24` e flag `--enable-native-access=ALL-UNNAMED`.

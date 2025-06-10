@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "createlittlecontraptions.refmap.json",
   "mixins": [
-  ],
-  "client": [
+  ],  "client": [
     "create.ContraptionRenderInfoMixin"
   ],
   "injectors": {

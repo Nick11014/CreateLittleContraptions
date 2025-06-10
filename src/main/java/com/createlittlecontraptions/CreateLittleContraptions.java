@@ -15,6 +15,7 @@ import com.createlittlecontraptions.commands.ContraptionDebugCommand;
 import com.createlittlecontraptions.commands.ContraptionDisassemblyCommand;
 import com.createlittlecontraptions.commands.ContraptionAssemblyCommand;
 import com.createlittlecontraptions.commands.ContraptionRenderCommand;
+import com.createlittlecontraptions.commands.ModelBakingTestCommand;
 import com.createlittlecontraptions.events.ContraptionEventHandler;
 
 @Mod(CreateLittleContraptions.MODID)
@@ -43,5 +44,6 @@ public class CreateLittleContraptions {
         ContraptionRenderCommand.register(event.getDispatcher());
         ContraptionDisassemblyCommand.register(event.getDispatcher());
         ContraptionAssemblyCommand.register(event.getDispatcher());
+        ModelBakingTestCommand.register(event.getDispatcher());
     }
 }
