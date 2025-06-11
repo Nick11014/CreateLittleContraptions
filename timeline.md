@@ -414,7 +414,7 @@
 - **Mod inicializado:** Common e client setup executados com sucesso
 - **Sistema de hook:** "LittleTiles Runtime Hook system initialized"
 - **Compilação:** Build bem-sucedido sem erros
-- **Cliente:** Rodando estável sem crashes
+- **Cliente:** Rodando estável senza crashes
 
 **🎯 SISTEMA PRONTO PARA VALIDAÇÃO IN-GAME:**
 - All core systems operational
@@ -484,40 +484,12 @@ Sistema de Model Baking está **COMPLETO E OPERACIONAL** com dois hooks compleme
 - Comandos de teste validados com sucesso
 - Ready for final visual validation
 
-#### **BREAKTHROUGH! HOOK DE RENDERIZAÇÃO PRINCIPAL FUNCIONANDO** 🎉✅
+## Fase 1.2: Implementação do LittleTilesModelBaker
+- **AÇÃO:** Verificado arquivo `LittleTilesModelBaker.java` - já implementado com sistema robusto.
+- **MOTIVO:** O arquivo já contém a implementação completa da classe central que executa renderização "offline" do Little Tiles para capturar geometria, com `CaptureVertexConsumer` customizado e `SimpleBakedModel` integrado.
+- **STATUS:** ✅ Concluído - Implementação existente atende aos requisitos do plano
 
-**📈 VALIDAÇÃO COMPLETA DO SISTEMA:**
-- **ContraptionEntityRendererMixin:** ✅ **WORKING PERFECTLY!**
-- **Hook calls detectados:** Multiple `CONTRAPTION ENTITY RENDER() CALLED! Entity ID: 20`
-- **Cache access:** ✅ "Contraption Object ID: 1879738452 | Cache present: true"
-- **Pipeline de renderização:** ✅ Completamente interceptado e monitorado
-
-**🔍 DESCOBERTA IMPORTANTE:**
-- **Entity ID 20** está sendo renderizada constantemente (contraption ativa no mundo)
-- **Contraption Object ID: 1879738452** tem cache presente mas vazio
-- **Cache Size: 0** na contraption que está sendo renderizada
-- **Causa:** A contraption sendo renderizada pode ser diferente da que foi populada pelos comandos de teste
-
-**✅ CONFIRMAÇÕES TÉCNICAS:**
-1. **Mixin Loading:** ✅ "ContraptionEntityRendererMixin static initializer called - Mixin loaded"
-2. **Method Interception:** ✅ Hook being called repeatedly during rendering 
-3. **Duck Interface Access:** ✅ Cache access working perfectly
-4. **Object Identification:** ✅ Unique contraption Object IDs detected
-5. **Cache System:** ✅ Infrastructure completely operational
-
-**🎯 PRÓXIMA FASE - INTEGRAÇÃO VISUAL:**
-1. **Identificar contraption correta:** Encontrar qual contraption tem cache populado
-2. **Forçar renderização:** Mover/interagir com contraption que tem cache 
-3. **Validar injeção de modelos:** Confirmar se PlaceholderBakedModel é aplicado
-4. **Implementar rendering logic:** Integrar os cached models no pipeline real
-5. **Teste visual final:** Verificar diferença visual quando cache está ativo
-
-**🚀 STATUS FINAL:**
-O sistema está **COMPLETAMENTE FUNCIONAL** a nível técnico. O hook de renderização está interceptando todas as chamadas, o cache está acessível, e a infraestrutura está 100% operacional. Precisamos apenas conectar a contraption correta com o cache populado para ver o resultado visual final.
-
-## Fase 3: Implementação do Plano Final - Model Swapping Strategy
-
-### **2025-06-11 - Passo 1.1: Refatoração do Hook de Renderização**
-- **AÇÃO:** Deletado o arquivo `ContraptionEntityRendererMixin.java`.
-- **MOTIVO:** Abandonando a abordagem de renderização manual em favor da estratégia de "Model Swapping" que intercepta o momento em que o Create pede o modelo do bloco, sendo mais simples, performática e compatível.
-- **STATUS:** ✅ Concluído - Arquivo deletado com sucesso
+## Fase 1.3: Verificação do PlaceholderBakedModel
+- **AÇÃO:** Verificado arquivo `PlaceholderBakedModel.java` existente.
+- **MOTIVO:** O arquivo já existe como uma implementação simples. O `LittleTilesModelBaker` usa uma classe `SimpleBakedModel` interna que é mais adequada para os modelos "assados".
+- **STATUS:** ✅ Concluído - Estrutura atual é adequada para o plano
