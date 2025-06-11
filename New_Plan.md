@@ -1,13 +1,3 @@
-Excelente. Analisei o `timeline.md`. Ele nos dá um ponto de partida perfeito, pois mostra que a base do nosso plano já foi implementada com sucesso. O Claude já limpou o projeto, criou o `LittleTilesModelBaker` e um sistema de cache (`ContraptionModelCache`) que é ativado por eventos.
-
-O estado atual é: **os modelos estão sendo "assados" e cacheados, mas ainda não estão sendo injetados no renderizador do Create.**
-
-O planejamento a seguir foi otimizado para partir exatamente deste ponto. Ele introduz a melhoria da "Duck Interface" que discutimos (substituindo o cache estático atual) e depois detalha o passo final e crucial da injeção do modelo.
-
-Aqui está o novo arquivo de planejamento para o Claude 4.
-
----
-
 # `PLANO_DE_IMPLEMENTACAO_REFINADO_CLAUDE.md`
 
 ## **Assunto:** Continuação e Refinamento do Projeto: Compatibilidade Create & LittleTiles
