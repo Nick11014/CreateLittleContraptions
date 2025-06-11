@@ -2,14 +2,20 @@ package com.createlittlecontraptions.events;
 
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
+import com.createlittlecontraptions.rendering.baking.LittleTilesModelBaker;
+import com.createlittlecontraptions.rendering.cache.ContraptionModelCache;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+
+import java.util.Optional;
 
 /**
  * Event handler for detecting Create contraption assembly/disassembly events.
@@ -35,47 +41,45 @@ public class ContraptionEventHandler {
     
     /**
      * Detect when contraptions are assembled (entity spawned)
-     */
-    @SubscribeEvent
+     */    @SubscribeEvent
     public static void onContraptionAssembled(EntityJoinLevelEvent event) {
-        if (!eventLoggingEnabled) return;
-        
         if (event.getEntity() instanceof AbstractContraptionEntity contraptionEntity) {
-            LOGGER.info("=== CONTRAPTION ASSEMBLED ===");
-            LOGGER.info("Type: {}", contraptionEntity.getClass().getSimpleName());
-            LOGGER.info("Position: {}", contraptionEntity.blockPosition());
-            LOGGER.info("Entity ID: {}", contraptionEntity.getId());
-            LOGGER.info("Level: {}", event.getLevel().dimension().location());
+            if (eventLoggingEnabled) {
+                LOGGER.info("=== CONTRAPTION ASSEMBLED ===");
+                LOGGER.info("Type: {}", contraptionEntity.getClass().getSimpleName());
+                LOGGER.info("Position: {}", contraptionEntity.blockPosition());
+                LOGGER.info("Entity ID: {}", contraptionEntity.getId());
+                LOGGER.info("Level: {}", event.getLevel().dimension().location());
+            }
             
             // Analyze LittleTiles in assembled contraption
             analyzeLittleTilesInContraption(contraptionEntity);
             
-            // Notify nearby players
-            notifyNearbyPlayers(contraptionEntity, "Contraption assembled with LittleTiles!", true);
+            // Perform model baking for LittleTiles blocks
+            bakeModelsForContraption(contraptionEntity);
         }
     }
     
     /**
      * Detect when contraptions are disassembled (entity removed)
-     */
-    @SubscribeEvent
+     */    @SubscribeEvent
     public static void onContraptionDisassembled(EntityLeaveLevelEvent event) {
-        if (!eventLoggingEnabled) return;
-        
         if (event.getEntity() instanceof AbstractContraptionEntity contraptionEntity) {
-            LOGGER.info("=== CONTRAPTION DISASSEMBLED ===");
-            LOGGER.info("Type: {}", contraptionEntity.getClass().getSimpleName());
-            LOGGER.info("Position: {}", contraptionEntity.blockPosition());
-            LOGGER.info("Entity ID: {}", contraptionEntity.getId());
-            LOGGER.info("Level: {}", event.getLevel().dimension().location());
+            if (eventLoggingEnabled) {
+                LOGGER.info("=== CONTRAPTION DISASSEMBLED ===");
+                LOGGER.info("Type: {}", contraptionEntity.getClass().getSimpleName());
+                LOGGER.info("Position: {}", contraptionEntity.blockPosition());
+                LOGGER.info("Entity ID: {}", contraptionEntity.getId());
+                LOGGER.info("Level: {}", event.getLevel().dimension().location());
+            }
             
             // Analyze LittleTiles before disassembly
             analyzeLittleTilesInContraption(contraptionEntity);
             
-            // Notify nearby players
-            notifyNearbyPlayers(contraptionEntity, "Contraption disassembled with LittleTiles!", false);
+            // Clear cached models to free memory
+            ContraptionModelCache.clearCache(contraptionEntity.getUUID());
         }
-    }    /**
+    }/**
      * Analyze LittleTiles blocks in the contraption using robust reflection approach
      */
     private static void analyzeLittleTilesInContraption(AbstractContraptionEntity contraptionEntity) {
@@ -229,9 +233,7 @@ public class ContraptionEventHandler {
             } else {
                 LOGGER.debug("No LittleTiles blocks found in contraption with {} total blocks (from {})", 
                     totalBlocks, blocksSource);
-            }
-            
-        } catch (Exception e) {
+            }        } catch (Exception e) {
             LOGGER.debug("Could not analyze LittleTiles in contraption: {} - {}", 
                 e.getClass().getSimpleName(), e.getMessage());
             // Log stack trace only in debug mode to avoid spam
@@ -242,21 +244,103 @@ public class ContraptionEventHandler {
     }
     
     /**
-     * Notify nearby players about contraption events
+     * Bake models for all LittleTiles blocks in the contraption.
+     * This is the core of the Model Baking solution.
      */
-    private static void notifyNearbyPlayers(AbstractContraptionEntity contraptionEntity, String message, boolean isAssembly) {
-        if (contraptionEntity.level().isClientSide()) return;
-        
-        var serverLevel = (net.minecraft.server.level.ServerLevel) contraptionEntity.level();
-        var players = serverLevel.getPlayers(player -> 
-            player.distanceToSqr(contraptionEntity) < 64 * 64 // 64 block radius
-        );
-        
-        String prefix = isAssembly ? "§a[ASSEMBLY]" : "§c[DISASSEMBLY]";
-        Component notificationMessage = Component.literal(prefix + " " + message);
-        
-        for (ServerPlayer player : players) {
-            player.sendSystemMessage(notificationMessage);
+    private static void bakeModelsForContraption(AbstractContraptionEntity contraptionEntity) {
+        if (contraptionEntity == null || contraptionEntity.level().isClientSide()) {
+            return; // Only process on server side for now
         }
+        
+        try {
+            // Get the contraption object
+            Object contraption = getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) {
+                LOGGER.debug("Could not get contraption from entity for baking");
+                return;
+            }
+            
+            // Get rendered block entities
+            java.util.Collection<BlockEntity> renderedBEs = getRenderedBlockEntities(contraption);
+            if (renderedBEs == null || renderedBEs.isEmpty()) {
+                LOGGER.debug("No rendered block entities found in contraption for baking");
+                return;
+            }
+            
+            int bakedCount = 0;
+            for (BlockEntity blockEntity : renderedBEs) {
+                if (blockEntity == null) continue;
+                
+                // Attempt to bake the model for this block entity
+                Optional<BakedModel> bakedModel = LittleTilesModelBaker.bake(blockEntity);
+                if (bakedModel.isPresent()) {
+                    // Cache the baked model
+                    ContraptionModelCache.cacheModel(
+                        contraptionEntity.getUUID(), 
+                        blockEntity.getBlockPos(), 
+                        bakedModel.get()
+                    );
+                    bakedCount++;
+                    
+                    if (eventLoggingEnabled) {
+                        LOGGER.info("Baked model for LittleTiles block at {}", blockEntity.getBlockPos());
+                    }
+                }
+            }
+            
+            if (bakedCount > 0) {
+                LOGGER.info("Successfully baked {} models for contraption {}", 
+                    bakedCount, contraptionEntity.getUUID());
+            }
+            
+        } catch (Exception e) {
+            LOGGER.warn("Exception during model baking for contraption: {}", e.getMessage());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Model baking exception stack trace:", e);
+            }
+        }
+    }
+    
+    /**
+     * Helper method to get contraption object from entity using reflection.
+     */
+    private static Object getContraptionFromEntity(AbstractContraptionEntity contraptionEntity) {
+        try {
+            String[] possibleContraptionFields = {"contraption", "contraptionInstance", "contraptionData"};
+            
+            for (String fieldName : possibleContraptionFields) {
+                try {
+                    var field = AbstractContraptionEntity.class.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    Object contraption = field.get(contraptionEntity);
+                    if (contraption != null) {
+                        return contraption;
+                    }
+                } catch (NoSuchFieldException ignored) {
+                    // Try next field name
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Failed to get contraption object: {}", e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Helper method to get rendered block entities from contraption.
+     */
+    @SuppressWarnings("unchecked")
+    private static java.util.Collection<BlockEntity> getRenderedBlockEntities(Object contraption) {
+        try {
+            // Try to find getRenderedBEs method
+            var method = contraption.getClass().getMethod("getRenderedBEs");
+            Object result = method.invoke(contraption);
+            if (result instanceof java.util.Collection<?> collection) {
+                return (java.util.Collection<BlockEntity>) collection;
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not get rendered block entities: {}", e.getMessage());
+        }
+        return java.util.List.of();
     }
 }
