@@ -12,12 +12,15 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 import com.createlittlecontraptions.rendering.baking.LittleTilesModelBaker;
+import com.createlittlecontraptions.mixins.duck.IContraptionBakedModelCache;
 import com.createlittlecontraptions.util.ContraptionDetector;
 import com.createlittlecontraptions.util.LittleTilesDetector;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import net.minecraft.core.BlockPos;
 
 /**
@@ -265,32 +268,38 @@ public class ContraptionEventHandler {
             if (renderedBEs == null || renderedBEs.isEmpty()) {
                 LOGGER.debug("No rendered block entities found in contraption for baking");
                 return;
-            }
-              int bakedCount = 0;
+            }            int bakedCount = 0;
+            Map<BlockPos, BakedModel> modelCache = new HashMap<>();
+            
             for (BlockEntity blockEntity : renderedBEs) {
                 if (blockEntity == null) continue;
                 
                 // Attempt to bake the model for this block entity
                 Optional<BakedModel> bakedModel = LittleTilesModelBaker.bake(blockEntity);
                 if (bakedModel.isPresent()) {
-                    // TODO: Cache the baked model using Duck Interface in next step
-                    /*
-                    ContraptionModelCache.cacheModel(
-                        contraptionEntity.getUUID(), 
-                        blockEntity.getBlockPos(), 
-                        bakedModel.get()
-                    );
-                    */
+                    // Cache the baked model using Duck Interface
+                    modelCache.put(blockEntity.getBlockPos(), bakedModel.get());
                     bakedCount++;
                     
                     if (eventLoggingEnabled) {
-                        LOGGER.info("Baked model for LittleTiles block at {} - Duck Interface caching will be implemented next", blockEntity.getBlockPos());
+                        LOGGER.info("Baked model for LittleTiles block at {} using Duck Interface", blockEntity.getBlockPos());
                     }
                 }
             }
             
+            // Store the model cache on the contraption using Duck Interface
+            if (!modelCache.isEmpty()) {
+                IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
+                duck.setModelCache(modelCache);
+                
+                if (eventLoggingEnabled) {
+                    LOGGER.info("Stored {} models in Duck Interface cache for contraption {}", 
+                        modelCache.size(), contraptionEntity.getUUID());
+                }
+            }
+            
             if (bakedCount > 0) {
-                LOGGER.info("Successfully baked {} models for contraption {}", 
+                LOGGER.info("Successfully baked {} models for contraption {} using Duck Interface", 
                     bakedCount, contraptionEntity.getUUID());
             }
             
@@ -423,23 +432,22 @@ public class ContraptionEventHandler {
             
             // For now, we'll use a simplified approach since we know this is a LittleTiles position
             // In a full implementation, we would need to get the specific BlockEntity at this position
-            
-            if (eventLoggingEnabled) {
+              if (eventLoggingEnabled) {
                 LOGGER.info("Baking model for LittleTiles block at position {} in contraption {}", 
                     pos, contraptionEntity.getId());
             }
               
-            // TODO: Cache using Duck Interface in next step
-            /*
-            ContraptionModelCache.cacheModel(
-                contraptionEntity.getUUID(),
-                pos,
-                null // This would be the actual baked model
-            );
-            */
+            // Get existing cache or create new one
+            IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
+            Map<BlockPos, BakedModel> modelCache = duck.getModelCache().orElse(new HashMap<>());
+            
+            // For now, cache a placeholder model (null)
+            // In a full implementation, this would be the actual baked model
+            modelCache.put(pos, null);
+            duck.setModelCache(modelCache);
             
             if (eventLoggingEnabled) {
-                LOGGER.info("Model baking placeholder completed for position {} - Duck Interface will be used next", pos);
+                LOGGER.info("Model baking placeholder completed for position {} using Duck Interface", pos);
             }
             
         } catch (Exception e) {
