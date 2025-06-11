@@ -7,7 +7,8 @@
   "mixins": [
     "create.ContraptionMixin"
   ],  "client": [
-    "create.ContraptionRenderInfoMixin"
+    "create.ContraptionRenderInfoMixin",
+    "create.ContraptionEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

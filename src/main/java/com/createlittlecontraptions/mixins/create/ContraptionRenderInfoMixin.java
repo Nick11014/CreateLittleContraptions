@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public abstract class ContraptionRenderInfoMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void onConstructed(CallbackInfo ci) {
         LOGGER.info("CLCLC: ContraptionRenderInfo instance created with contraption: {}", contraption != null ? "present" : "null");
-    }    // DISABLED - Method doesn't exist in current Create version
+    }    // DISABLED - Method doesn't exist in current Create version, trying alternative approach
     /*
     @Redirect(
         method = "Lcom/simibubi/create/content/contraptions/render/ContraptionRenderInfo;buildStructureBuffer(Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;)V",
@@ -53,7 +54,8 @@ public abstract class ContraptionRenderInfoMixin {
             target = "Lnet/minecraft/client/renderer/block/BlockRenderDispatcher;getBlockModel(Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/client/resources/model/BakedModel;"
         ),
         require = 0  // Make this optional in case the method doesn't exist
-    )    private BakedModel onGetBlockModel(BlockRenderDispatcher dispatcher, BlockState state) {
+    )
+    private BakedModel onGetBlockModel(BlockRenderDispatcher dispatcher, BlockState state) {
         LOGGER.info("CLCLC: ContraptionRenderInfoMixin.onGetBlockModel called for block: {}", state.getBlock().getClass().getSimpleName());
         
         try {
@@ -83,4 +85,37 @@ public abstract class ContraptionRenderInfoMixin {
         return dispatcher.getBlockModel(state);
     }
     */
+      /**
+     * Alternative approach: Try to detect when buildStructureBuffer method exists and is called
+     */
+    @Inject(method = "buildStructureBuffer", at = @At("HEAD"), require = 0)
+    private void onBuildStructureBuffer(CallbackInfoReturnable<Object> ci) {
+        try {
+            LOGGER.info("CLCLC: *** buildStructureBuffer intercepted! ***");
+            
+            // Test if we can access our cache
+            IContraptionBakedModelCache duck = (IContraptionBakedModelCache) this.contraption;
+            Optional<Map<BlockPos, BakedModel>> cacheOpt = duck.getModelCache();
+            
+            if (cacheOpt.isPresent() && !cacheOpt.get().isEmpty()) {
+                Map<BlockPos, BakedModel> cache = cacheOpt.get();
+                int contraptionId = System.identityHashCode(contraption);
+                
+                LOGGER.info("CLCLC: *** CONTRAPTION RENDERING WITH {} CACHED MODELS [ID: {}] ***", 
+                           cache.size(), contraptionId);
+                
+                // Count non-placeholder models
+                long customModels = cache.values().stream()
+                    .filter(model -> !model.getClass().getSimpleName().equals("PlaceholderBakedModel"))
+                    .count();
+                
+                if (customModels > 0) {
+                    LOGGER.info("CLCLC: *** {} CUSTOM LITTLETILES MODELS SHOULD BE VISIBLE ***", customModels);
+                }
+            }
+            
+        } catch (Exception e) {
+            LOGGER.error("CLCLC: Error in buildStructureBuffer hook: {}", e.getMessage(), e);
+        }
+    }
 }
