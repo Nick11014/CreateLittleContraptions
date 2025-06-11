@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.createlittlecontraptions.rendering.cache.ContraptionModelCache;
 import com.createlittlecontraptions.util.LittleTilesDetector;
 import com.createlittlecontraptions.util.ContraptionDetector;
 
@@ -57,10 +56,18 @@ public class LittleTilesRenderingLogic {
                 }
                 return;
             }
-            
-            var contraptionEntity = contraptionInfo.get();
+              var contraptionEntity = contraptionInfo.get();
             BlockPos relativePos = ContraptionDetector.getRelativePosition(blockEntity, contraptionEntity);
-              // Step 3: Check if we have a cached BakedModel for this position
+              
+            // TODO: Implement cache lookup using Duck Interface when rendering mixin is ready
+            // For now, just log the detection
+            if (debugMode) {
+                LOGGER.debug("LittleTiles block detected at {} in contraption {} - Duck Interface cache lookup will be implemented in rendering mixin", 
+                    relativePos, contraptionEntity.getUUID());
+            }
+            
+            /*
+            // Step 3: Check if we have a cached BakedModel for this position  
             var cachedModelOpt = ContraptionModelCache.getModel(
                 contraptionEntity.getUUID(), relativePos);
             
@@ -69,8 +76,7 @@ public class LittleTilesRenderingLogic {
                 
                 // Step 4: Use our cached BakedModel instead of normal rendering
                 if (debugMode) {
-                    LOGGER.debug("Using cached BakedModel for LittleTiles block at {} in contraption {}", 
-                        relativePos, contraptionEntity.getUUID());
+                    LOGGER.debug("Using cached BakedModel for LittleTiles block at {} in contraption {}",                        relativePos, contraptionEntity.getUUID());
                 }
                 
                 // Render the cached model
@@ -85,6 +91,7 @@ public class LittleTilesRenderingLogic {
                         relativePos, contraptionEntity.getUUID());
                 }
             }
+            */
             
         } catch (Exception e) {
             // If anything goes wrong, allow normal rendering and log the error

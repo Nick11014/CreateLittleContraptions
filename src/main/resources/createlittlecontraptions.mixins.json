@@ -1,10 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.createlittlecontraptions.mixin",
+  "package": "com.createlittlecontraptions.mixins",
   "compatibilityLevel": "JAVA_21",
   "refmap": "createlittlecontraptions.refmap.json",
   "mixins": [
+    "create.ContraptionMixin"
   ],
   "client": [
   ],
