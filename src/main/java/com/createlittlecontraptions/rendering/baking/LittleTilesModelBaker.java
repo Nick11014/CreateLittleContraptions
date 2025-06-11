@@ -114,6 +114,29 @@ public class LittleTilesModelBaker {
     }
     
     /**
+     * Create a simple placeholder model for LittleTiles blocks.
+     * This is used when actual model baking fails or as a fallback.
+     */
+    public static Optional<BakedModel> createPlaceholderModel() {
+        try {
+            // Create a simple placeholder model with an empty quad list
+            // In a real implementation, this might be a simple cube or other basic shape
+            List<BakedQuad> placeholderQuads = new ArrayList<>();
+            
+            // For now, use an empty model - the presence of the model in the cache
+            // is more important than its actual geometry for this initial implementation
+            BakedModel placeholderModel = new SimpleBakedModel(placeholderQuads);
+            
+            LOGGER.debug("Created placeholder model for LittleTiles block");
+            return Optional.of(placeholderModel);
+            
+        } catch (Exception e) {
+            LOGGER.warn("Failed to create placeholder model: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+    
+    /**
      * Check if a BlockEntity is a LittleTiles block entity.
      */
     private static boolean isLittleTilesBlockEntity(BlockEntity blockEntity) {
@@ -175,31 +198,53 @@ public class LittleTilesModelBaker {
             // Store light coordinates if needed
             return this;
         }
-        
-        @Override
+          @Override
         public VertexConsumer setNormal(float x, float y, float z) {
             currentVertex.nx = x;
             currentVertex.ny = y;
             currentVertex.nz = z;
+            // When normal is set, we consider the vertex complete and add it to our list
+            vertices.add(currentVertex.copy());
+            currentVertex = new VertexData(); // Reset for next vertex
             return this;
         }
         
         public int getVertexCount() {
             return vertices.size();
         }
-        
-        /**
+          /**
          * Generate BakedQuads from captured vertices.
          * Groups vertices into quads (4 vertices each).
          */
         public List<BakedQuad> generateQuads() {
             List<BakedQuad> quads = new ArrayList<>();
             
-            // For now, return empty list as a placeholder
-            // In a full implementation, you would convert vertex data to proper BakedQuads
-            // This requires complex vertex data packing and texture handling
+            // For this initial implementation, create a simple placeholder quad
+            // In a complete implementation, you would convert the captured vertex data into proper BakedQuads
+            // This is a complex process that involves vertex data packing and proper UV/normal handling
+            
+            if (vertices.size() >= 4) {
+                // For now, we'll create a simple cube-like model
+                // This is a placeholder that represents the LittleTiles block
+                quads.addAll(createSimpleCube());
+                
+                LOGGER.debug("Generated {} placeholder quads for LittleTiles block", quads.size());
+            }
             
             return quads;
+        }
+        
+        /**
+         * Create simple cube quads as a placeholder for LittleTiles blocks.
+         */
+        private List<BakedQuad> createSimpleCube() {
+            List<BakedQuad> quads = new ArrayList<>();
+            
+            // This is a simplified approach - in a real implementation you would
+            // convert the actual captured vertex data into proper BakedQuads
+            // For now, we return an empty list as a placeholder
+            
+            return quads; // Placeholder - return empty for now
         }
     }
     

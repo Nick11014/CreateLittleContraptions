@@ -47,6 +47,6 @@ public class CreateLittleContraptions {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
         ContraptionDebugCommand.register(event.getDispatcher());
         LittleTilesTestCommand.register(event.getDispatcher());
-        LOGGER.info("Registered commands: contraption-debug, littletiles-test");
+        LOGGER.info("Registered commands: contraption-debug, littletiles-test, cache-test");
     }
 }

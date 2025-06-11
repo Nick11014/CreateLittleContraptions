@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for detecting if a BlockEntity is part of a Create contraption.
@@ -168,14 +169,38 @@ public class ContraptionDetector {
             return false;
         }
     }
-    
-    /**
+      /**
      * Get contraption data from entity using reflection.
      * Based on proven logic from ContraptionDebugCommand.
      */
     public static Object getContraptionFromEntity(AbstractContraptionEntity entity) {
         try {
-            return entity.getContraption();
+            // First try the standard method
+            Object contraption = entity.getContraption();
+            if (contraption != null) {
+                return contraption;
+            }
+            
+            // If that fails, try reflection to access the field directly
+            String[] possibleContraptionFields = {"contraption", "contraptionInstance", "contraptionData"};
+            
+            for (String fieldName : possibleContraptionFields) {
+                try {
+                    var field = AbstractContraptionEntity.class.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    Object contraptionFromField = field.get(entity);
+                    if (contraptionFromField != null) {
+                        LOGGER.debug("Successfully accessed contraption via reflection field: {}", fieldName);
+                        return contraptionFromField;
+                    }
+                } catch (NoSuchFieldException ignored) {
+                    // Try next field name
+                }
+            }
+            
+            LOGGER.debug("Could not access contraption from entity via any method");
+            return null;
+            
         } catch (Exception e) {
             LOGGER.debug("Error getting contraption from entity: {}", e.getMessage());
         }
@@ -321,10 +346,10 @@ public class ContraptionDetector {
             return "unknown";
         }
     }
-    
-    /**
+      /**
      * Get all LittleTiles positions in a contraption.
      * Returns a list of BlockPos for LittleTiles blocks.
+     * Updated to match the logic used in countLittleTilesInContraption().
      */
     public static List<BlockPos> getLittleTilesPositions(AbstractContraptionEntity contraptionEntity) {
         List<BlockPos> positions = new ArrayList<>();
@@ -333,7 +358,65 @@ public class ContraptionDetector {
             Object contraption = getContraptionFromEntity(contraptionEntity);
             if (contraption == null) return positions;
             
-            // Get positions from block entities (more reliable)
+            // Check both blocks AND block entities (same logic as countLittleTilesInContraption)
+            
+            // 1. Get positions from block data
+            List<BlockPos> blockPositions = getLittleTilesPositionsFromBlocks(contraption);
+            positions.addAll(blockPositions);
+            
+            // 2. Get positions from block entities
+            List<BlockPos> bePositions = getLittleTilesPositionsFromBlockEntities(contraption);
+            positions.addAll(bePositions);
+              // Remove duplicates (in case a position appears in both lists)
+            positions = positions.stream().distinct().collect(Collectors.toList());
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error getting LittleTiles positions: {}", e.getMessage());
+        }
+        
+        return positions;
+    }
+    
+    /**
+     * Get LittleTiles positions from block data in contraption.
+     */
+    private static List<BlockPos> getLittleTilesPositionsFromBlocks(Object contraption) {
+        List<BlockPos> positions = new ArrayList<>();
+        
+        try {
+            Object blocksData = getBlocksFromContraption(contraption);
+            if (blocksData == null) return positions;
+            
+            if (blocksData instanceof Map<?, ?> blocksMap) {
+                for (Map.Entry<?, ?> entry : blocksMap.entrySet()) {
+                    Object blockData = entry.getValue();
+                    if (LittleTilesDetector.isLittleTilesBlockData(blockData)) {
+                        Object pos = entry.getKey();
+                        if (pos instanceof BlockPos blockPos) {
+                            positions.add(blockPos);
+                        }
+                    }
+                }
+            } else if (blocksData instanceof java.util.Collection<?> blocksCollection) {
+                // For collections, we don't have direct position mapping
+                // This case is less common, but we handle it for completeness
+                LOGGER.debug("Block data is a collection - positions may not be available");
+            }
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error getting LittleTiles positions from blocks: {}", e.getMessage());
+        }
+        
+        return positions;
+    }
+    
+    /**
+     * Get LittleTiles positions from block entities in contraption.
+     */
+    private static List<BlockPos> getLittleTilesPositionsFromBlockEntities(Object contraption) {
+        List<BlockPos> positions = new ArrayList<>();
+        
+        try {
             Map<?, ?> blockEntitiesData = getBlockEntitiesFromContraption(contraption);
             if (blockEntitiesData != null) {
                 for (Map.Entry<?, ?> entry : blockEntitiesData.entrySet()) {
@@ -349,7 +432,7 @@ public class ContraptionDetector {
             }
             
         } catch (Exception e) {
-            LOGGER.debug("Error getting LittleTiles positions: {}", e.getMessage());
+            LOGGER.debug("Error getting LittleTiles positions from block entities: {}", e.getMessage());
         }
         
         return positions;

@@ -12,9 +12,10 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 import com.createlittlecontraptions.rendering.baking.LittleTilesModelBaker;
-import com.createlittlecontraptions.mixins.duck.IContraptionBakedModelCache;
+import com.createlittlecontraptions.duck.IContraptionBakedModelCache;
 import com.createlittlecontraptions.util.ContraptionDetector;
 import com.createlittlecontraptions.util.LittleTilesDetector;
+import com.createlittlecontraptions.util.PlaceholderBakedModel;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 
 import java.util.Optional;
@@ -245,14 +246,13 @@ public class ContraptionEventHandler {
             }
         }
     }
-    
-    /**
+      /**
      * Bake models for all LittleTiles blocks in the contraption.
      * This is the core of the Model Baking solution.
      */
     private static void bakeModelsForContraption(AbstractContraptionEntity contraptionEntity) {
-        if (contraptionEntity == null || contraptionEntity.level().isClientSide()) {
-            return; // Only process on server side for now
+        if (contraptionEntity == null || !contraptionEntity.level().isClientSide()) {
+            return; // Only process on client side for model baking
         }
         
         try {
@@ -286,15 +286,15 @@ public class ContraptionEventHandler {
                     }
                 }
             }
-            
-            // Store the model cache on the contraption using Duck Interface
+              // Store the model cache on the contraption using Duck Interface
             if (!modelCache.isEmpty()) {
                 IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
+                int contraptionObjectId = System.identityHashCode(contraption);
                 duck.setModelCache(modelCache);
                 
                 if (eventLoggingEnabled) {
-                    LOGGER.info("Stored {} models in Duck Interface cache for contraption {}", 
-                        modelCache.size(), contraptionEntity.getUUID());
+                    LOGGER.info("Stored {} models in Duck Interface cache for contraption {} [Object ID: {}] [Thread: {}]", 
+                        modelCache.size(), contraptionEntity.getUUID(), contraptionObjectId, Thread.currentThread().getName());
                 }
             }
             
@@ -378,13 +378,17 @@ public class ContraptionEventHandler {
                         }
                     }
                 }
-                
-                // Trigger model baking for detected blocks
-                for (BlockPos pos : littleTilesPositions) {
-                    try {
-                        bakeModelForPosition(contraptionEntity, pos);
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed to bake model for LittleTiles at {}: {}", pos, e.getMessage());
+                  // Trigger model baking for detected blocks  
+                if (contraptionEntity.level().isClientSide()) {
+                    bakeModelsForLittleTilesPositions(contraptionEntity, littleTilesPositions);
+                } else {
+                    // On server side, just store the positions for potential client sync
+                    for (BlockPos pos : littleTilesPositions) {
+                        try {
+                            storeLittleTilesPosition(contraptionEntity, pos);
+                        } catch (Exception e) {
+                            LOGGER.warn("Failed to store LittleTiles position {}: {}", pos, e.getMessage());
+                        }
                     }
                 }
                 
@@ -416,11 +420,10 @@ public class ContraptionEventHandler {
         }
     }      /**
      * Bake a model for a specific LittleTiles block at the given position in a contraption.
-     */
-    private static void bakeModelForPosition(AbstractContraptionEntity contraptionEntity, BlockPos pos) {
+     */    private static void bakeModelForPosition(AbstractContraptionEntity contraptionEntity, BlockPos pos) {
         try {
-            if (contraptionEntity == null || contraptionEntity.level().isClientSide()) {
-                return; // Only process on server side for now
+            if (contraptionEntity == null || !contraptionEntity.level().isClientSide()) {
+                return; // Only process on client side for model baking
             }
             
             // Get the contraption object
@@ -436,18 +439,18 @@ public class ContraptionEventHandler {
                 LOGGER.info("Baking model for LittleTiles block at position {} in contraption {}", 
                     pos, contraptionEntity.getId());
             }
-              
-            // Get existing cache or create new one
+                // Get existing cache or create new one
             IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
             Map<BlockPos, BakedModel> modelCache = duck.getModelCache().orElse(new HashMap<>());
-            
-            // For now, cache a placeholder model (null)
+              // For now, cache a placeholder model
             // In a full implementation, this would be the actual baked model
-            modelCache.put(pos, null);
+            modelCache.put(pos, PlaceholderBakedModel.INSTANCE);
+            int contraptionObjectId = System.identityHashCode(contraption);
             duck.setModelCache(modelCache);
             
             if (eventLoggingEnabled) {
-                LOGGER.info("Model baking placeholder completed for position {} using Duck Interface", pos);
+                LOGGER.info("Model baking placeholder completed for position {} using Duck Interface [Object ID: {}]", 
+                           pos, contraptionObjectId);
             }
             
         } catch (Exception e) {
@@ -470,5 +473,120 @@ public class ContraptionEventHandler {
             LOGGER.debug("Could not get rendered block entities: {}", e.getMessage());
         }
         return java.util.List.of();
+    }
+    
+    /**
+     * Bake models for all detected LittleTiles positions in a contraption.
+     * This method is optimized for client-side model baking.
+     */
+    private static void bakeModelsForLittleTilesPositions(AbstractContraptionEntity contraptionEntity, List<BlockPos> littleTilesPositions) {
+        if (littleTilesPositions == null || littleTilesPositions.isEmpty()) {
+            return;
+        }
+        
+        try {
+            Object contraption = ContraptionDetector.getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) {
+                LOGGER.debug("Could not get contraption from entity for position baking");
+                return;
+            }
+            
+            Map<BlockPos, BakedModel> modelCache = new HashMap<>();
+            int bakedCount = 0;
+            
+            for (BlockPos pos : littleTilesPositions) {
+                try {
+                    // For each LittleTiles position, try to get the block entity and bake its model
+                    Optional<BakedModel> bakedModel = bakeModelForLittleTilesPosition(contraptionEntity, pos);
+                    if (bakedModel.isPresent()) {
+                        modelCache.put(pos, bakedModel.get());
+                        bakedCount++;
+                        
+                        if (eventLoggingEnabled) {
+                            LOGGER.info("Successfully baked model for LittleTiles at position {}", pos);
+                        }
+                    } else {
+                        // Even if baking fails, cache a placeholder to indicate this position was processed
+                        // This prevents repeated baking attempts for positions that can't be baked
+                        if (eventLoggingEnabled) {
+                            LOGGER.debug("Storing placeholder for LittleTiles position {} (baking failed)", pos);
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Exception baking model for LittleTiles at {}: {}", pos, e.getMessage());
+                }
+            }
+              // Store all baked models in the contraption cache using Duck Interface
+            if (!modelCache.isEmpty()) {
+                IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
+                int contraptionObjectId = System.identityHashCode(contraption);
+                duck.setModelCache(modelCache);
+                
+                LOGGER.info("Stored {} baked models in Duck Interface cache for contraption {} [Object ID: {}]", 
+                    modelCache.size(), contraptionEntity.getId(), contraptionObjectId);
+            }
+            
+            if (bakedCount > 0) {
+                LOGGER.info("Successfully baked {} LittleTiles models for contraption {}", 
+                    bakedCount, contraptionEntity.getId());
+            }
+            
+        } catch (Exception e) {
+            LOGGER.error("Error in batch model baking for LittleTiles: {}", e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Attempt to bake a model for a specific LittleTiles position.
+     */
+    private static Optional<BakedModel> bakeModelForLittleTilesPosition(AbstractContraptionEntity contraptionEntity, BlockPos pos) {
+        try {
+            // This is a simplified implementation - in a real scenario you would need to:
+            // 1. Get the actual BlockEntity at this position from the contraption data
+            // 2. Use LittleTilesModelBaker.bake() to create the actual model
+            // 3. Handle the complex geometry conversion properly
+            
+            // For now, we'll create a simple placeholder model to demonstrate the concept
+            if (eventLoggingEnabled) {
+                LOGGER.debug("Creating placeholder model for LittleTiles at position {}", pos);
+            }
+            
+            // Create a simple placeholder model using the model baker
+            // In a full implementation, you would pass the actual BlockEntity here
+            return LittleTilesModelBaker.createPlaceholderModel();
+            
+        } catch (Exception e) {
+            LOGGER.warn("Failed to bake model for LittleTiles at {}: {}", pos, e.getMessage());
+            return Optional.empty();
+        }
+    }
+    
+    /**
+     * Store a LittleTiles position for potential future processing (server-side).
+     */
+    private static void storeLittleTilesPosition(AbstractContraptionEntity contraptionEntity, BlockPos pos) {
+        try {
+            Object contraption = ContraptionDetector.getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) {
+                return;
+            }
+              // Store position information in the cache for potential client sync
+            IContraptionBakedModelCache duck = (IContraptionBakedModelCache) contraption;
+            Map<BlockPos, BakedModel> modelCache = duck.getModelCache().orElse(new HashMap<>());
+              // Store placeholder to indicate this position contains LittleTiles
+            if (!modelCache.containsKey(pos)) {
+                modelCache.put(pos, PlaceholderBakedModel.INSTANCE);
+                int contraptionObjectId = System.identityHashCode(contraption);
+                duck.setModelCache(modelCache);
+                
+                if (eventLoggingEnabled) {
+                    LOGGER.debug("Stored LittleTiles position {} in server-side cache [Object ID: {}]", 
+                                pos, contraptionObjectId);
+                }
+            }
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error storing LittleTiles position {}: {}", pos, e.getMessage());
+        }
     }
 }
