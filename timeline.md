@@ -514,3 +514,10 @@ Sistema de Model Baking está **COMPLETO E OPERACIONAL** com dois hooks compleme
 
 **🚀 STATUS FINAL:**
 O sistema está **COMPLETAMENTE FUNCIONAL** a nível técnico. O hook de renderização está interceptando todas as chamadas, o cache está acessível, e a infraestrutura está 100% operacional. Precisamos apenas conectar a contraption correta com o cache populado para ver o resultado visual final.
+
+## Fase 3: Implementação do Plano Final - Model Swapping Strategy
+
+### **2025-06-11 - Passo 1.1: Refatoração do Hook de Renderização**
+- **AÇÃO:** Deletado o arquivo `ContraptionEntityRendererMixin.java`.
+- **MOTIVO:** Abandonando a abordagem de renderização manual em favor da estratégia de "Model Swapping" que intercepta o momento em que o Create pede o modelo do bloco, sendo mais simples, performática e compatível.
+- **STATUS:** ✅ Concluído - Arquivo deletado com sucesso
