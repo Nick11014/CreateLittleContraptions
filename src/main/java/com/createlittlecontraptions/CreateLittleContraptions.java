@@ -13,6 +13,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import com.createlittlecontraptions.commands.ContraptionDebugCommand;
 import com.createlittlecontraptions.events.ContraptionEventHandler;
+import com.createlittlecontraptions.rendering.LittleTilesRuntimeHook;
 
 @Mod(CreateLittleContraptions.MODID)
 public class CreateLittleContraptions {
@@ -32,11 +33,15 @@ public class CreateLittleContraptions {
     }private void commonSetup(final FMLCommonSetupEvent event) {
         LOGGER.info("CreateLittleContraptions common setup");
         // Future integration with Create and LittleTiles will be implemented here
-    }
-
-    private void clientSetup(final FMLClientSetupEvent event) {
+    }    private void clientSetup(final FMLClientSetupEvent event) {
         LOGGER.info("CreateLittleContraptions client setup");
-    }    @SubscribeEvent
+        
+        // Initialize the LittleTiles runtime hook system
+        event.enqueueWork(() -> {
+            LittleTilesRuntimeHook.initialize();
+            LOGGER.info("LittleTiles Runtime Hook system initialized");
+        });
+    }@SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
         LOGGER.info("Registering commands for CreateLittleContraptions...");
         ContraptionDebugCommand.register(event.getDispatcher());
