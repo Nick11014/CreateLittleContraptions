@@ -493,3 +493,13 @@ Sistema de Model Baking está **COMPLETO E OPERACIONAL** com dois hooks compleme
 - **AÇÃO:** Verificado arquivo `PlaceholderBakedModel.java` existente.
 - **MOTIVO:** O arquivo já existe como uma implementação simples. O `LittleTilesModelBaker` usa uma classe `SimpleBakedModel` interna que é mais adequada para os modelos "assados".
 - **STATUS:** ✅ Concluído - Estrutura atual é adequada para o plano
+
+### **2025-06-11 - Passo 2.1: Correção do Tipo de Dado do Cache**
+- **AÇÃO:** Verificado Duck Interface e ContraptionMixin - já estão usando BakedModel corretamente.
+- **MOTIVO:** O sistema de cache já estava implementado com os tipos corretos (BakedModel em vez de Object).
+- **STATUS:** ✅ Concluído - Tipos já estão corretos
+
+### **2025-06-11 - Passo 2.2: Implementação do Mixin Final de Renderização**
+- **AÇÃO:** Refatorado `ContraptionRenderInfoMixin.java` com implementação do @Redirect para Model Swapping.
+- **MOTIVO:** Implementado o hook principal que intercepta `dispatcher.getBlockModel(state)` e substitui por nosso modelo "assado" quando disponível. Este é o ponto-chave da estratégia Model Swapping.
+- **STATUS:** ✅ Concluído - Hook de renderização implementado com @Redirect funcional
