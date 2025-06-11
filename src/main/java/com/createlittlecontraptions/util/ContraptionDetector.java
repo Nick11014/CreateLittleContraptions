@@ -9,6 +9,12 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import java.util.Optional;
+import net.minecraft.nbt.CompoundTag;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Utility class for detecting if a BlockEntity is part of a Create contraption.
@@ -161,5 +167,191 @@ public class ContraptionDetector {
             LOGGER.debug("Error checking block at position {} in contraption: {}", relativePos, e.getMessage());
             return false;
         }
+    }
+    
+    /**
+     * Get contraption data from entity using reflection.
+     * Based on proven logic from ContraptionDebugCommand.
+     */
+    public static Object getContraptionFromEntity(AbstractContraptionEntity entity) {
+        try {
+            return entity.getContraption();
+        } catch (Exception e) {
+            LOGGER.debug("Error getting contraption from entity: {}", e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Get blocks data from contraption using reflection.
+     * Based on proven logic from ContraptionDebugCommand.
+     */
+    public static Object getBlocksFromContraption(Object contraption) {
+        try {
+            Method getBlocksMethod = contraption.getClass().getMethod("getBlocks");
+            return getBlocksMethod.invoke(contraption);
+        } catch (Exception e) {
+            LOGGER.debug("Error getting blocks from contraption: {}", e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Get block entities data from contraption using reflection.
+     * Based on proven logic from ContraptionDebugCommand.
+     */
+    public static Map<?, ?> getBlockEntitiesFromContraption(Object contraption) {
+        try {
+            // Try different method names that might exist
+            String[] methodNames = {"getBlockEntities", "getStoredBlockData", "getBlockEntityData"};
+            
+            for (String methodName : methodNames) {
+                try {
+                    Method method = contraption.getClass().getMethod(methodName);
+                    Object result = method.invoke(contraption);
+                    if (result instanceof Map<?, ?>) {
+                        return (Map<?, ?>) result;
+                    }
+                } catch (NoSuchMethodException ignored) {
+                    // Try next method name
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Error getting block entities from contraption: {}", e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Count LittleTiles blocks in a contraption using robust detection.
+     * Based on proven logic from ContraptionDebugCommand.
+     */
+    public static int countLittleTilesInContraption(AbstractContraptionEntity contraptionEntity) {
+        try {
+            Object contraption = getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) return 0;
+            
+            // Count from block data
+            int blockCount = countLittleTilesFromBlocks(contraption);
+            
+            // Count from block entities
+            int beCount = countLittleTilesFromBlockEntities(contraption);
+            
+            // Return the higher count (they should be the same, but this ensures we don't miss any)
+            return Math.max(blockCount, beCount);
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error counting LittleTiles in contraption: {}", e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Count LittleTiles blocks from block data in contraption.
+     */
+    private static int countLittleTilesFromBlocks(Object contraption) {
+        try {
+            Object blocksData = getBlocksFromContraption(contraption);
+            if (blocksData == null) return 0;
+            
+            int count = 0;
+            
+            if (blocksData instanceof Map<?, ?> blocksMap) {
+                for (Object blockData : blocksMap.values()) {
+                    if (LittleTilesDetector.isLittleTilesBlockData(blockData)) {
+                        count++;
+                    }
+                }
+            } else if (blocksData instanceof java.util.Collection<?> blocksCollection) {
+                for (Object blockData : blocksCollection) {
+                    if (LittleTilesDetector.isLittleTilesBlockData(blockData)) {
+                        count++;
+                    }
+                }
+            }
+            
+            return count;
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error counting LittleTiles from blocks: {}", e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Count LittleTiles blocks from block entities in contraption.
+     */
+    private static int countLittleTilesFromBlockEntities(Object contraption) {
+        try {
+            Map<?, ?> blockEntitiesData = getBlockEntitiesFromContraption(contraption);
+            if (blockEntitiesData == null) return 0;
+            
+            int count = 0;
+            
+            for (Map.Entry<?, ?> entry : blockEntitiesData.entrySet()) {
+                Object nbtData = entry.getValue();
+                String beType = getBlockEntityType(nbtData);
+                if (beType.toLowerCase().contains("littletiles")) {
+                    count++;
+                }
+            }
+            
+            return count;
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error counting LittleTiles from block entities: {}", e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Get block entity type from NBT data.
+     * Based on proven logic from ContraptionDebugCommand.
+     */
+    private static String getBlockEntityType(Object nbtData) {
+        try {
+            if (nbtData instanceof CompoundTag nbt) {
+                return nbt.getString("id");
+            }
+            // Try reflection if CompoundTag doesn't work directly
+            Method getStringMethod = nbtData.getClass().getMethod("getString", String.class);
+            Object result = getStringMethod.invoke(nbtData, "id");
+            return result != null ? result.toString() : "unknown";
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }
+    
+    /**
+     * Get all LittleTiles positions in a contraption.
+     * Returns a list of BlockPos for LittleTiles blocks.
+     */
+    public static List<BlockPos> getLittleTilesPositions(AbstractContraptionEntity contraptionEntity) {
+        List<BlockPos> positions = new ArrayList<>();
+        
+        try {
+            Object contraption = getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) return positions;
+            
+            // Get positions from block entities (more reliable)
+            Map<?, ?> blockEntitiesData = getBlockEntitiesFromContraption(contraption);
+            if (blockEntitiesData != null) {
+                for (Map.Entry<?, ?> entry : blockEntitiesData.entrySet()) {
+                    Object nbtData = entry.getValue();
+                    String beType = getBlockEntityType(nbtData);
+                    if (beType.toLowerCase().contains("littletiles")) {
+                        Object pos = entry.getKey();
+                        if (pos instanceof BlockPos blockPos) {
+                            positions.add(blockPos);
+                        }
+                    }
+                }
+            }
+            
+        } catch (Exception e) {
+            LOGGER.debug("Error getting LittleTiles positions: {}", e.getMessage());
+        }
+        
+        return positions;
     }
 }

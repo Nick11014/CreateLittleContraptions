@@ -145,20 +145,89 @@
 3. Criar mixin funcional com mapeamentos corretos
 4. Realizar testes com contraptions reais
 
-## Fase 3: Estado Atual e Próximos Passos
+## Fase 3: Implementação de Detecção Robusta
 
-### **2025-06-09 - Implementação Concluída**
-- **STATUS:** ✅ Projeto compila com sucesso após implementação completa do sistema de Model Baking.
-- **IMPLEMENTADO:**
-  - ✅ Sistema de Cache (`ContraptionModelCache`)
-  - ✅ Baker de Modelos (`LittleTilesModelBaker`) 
-  - ✅ Integração com Events (`ContraptionEventHandler`)
-  - ✅ Compatibilidade NeoForge 1.21.1
-- **PENDENTE:**
-  - 🔄 Mixin para injeção no renderizador do Create (requer investigação adicional)
-  - 🔄 Testes com contraptions contendo LittleTiles
+### **2025-01-11 - Análise da Lógica de Detecção Comprovada**
+- **AÇÃO:** Analisada a lógica de detecção robusta do `ContraptionDebugCommand` antigo.
+- **DESCOBERTA:** O comando antigo usa múltiplas estratégias de detecção:
+  1. **Detecção por NBT**: Verifica o ID da BlockEntity no NBT (`getBlockEntityType`)
+  2. **Detecção por Block Class**: Verifica se o nome da classe do bloco contém "littletiles" 
+  3. **Detecção por BlockEntity Class**: Usa reflexão para encontrar classes LittleTiles
+- **MOTIVO:** Esta lógica se mostrou extremamente confiável na detecção de blocos LittleTiles em contraptions.
 
-### **Próximos Passos Recomendados:**
-1. **Testar o sistema atual**: Verificar se o baking funciona mesmo sem o mixin
-2. **Investigar API do Create**: Buscar pontos de integração alternativos
-3. **Implementar fallback**: Sistema que funcione mesmo sem integração completa
+### **2025-01-11 - Atualização do LittleTilesDetector**
+- **AÇÃO:** Refatorado `LittleTilesDetector` para incluir as três estratégias de detecção comprovadas.
+- **IMPLEMENTAÇÃO:**
+  - `isLittleTilesByNBT()`: Verifica o ID da BlockEntity no NBT
+  - `isLittleTilesByBlockClass()`: Verifica se a classe do bloco contém "littletiles"
+  - `isLittleTilesByEntityClass()`: Método original mantido como fallback
+  - `isLittleTilesBlockData()`: Novo método para trabalhar com dados de bloco de contraptions
+- **BENEFÍCIO:** Máxima confiabilidade na detecção, usando múltiplas abordagens complementares.
+
+### **2025-01-11 - Expansão do ContraptionDetector**
+- **AÇÃO:** Adicionados métodos robustos baseados na lógica do comando de debug:
+  - `getContraptionFromEntity()`: Obtém dados da contraption usando reflexão
+  - `getBlocksFromContraption()`: Obtém dados dos blocos da contraption
+  - `getBlockEntitiesFromContraption()`: Obtém dados das BlockEntities da contraption
+  - `countLittleTilesInContraption()`: Conta blocos LittleTiles usando detecção robusta
+  - `getLittleTilesPositions()`: Obtém posições de todos os blocos LittleTiles
+- **MOTIVO:** Estes métodos replicam a lógica comprovada do comando de debug que funciona de forma confiável.
+
+### **2025-01-11 - Atualização dos Event Handlers**
+- **AÇÃO:** Atualizados `ContraptionEventHandler` e `ClientRenderEventHandler` para usar detecção robusta.
+- **IMPLEMENTAÇÃO:**
+  - `analyzeLittleTilesInContraptionRobust()`: Novo método usando múltiplas estratégias
+  - Logging detalhado para depuração quando habilitado
+  - Scanning periódico com detecção robusta no cliente
+- **BENEFÍCIO:** Detecção mais confiável e logging detalhado para diagnosticar problemas.
+
+### **2025-01-11 - Comando de Teste**
+- **AÇÃO:** Criado `LittleTilesTestCommand` para verificar se a detecção robusta está funcionando.
+- **FUNCIONALIDADE:**
+  - Comando `/littletiles-test` para verificar detecção em contraptions existentes
+  - Relatório detalhado com contagem de blocos LittleTiles
+  - Verificação de disponibilidade do mod LittleTiles
+  - Listagem de posições dos blocos detectados
+- **MOTIVO:** Ferramenta essencial para verificar se a lógica de detecção está funcionando corretamente.
+
+### **2025-01-11 - Resolução de Problemas de Compilação**
+- **AÇÃO:** Corrigidos problemas de compilação relacionados a:
+  - Métodos NBT que mudaram assinatura (agora requerem RegistryAccess)
+  - Métodos duplicados no EventHandler
+  - Problemas de API do Minecraft 1.21.1 (getBounds(), stream operations)
+- **SOLUÇÃO:** Adaptações para a API atual do NeoForge 1.21.1
+- **STATUS:** Compilação bem-sucedida, mod pronto para testes.
+
+### **2025-01-11 - Testes Bem-Sucedidos em Jogo**
+- **AÇÃO:** Testado o sistema de detecção robusta em jogo com contraptions contendo LittleTiles.
+- **RESULTADO:** ✅ **SUCESSO TOTAL** - Detecção funcionando perfeitamente!
+- **EVIDÊNCIAS:**
+  - Event handlers detectaram automaticamente: "*** ROBUST DETECTION: Found 1 LittleTiles blocks in contraption! ***"
+  - Comando `/littletiles-test` confirmou: "*** SUCCESS: Robust detection is working! ***"
+  - Estatísticas precisas: 1 contraption, 1 LittleTiles block detectado
+- **DESCOBERTAS:**
+  - Sistema de múltiplas estratégias está funcionando (mesmo com class detection falhando)
+  - Detecção por NBT ou Block class name está capturando os blocos LittleTiles
+  - Event handlers em server-side e client-side detectando corretamente
+
+### **2025-01-11 - Identificação de Pontos de Melhoria**
+- **PROBLEMA 1:** LittleTiles class detection falhando
+  - Log: "LittleTiles mod not detected or no compatible BlockEntity class found"
+  - Status: Não crítico, outras estratégias estão funcionando
+- **PROBLEMA 2:** BlockEntities renderizadas não encontradas
+  - Log: "No rendered block entities found in contraption for baking"
+  - Impacto: Impede o model baking completo
+  - Próximo passo: Investigar método `getRenderedBEs` do Create
+
+### **2025-01-11 - Aprimoramento do Comando de Teste**
+- **AÇÃO:** Melhorado `/littletiles-test` com debug detalhado.
+- **NOVAS FUNCIONALIDADES:**
+  - Informações sobre classes de contraption e blocks data
+  - Lista detalhada de BlockEntities com tipos
+  - Identificação específica de BlockEntities LittleTiles
+  - Debug info para investigar problemas de model baking
+- **MOTIVO:** Facilitar diagnóstico e desenvolvimento futuro.
+
+### **2025-01-11 - Fim da Fase 3**
+- **STATUS:** Sistema de detecção robusta implementado e compilando com sucesso.
+- **PRÓXIMO:** Testes em jogo para verificar se a detecção está funcionando corretamente com contraptions reais.

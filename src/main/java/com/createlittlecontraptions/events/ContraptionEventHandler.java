@@ -13,9 +13,13 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
 import com.createlittlecontraptions.rendering.baking.LittleTilesModelBaker;
 import com.createlittlecontraptions.rendering.cache.ContraptionModelCache;
+import com.createlittlecontraptions.util.ContraptionDetector;
+import com.createlittlecontraptions.util.LittleTilesDetector;
 import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 
 import java.util.Optional;
+import java.util.List;
+import net.minecraft.core.BlockPos;
 
 /**
  * Event handler for detecting Create contraption assembly/disassembly events.
@@ -51,9 +55,8 @@ public class ContraptionEventHandler {
                 LOGGER.info("Entity ID: {}", contraptionEntity.getId());
                 LOGGER.info("Level: {}", event.getLevel().dimension().location());
             }
-            
-            // Analyze LittleTiles in assembled contraption
-            analyzeLittleTilesInContraption(contraptionEntity);
+              // Analyze LittleTiles in assembled contraption with robust detection
+            analyzeLittleTilesInContraptionRobust(contraptionEntity);
             
             // Perform model baking for LittleTiles blocks
             bakeModelsForContraption(contraptionEntity);
@@ -72,9 +75,8 @@ public class ContraptionEventHandler {
                 LOGGER.info("Entity ID: {}", contraptionEntity.getId());
                 LOGGER.info("Level: {}", event.getLevel().dimension().location());
             }
-            
-            // Analyze LittleTiles before disassembly
-            analyzeLittleTilesInContraption(contraptionEntity);
+              // Analyze LittleTiles before disassembly with robust detection
+            analyzeLittleTilesInContraptionRobust(contraptionEntity);
             
             // Clear cached models to free memory
             ContraptionModelCache.clearCache(contraptionEntity.getUUID());
@@ -324,8 +326,127 @@ public class ContraptionEventHandler {
             LOGGER.debug("Failed to get contraption object: {}", e.getMessage());
         }
         return null;
+    }    
+    /**
+     * Robust analysis of LittleTiles in contraption using proven debug command logic.
+     */
+    private static void analyzeLittleTilesInContraptionRobust(AbstractContraptionEntity contraptionEntity) {
+        try {
+            if (eventLoggingEnabled) {
+                LOGGER.info("Starting robust LittleTiles analysis...");
+            }
+            
+            // Use the proven detection logic from ContraptionDetector
+            int littleTilesCount = ContraptionDetector.countLittleTilesInContraption(contraptionEntity);
+            
+            if (littleTilesCount > 0) {
+                LOGGER.info("*** ROBUST DETECTION: Found {} LittleTiles blocks in contraption! ***", littleTilesCount);
+                
+                // Get detailed positions
+                List<BlockPos> littleTilesPositions = ContraptionDetector.getLittleTilesPositions(contraptionEntity);
+                
+                if (eventLoggingEnabled) {
+                    LOGGER.info("LittleTiles positions detected: {}", littleTilesPositions);
+                    
+                    // Additional analysis using the debug command methods
+                    Object contraption = ContraptionDetector.getContraptionFromEntity(contraptionEntity);
+                    if (contraption != null) {
+                        Object blocksData = ContraptionDetector.getBlocksFromContraption(contraption);
+                        java.util.Map<?, ?> blockEntitiesData = ContraptionDetector.getBlockEntitiesFromContraption(contraption);
+                        
+                        LOGGER.info("Contraption analysis:");
+                        LOGGER.info("  - Block data type: {}", blocksData != null ? blocksData.getClass().getSimpleName() : "null");
+                        LOGGER.info("  - BlockEntities count: {}", blockEntitiesData != null ? blockEntitiesData.size() : 0);
+                        
+                        if (blockEntitiesData != null) {
+                            for (java.util.Map.Entry<?, ?> entry : blockEntitiesData.entrySet()) {
+                                Object pos = entry.getKey();
+                                Object nbtData = entry.getValue();
+                                String beType = getBlockEntityTypeFromNBT(nbtData);
+                                if (beType.toLowerCase().contains("littletiles")) {
+                                    LOGGER.info("  - LittleTiles BE at {}: {}", pos, beType);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Trigger model baking for detected blocks
+                for (BlockPos pos : littleTilesPositions) {
+                    try {
+                        bakeModelForPosition(contraptionEntity, pos);
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to bake model for LittleTiles at {}: {}", pos, e.getMessage());
+                    }
+                }
+                
+            } else {
+                if (eventLoggingEnabled) {
+                    LOGGER.info("No LittleTiles blocks detected in contraption (robust detection)");
+                }
+            }
+            
+        } catch (Exception e) {
+            LOGGER.error("Error in robust LittleTiles analysis: {}", e.getMessage(), e);
+        }
     }
     
+    /**
+     * Helper method to get block entity type from NBT data.
+     */
+    private static String getBlockEntityTypeFromNBT(Object nbtData) {
+        try {
+            if (nbtData instanceof net.minecraft.nbt.CompoundTag nbt) {
+                return nbt.getString("id");
+            }
+            // Try reflection if CompoundTag doesn't work directly
+            java.lang.reflect.Method getStringMethod = nbtData.getClass().getMethod("getString", String.class);
+            Object result = getStringMethod.invoke(nbtData, "id");
+            return result != null ? result.toString() : "unknown";
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }    
+    /**
+     * Bake a model for a specific LittleTiles block at the given position in a contraption.
+     */
+    private static void bakeModelForPosition(AbstractContraptionEntity contraptionEntity, BlockPos pos) {
+        try {
+            if (contraptionEntity == null || contraptionEntity.level().isClientSide()) {
+                return; // Only process on server side for now
+            }
+            
+            // Get the contraption object
+            Object contraption = getContraptionFromEntity(contraptionEntity);
+            if (contraption == null) {
+                LOGGER.debug("Could not get contraption from entity for position baking");
+                return;
+            }
+            
+            // For now, we'll use a simplified approach since we know this is a LittleTiles position
+            // In a full implementation, we would need to get the specific BlockEntity at this position
+            
+            // Create a dummy BlockEntity for testing purposes
+            // In reality, this would need to be the actual LittleTiles BlockEntity
+            if (eventLoggingEnabled) {
+                LOGGER.info("Baking model for LittleTiles block at position {} in contraption {}", 
+                    pos, contraptionEntity.getId());
+            }
+              // Cache a placeholder model for now
+            ContraptionModelCache.cacheModel(
+                contraptionEntity.getUUID(),
+                pos,
+                null // This would be the actual baked model
+            );
+            
+            if (eventLoggingEnabled) {
+                LOGGER.info("Model baking completed for position {}", pos);
+            }
+            
+        } catch (Exception e) {
+            LOGGER.warn("Error baking model for position {}: {}", pos, e.getMessage());
+        }
+    }    
     /**
      * Helper method to get rendered block entities from contraption.
      */

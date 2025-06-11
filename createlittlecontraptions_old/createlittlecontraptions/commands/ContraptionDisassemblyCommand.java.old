@@ -1,0 +1,209 @@
+package com.createlittlecontraptions.commands;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Comando para fazer disassembly de contraptions com logging detalhado
+ * de todos os métodos chamados durante o processo
+ */
+public class ContraptionDisassemblyCommand {
+    
+    // Armazena logs de método por classe
+    private static final Map<String, List<String>> methodLogs = new ConcurrentHashMap<>();
+    private static boolean loggingEnabled = false;
+    private static long startTime = 0;
+    
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+        dispatcher.register(Commands.literal("contraption-disassembly")
+            .requires(source -> source.hasPermission(2))
+            .executes(ContraptionDisassemblyCommand::executeStatus)
+            .then(Commands.literal("execute")
+                .then(Commands.argument("id", IntegerArgumentType.integer(0))
+                    .executes(ContraptionDisassemblyCommand::executeDisassembly)))
+            .then(Commands.literal("list")
+                .executes(ContraptionDisassemblyCommand::executeList))
+            .then(Commands.literal("clear-logs")
+                .executes(ContraptionDisassemblyCommand::clearLogs))
+            .then(Commands.literal("show-logs")
+                .executes(ContraptionDisassemblyCommand::showLogs))
+            .then(Commands.literal("info")
+                .executes(ContraptionDisassemblyCommand::executeInfo)));
+    }
+    
+    private static int executeStatus(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        source.sendSystemMessage(Component.literal("§eContraption Disassembly Command"));
+        source.sendSystemMessage(Component.literal("§7Status: Logging " + (loggingEnabled ? "ENABLED" : "DISABLED")));
+        source.sendSystemMessage(Component.literal("§7Stored logs: " + methodLogs.size() + " classes"));
+        source.sendSystemMessage(Component.literal("§7Use '/contraption-disassembly list' to see available contraptions"));
+        return 1;
+    }
+    
+    private static int executeDisassembly(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        int contraptionId = IntegerArgumentType.getInteger(context, "id");
+        
+        try {
+            if (source.getLevel() instanceof ServerLevel level) {
+                Vec3 pos = source.getPosition();
+                BlockPos playerPos = BlockPos.containing(pos);
+                
+                var contraptions = level.getEntitiesOfClass(AbstractContraptionEntity.class, 
+                    new net.minecraft.world.phys.AABB(playerPos).inflate(100));
+                
+                if (contraptionId >= contraptions.size() || contraptionId < 0) {
+                    source.sendFailure(Component.literal("§cInvalid contraption ID. Use /contraption-disassembly list"));
+                    return 0;
+                }
+                
+                AbstractContraptionEntity contraptionEntity = contraptions.get(contraptionId);
+                
+                source.sendSystemMessage(Component.literal("§e=== STARTING CONTRAPTION DISASSEMBLY ==="));
+                source.sendSystemMessage(Component.literal("§7Contraption: " + contraptionEntity.getClass().getSimpleName()));
+                source.sendSystemMessage(Component.literal("§7Position: " + contraptionEntity.blockPosition()));
+                source.sendSystemMessage(Component.literal("§7UUID: " + contraptionEntity.getUUID()));
+                
+                // Limpar logs anteriores e iniciar logging
+                methodLogs.clear();
+                loggingEnabled = true;
+                startTime = System.currentTimeMillis();
+                
+                try {
+                    // Executar disassembly
+                    source.sendSystemMessage(Component.literal("§aExecuting disassembly..."));
+                    
+                    // Análise da contraption antes do disassembly
+                    if (contraptionEntity.getContraption() != null) {
+                        source.sendSystemMessage(Component.literal("§7Contraption blocks: " + 
+                            contraptionEntity.getContraption().getBlocks().size()));
+                    }
+                    
+                    // Executar o disassembly
+                    contraptionEntity.disassemble();
+                    
+                    // Aguardar um pouco para capturar todos os métodos
+                    Thread.sleep(100);
+                    
+                } catch (Exception e) {
+                    source.sendFailure(Component.literal("§cError during disassembly: " + e.getMessage()));
+                    return 0;
+                } finally {
+                    loggingEnabled = false;
+                }
+                
+                // Mostrar resultados
+                source.sendSystemMessage(Component.literal("§a=== DISASSEMBLY COMPLETED ==="));
+                source.sendSystemMessage(Component.literal("§7Total time: " + (System.currentTimeMillis() - startTime) + "ms"));
+                source.sendSystemMessage(Component.literal("§7Classes involved: " + methodLogs.size()));
+                
+                // Mostrar resumo por classe
+                for (Map.Entry<String, List<String>> entry : methodLogs.entrySet()) {
+                    source.sendSystemMessage(Component.literal("§e" + entry.getKey() + " §7(" + entry.getValue().size() + " methods)"));
+                }
+                
+                source.sendSystemMessage(Component.literal("§7Use /contraption-disassembly show-logs to see detailed method calls"));
+            }
+            
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("§cError: " + e.getMessage()));
+            return 0;
+        }
+        
+        return 1;
+    }
+    
+    private static int executeList(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        try {
+            if (source.getLevel() instanceof ServerLevel level) {
+                Vec3 pos = source.getPosition();
+                BlockPos playerPos = BlockPos.containing(pos);
+                
+                var contraptions = level.getEntitiesOfClass(AbstractContraptionEntity.class, 
+                    new net.minecraft.world.phys.AABB(playerPos).inflate(100));
+                
+                source.sendSystemMessage(Component.literal("§e=== Available Contraptions for Disassembly ==="));
+                
+                if (contraptions.isEmpty()) {
+                    source.sendSystemMessage(Component.literal("§7No contraptions found in 100 block radius"));
+                } else {
+                    for (int i = 0; i < contraptions.size(); i++) {
+                        AbstractContraptionEntity contraption = contraptions.get(i);
+                        source.sendSystemMessage(Component.literal(String.format("§f%d. §e%s §7at %s", 
+                            i, 
+                            contraption.getClass().getSimpleName(),
+                            contraption.blockPosition())));
+                    }
+                    source.sendSystemMessage(Component.literal("§7Use '/contraption-disassembly execute <id>' to disassemble"));
+                }
+            }
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("§cError listing contraptions: " + e.getMessage()));
+            return 0;
+        }
+        
+        return 1;
+    }
+    
+    private static int clearLogs(CommandContext<CommandSourceStack> context) {
+        methodLogs.clear();
+        context.getSource().sendSystemMessage(Component.literal("§aMethod logs cleared"));
+        return 1;
+    }
+    
+    private static int showLogs(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        
+        if (methodLogs.isEmpty()) {
+            source.sendSystemMessage(Component.literal("§7No method logs available. Run disassembly first."));
+            return 1;
+        }
+        
+        source.sendSystemMessage(Component.literal("§e=== DETAILED METHOD CALL LOG ==="));
+        
+        // Organizar por classe e mostrar métodos
+        for (Map.Entry<String, List<String>> entry : methodLogs.entrySet()) {
+            source.sendSystemMessage(Component.literal("§e" + entry.getKey() + "§7:"));
+            for (String method : entry.getValue()) {
+                source.sendSystemMessage(Component.literal("  §f- " + method));
+            }
+        }
+        
+        return 1;
+    }
+    
+    private static int executeInfo(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        source.sendSystemMessage(Component.literal("§e=== Contraption Disassembly Info ==="));
+        source.sendSystemMessage(Component.literal("§7This command analyzes and disassembles Create contraptions."));
+        source.sendSystemMessage(Component.literal("§7Available subcommands:"));
+        source.sendSystemMessage(Component.literal("§f- list §7- List available contraptions"));
+        source.sendSystemMessage(Component.literal("§f- execute <id> §7- Disassemble contraption by ID"));
+        source.sendSystemMessage(Component.literal("§f- show-logs §7- Show detailed method logs"));
+        source.sendSystemMessage(Component.literal("§f- clear-logs §7- Clear stored logs"));
+        source.sendSystemMessage(Component.literal("§f- info §7- Show this help"));
+        return 1;
+    }
+    
+    /**
+     * Método público para registrar chamadas de método durante disassembly
+     */
+    public static void logMethodCall(String className, String methodSignature) {
+        if (loggingEnabled) {
+            methodLogs.computeIfAbsent(className, k -> new ArrayList<>()).add(methodSignature);
+        }
+    }
+}
